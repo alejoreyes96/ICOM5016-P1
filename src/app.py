@@ -1,19 +1,27 @@
 from flask import Flask, jsonify, request
 from handler.groupChats import ChatHandler
+from handler.user import UserHandler
 
 
 #Activate
 app = Flask(__name__)
 
 
-@app.route('/')
-def greeting():
-    return 'This is the opening page of the chats app jkwrhgaiun'
+# @app.route('/')
+# def greeting():
+#     return 'This is the opening page of the chats app jkwrhgaiun'
 
-
-@app.route('/register')
+@app.route('/', methods=['POST'])
+@app.route('/register', methods=['POST'])
 def register():
-    return 'This is the route to the registry page'
+    if request.method == 'POST':
+        print("REQUEST: ", request.json)
+        return UserHandler().createNewUser(request.json)
+    else:
+        return jsonify(Error="Method not allowed."), 405
+
+
+#    return 'This is the route to the registry page'
 
 
 @app.route('/groupChats/<userid>', methods=['GET', 'POST'])
