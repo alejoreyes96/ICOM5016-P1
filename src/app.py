@@ -22,7 +22,7 @@ def register():
 
 
 #    return 'This is the route to the registry page'
-
+ 
 
 @app.route('/groupChats/<userid>', methods=['GET', 'POST'])
 def getAllGroupChats(userid):

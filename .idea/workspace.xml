@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="dafc9ec7-9691-4ddd-870f-72b13cc1dee6" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/dao/user.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/handler/user.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/handler/groupChats.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/handler/groupChats.py" afterDir="false" />
-    </list>
+    <list default="true" id="dafc9ec7-9691-4ddd-870f-72b13cc1dee6" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -213,16 +207,15 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1549891317067</updated>
-      <workItem from="1549891336054" duration="3738000" />
+      <workItem from="1549891336054" duration="3984000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="3738000" />
+    <option name="totallyTimeSpent" value="3984000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="67" y="25" width="927" height="925" extended-state="4" />
-    <editor active="true" />
     <layout>
       <window_info id="Favorites" side_tool="true" />
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24631101" />
