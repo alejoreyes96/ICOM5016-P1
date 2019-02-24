@@ -48,3 +48,25 @@ class UserHandler:
                 return jsonify(User=result), 201
             else:
                 return jsonify(Error="Unexpected attributes in post request"), 400
+
+
+    def getUserbyId(self,huname):
+        dao = UserDAO()
+        row = dao.UserDao(huname)
+        if not row:
+            return jsonify(Error="Chat Not Found"), 404
+        else:
+            user = self.build_user_dict(row)
+            return jsonify(User=user)
+
+
+    def getAllUsers(self):
+        dao = UserDAO()
+        users_list = dao.getAllUsers()
+        result_list = []
+        for row in users_list:
+            result = self.build_user_dict(row)
+            result_list.append(result)
+
+        return jsonify(Users=result_list)
+
