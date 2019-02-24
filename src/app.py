@@ -50,9 +50,17 @@ def getGroupChatById(groupChatId):
 
  #   return 'This is group %s : whose name is' % group_name
 
-@app.route('/Profile/<user>')
-def profile(user):
-    return 'Welcome to %s profile page, where you can see which group she is a part of.' % user
+
+@app.route('/Profile/<user_name>', methods=['GET'])
+def getProfileByName(user_name):
+    if request.method == 'GET':
+        return UserHandler.getUserbyId(user_name)
+    elif not request.args:
+        return UserHandler.getAllUsers()
+    else:
+        return jsonify(Error="Method not allowed."), 405
+
+    #return 'Welcome to %s profile page, where you can see which group she is a part of.' % user
 
 
 
