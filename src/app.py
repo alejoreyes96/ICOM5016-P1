@@ -1,17 +1,17 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, redirect, url_for
 from handler.groupChats import ChatHandler
 from handler.user import UserHandler
-
+from handler.message import MessageHandler
 
 #Activate
 app = Flask(__name__)
 
 
-# @app.route('/')
-# def greeting():
-#     return 'This is the opening page of the chats app jkwrhgaiun'
+@app.route('/')
+def greeting():
+    return 'This is the opening page of the chats app jkwrhgaiun'
 
-@app.route('/', methods=['POST'])
+#@app.route('/', methods=['POST'])
 @app.route('/register', methods=['POST'])
 def register():
     if request.method == 'POST':
@@ -22,7 +22,10 @@ def register():
 
 
 #    return 'This is the route to the registry page'
- 
+
+@app.route('/sign-in/<id>')
+def signIn(id):
+    return redirect(url_for('getAllGroupChats', userid = id))
 
 @app.route('/groupChats/<userid>', methods=['GET', 'POST'])
 def getAllGroupChats(userid):

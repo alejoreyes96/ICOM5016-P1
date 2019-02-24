@@ -2,6 +2,7 @@ from flask import jsonify
 from dao.user import UserDAO
 
 class UserHandler:
+
     def build_human_dict(self,row):
         result = {}
         result['huid'] = row[0]
@@ -10,6 +11,16 @@ class UserHandler:
         result['hupassword'] = row[3]
         result['hubirthDate'] = row[4]
         result['huphoneNum'] = row[5]
+        return result
+
+    def build_human_attributes(self, huid, huname, huemail, hupassword, hubirthDate, huphoneNum):
+        result = {}
+        result['huid'] = huid
+        result['huname'] = huname
+        result['huemail'] = huemail
+        result['hupassword'] = hupassword
+        result['hubirthDate'] = hubirthDate
+        result['huphoneNum'] = huphoneNum
         return result
 
     def build_user_dict(self,row):
@@ -30,4 +41,10 @@ class UserHandler:
             hupassword = form['hupasword']
             hubirthDate = form['hubirthDate']
             huphoneNum = form['huphoneNum']
-
+            if huname and huemail and hupassword and hubirthDate and huphoneNum:
+                dao = UserDAO()
+                huid = dao.insert(huname, huemail, hupassword, hubirthDate, huphoneNum)
+                result = self.build_user_attributes(huid, huname, huemail, hupassword, hubirthDate, huphoneNum)
+                return jsonify(User=result), 201
+            else:
+                return jsonify(Error="Unexpected attributes in post request"), 400

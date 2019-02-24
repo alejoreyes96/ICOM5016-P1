@@ -1,8 +1,9 @@
 from flask import jsonify
 class UserDAO:
 
-    def createNewUser(self):
-        return
+    def insert(self, huname, huemail, hupassword, hubirthDate, huphoneNum):
+        huid = 0
+        return huid
 
     def getAllUsers(self):
         return
