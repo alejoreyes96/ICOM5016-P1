@@ -3,9 +3,8 @@ from flask import jsonify
 class UserDAO:
 
     def insert(self, huname, huemail, hupassword, hubirthDate, huphoneNum):
-        huid = 0
+        huid = 3
         return huid
-
 
     def getAllUsers(self):
         result = [[1, 'Crystal', '6', '12/12/2018'], [2, 'Kahlil', '752', '02/23/2019'], [3, 'Alejandro', '1695', '02/24/2019']]
@@ -21,4 +20,21 @@ class UserDAO:
         else:
             result = []
         return result
+
+
+    def delete(self, huid):
+        huid = 1
+        return huid
+
+
+    def update(self, huname, huemail, hupassword, hubirthDate, huphoneNum):
+        huid = 2
+        return huid
+
+
+
+
+
+
+
 

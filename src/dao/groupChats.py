@@ -37,11 +37,13 @@ class GroupChatsDAO:
         return message
 
     def update(self, gid, gname, guserList, gmediaList, gowner):
+        gid = 2
         return gid
 
     def delete(self, gid):
+        gid = 1
         return gid
 
     def insert(self, gname, gcreationDate, guserList, gmediaList, gowner):
-        gid = 0;
+        gid = 4
         return gid
