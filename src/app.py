@@ -1,7 +1,6 @@
 from flask import Flask, jsonify, request, redirect, url_for
 from handler.groupChats import ChatHandler
 from handler.user import UserHandler
-from handler.message import MessageHandler
 
 #Activate
 app = Flask(__name__)
@@ -47,28 +46,29 @@ def getAllGroupChats(userid):
 #    return 'This is the route to the list of groups of user number: %s' % user_id
 
 @app.route('/<userid>/groupChats/Chat/<int:groupChatId>', methods=['GET', 'PUT', 'DELETE'])
-def getGroupChatById(userid,groupChatId):
+def getGroupChatById(userid, groupChatId):
+
     if request.method == 'GET':
-        return ChatHandler().getAllGroupChats(userid)[groupChatId]
+        return ChatHandler().getGroupChatById(groupChatId, userid)
     elif request.method == 'PUT':
         return ChatHandler().updateGroupChat(groupChatId, request.form)
     elif request.method == 'DELETE':
         return ChatHandler().deleteGroupChat(groupChatId)
     else:
-        return ChatHandler().getAllGroupChats(userid)[groupChatId]
+        return ChatHandler().getAllGroupChats(userid)
 
  #   return 'This is group %s : whose name is' % group_name
 #
 @app.route('/<userid>/groupChats/Chat/<int:groupChatId>/messages', methods=['GET', 'PUT', 'DELETE'])
 def getAllMessages(userid, groupChatId):
     if request.method == 'GET':
-        return ChatHandler().getAllGroupChats(userid)[groupChatId]
+        return ChatHandler().getAllMessages(groupChatId, userid)
     elif request.method == 'PUT':
         return ChatHandler().updateGroupChat(groupChatId, request.form)
     elif request.method == 'DELETE':
         return ChatHandler().deleteGroupChat(groupChatId)
     else:
-        return ChatHandler().getAllGroupChats(userid)[groupChatId]
+        return ChatHandler().getAllGroupChats(userid)
 
 @app.route('/Profile/<user_name>', methods=['GET'])
 def getProfileByName(user_name):

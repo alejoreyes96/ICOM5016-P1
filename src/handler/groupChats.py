@@ -3,6 +3,40 @@ from dao.groupChats import GroupChatsDAO
 
 class ChatHandler:
 
+
+    def build_message_dict(self, row):
+        result = {}
+        result['mid'] = row[0]
+        result['muserid'] = row[1]
+        result['muploadDate'] = row[2]
+        result['msize'] = row[3]
+        result['mcontent'] = row[4]
+        result['mgroupid'] = row[5]
+        return result
+
+    def build_reaction_dict(self, row):
+        result = {}
+        result['rid'] = row[0]
+        result['ruserid'] = row[1]
+        result['ruploadDate'] = row[2]
+        result['rlikes'] = row[3]
+        result['rdislikes'] = row[4]
+        result['rgroupid'] = row[5]
+        return result
+
+    def build_picture_dict(self, row):
+        result = {}
+        result['pid'] = row[0]
+        result['psize'] = row[1]
+
+        return result
+    def build_video_dict(self, row):
+        result = {}
+        result['vid'] = row[0]
+        result['vlength'] = row[1]
+        result['vgif'] = row[2]
+        return result
+
     def build_groupChat_dict(self, row):
         result = {}
         result['gid'] = row[0]
@@ -35,14 +69,25 @@ class ChatHandler:
 
         return jsonify(GroupChats=result_list)
 
-    def getGroupChatById(self, gid):
+
+    def getGroupChatById(self, gid, uid):
         dao = GroupChatsDAO()
-        row = dao.getGroupChatById(gid)
+        row = dao.getGroupChatById(gid, uid)
         if not row:
             return jsonify(Error = "Chat Not Found"), 404
         else:
             chat = self.build_groupChat_dict(row)
             return jsonify(Chat = chat)
+
+    def getAllMessages(self, gid, uid):
+        dao = GroupChatsDAO()
+        messages_list = dao.getAllMessages(gid, uid)
+        result_list = []
+        for row in messages_list:
+            result = self.build_message_dict(row)
+            result_list.append(result)
+
+        return jsonify(Messages=result_list)
 
     def createGroupChat(self, form):
         print("form: ", form)
@@ -56,7 +101,7 @@ class ChatHandler:
             gowner = form['gowner']
             if gname and gcreationDate and guserList and gmediaList and gowner:
                 dao = GroupChatsDAO()
-                pid = dao.insert(gname, gcreationDate, guserList, gmediaList, gowner)
+                gid = dao.insert(gname, gcreationDate, guserList, gmediaList, gowner)
                 result = self.build_groupChat_attributes(gid, gname, gcreationDate, guserList, gmediaList, gowner)
                 return jsonify(Part=result), 201
             else:
