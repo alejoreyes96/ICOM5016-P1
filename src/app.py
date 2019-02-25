@@ -70,14 +70,16 @@ def getAllMessages(userid, groupChatId):
     else:
         return ChatHandler().getAllGroupChats(userid)
 
-@app.route('/Profile/<user_name>', methods=['GET'])
-def getProfileByName(user_name):
+@app.route('/Profile/<uname>', methods=['GET'])
+def getProfileByName(uname):
     if request.method == 'GET':
-        return UserHandler.getUserbyId(user_name)
-    elif not request.args:
-        return UserHandler.getAllUsers()
+        if not uname == 'all':
+            return UserHandler.getUserbyId(uname)
+        else:
+            return UserHandler.getAllUsers()
     else:
         return jsonify(Error="Method not allowed."), 405
+
 
     #return 'Welcome to %s profile page, where you can see which group she is a part of.' % user
 
