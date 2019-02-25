@@ -9,25 +9,30 @@ app = Flask(__name__)
 
 @app.route('/')
 def greeting():
-    return 'This is the opening page of the chats app jkwrhgaiun'
+    return 'This is the opening page of the chats app Fast Friends Media!'
 
 #@app.route('/', methods=['POST'])
-@app.route('/register', methods=['POST'])
+@app.route('/register')
 def register():
-    if request.method == 'POST':
-        print("REQUEST: ", request.json)
-        return UserHandler().createNewUser(request.json)
-    else:
-        return jsonify(Error="Method not allowed."), 405
+    return 'Register for the FFM!'
+    # if request.method == 'POST':
+    #     print("REQUEST: ", request.json)
+    #     return UserHandler().createNewUser(request.json)
+    # else:
+    #     return jsonify(Error="Method not allowed."), 405
 
 
 #    return 'This is the route to the registry page'
+
+@app.route('/sign-in')
+def signInPage():
+    return 'This is the sign in page.'
 
 @app.route('/sign-in/<id>')
 def signIn(id):
     return redirect(url_for('getAllGroupChats', userid = id))
 
-@app.route('/groupChats/<userid>', methods=['GET', 'POST'])
+@app.route('/<userid>/groupChats', methods=['GET', 'POST'])
 def getAllGroupChats(userid):
     if request.method == 'POST':
 
@@ -40,19 +45,29 @@ def getAllGroupChats(userid):
             return ChatHandler().searchGroupChats(request.args)
 #    return 'This is the route to the list of groups of user number: %s' % user_id
 
-@app.route('/Chat/<int:groupChatId>', methods=['GET', 'PUT', 'DELETE'])
-def getGroupChatById(groupChatId):
+@app.route('/<userid>/groupChats/Chat/<int:groupChatId>', methods=['GET', 'PUT', 'DELETE'])
+def getGroupChatById(userid,groupChatId):
     if request.method == 'GET':
-        return ChatHandler().getGroupChatById(groupChatId)
+        return ChatHandler().getAllGroupChats(userid)[groupChatId]
     elif request.method == 'PUT':
         return ChatHandler().updateGroupChat(groupChatId, request.form)
     elif request.method == 'DELETE':
         return ChatHandler().deleteGroupChat(groupChatId)
     else:
-        return jsonify(Error="Method not allowed."), 405
+        return ChatHandler().getAllGroupChats(userid)[groupChatId]
 
  #   return 'This is group %s : whose name is' % group_name
-
+#
+@app.route('/<userid>/groupChats/Chat/<int:groupChatId>/messages', methods=['GET', 'PUT', 'DELETE'])
+def getAllMessages(userid, groupChatId):
+    if request.method == 'GET':
+        return ChatHandler().getAllGroupChats(userid)[groupChatId]
+    elif request.method == 'PUT':
+        return ChatHandler().updateGroupChat(groupChatId, request.form)
+    elif request.method == 'DELETE':
+        return ChatHandler().deleteGroupChat(groupChatId)
+    else:
+        return ChatHandler().getAllGroupChats(userid)[groupChatId]
 
 @app.route('/Profile/<user_name>', methods=['GET'])
 def getProfileByName(user_name):
