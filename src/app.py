@@ -70,14 +70,15 @@ def getAllMessages(userid, groupChatId):
     else:
         return ChatHandler().getAllGroupChats(userid)
 
-@app.route('/<uname>/Profile', methods=['GET'])
-def getProfileByName(uname):
+@app.route('/<userid>/Profile', methods=['GET'])
+def getProfile(userid):
     if request.method == 'GET':
-        if not uname == 'all':
-            return UserHandler.getUserbyId(uname)
+        if not userid == 'all':
+            return UserHandler().getUserbyId(userid)
         else:
-            return UserHandler.getAllUsers()
+            return UserHandler().getAllUsers()
     else:
+
         return jsonify(Error="Method not allowed."), 405
 
 

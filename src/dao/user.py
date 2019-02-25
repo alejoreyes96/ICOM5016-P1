@@ -11,12 +11,12 @@ class UserDAO:
         result = [[1, 'Crystal', '6', '12/12/2018'], [2, 'Kahlil', '752', '02/23/2019'], [3, 'Alejandro', '1695', '02/24/2019']]
         return result
 
-    def getUserById(self, uname):
-        if uname == 'Alejandro':
+    def getUserById(self, uid):
+        if uid == 'Alejandro':
             result = [3, 'Alejandro', '1695', '02/24/2019']
-        elif uname == 'Kahlil':
+        elif uid == 'Kahlil':
             result = [2, 'Kahlil', '752', '02/23/2019']
-        elif uname == 'Crystal':
+        elif uid == 'Crystal':
             result = [1, 'Crystal', '6', '12/12/2018']
         else:
             result = []

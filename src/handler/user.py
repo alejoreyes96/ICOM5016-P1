@@ -51,15 +51,15 @@ class UserHandler:
 
 
 
-    def getUserbyId(self, uname):
+    def getUserbyId(self,uid):
         dao = UserDAO()
-        user_list = dao.getUserById(uname)
-        result_list = []
-        for row in user_list:
-            result = self.build_user_dict(row)
-            result_list.append(result)
+        row = dao.getUserById(uid)
+        if not row:
+            return jsonify(Error="User Not Found"), 404
+        else:
+            user = self.build_user_dict(row)
+            return jsonify(User=user)
 
-        return jsonify(User=result_list)
 
     def getAllUsers(self):
         dao = UserDAO()
