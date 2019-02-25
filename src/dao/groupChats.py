@@ -36,14 +36,42 @@ class GroupChatsDAO:
         message = group[4]
         return message
 
-    def update(self, gid, gname, guserList, gmediaList, gowner):
-        gid = 2
-        return gid
+    def getMessageById(self, gid, uid, mid):
+        result = self.getAllMessages(gid, uid)
+        message = []
+        for i in result:
+            if i[0] == mid:
+                message = i
+        return message
+
+    def update(self, gid, userName):
+        result = self.getGroupChatById(gid, userName)
+        result[2] = 'UpdatedUser'
+
+        return result
 
     def delete(self, gid):
-        gid = 1
         return gid
 
     def insert(self, gname, gcreationDate, guserList, gmediaList, gowner):
         gid = 4
         return gid
+
+    def insertMessage(self):
+        mid = 3
+        return mid
+
+    def updateMessage(self, gid, userName, mid):
+        result = self.getMessageById(gid,userName, mid)
+        result[2] = 'updated: 26/2/2019'
+        return result
+
+    def likeMessage(self, gid, uid, mid):
+        result = self.getMessageById(gid,uid, mid)
+        result[2] = 'updateLikes: 26/2/2019'
+        return result
+
+    def dislikeMessage(self, gid, uid, mid):
+        result = self.getMessageById(gid,uid, mid)
+        result[2] = 'updateDislikes: 26/2/2019'
+        return result

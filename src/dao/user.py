@@ -3,7 +3,7 @@ from flask import jsonify
 class UserDAO:
 
     def insert(self, huname, huemail, hupassword, hubirthDate, huphoneNum):
-        huid = 3
+        huid = 4
         return huid
 
     def getAllUsers(self):

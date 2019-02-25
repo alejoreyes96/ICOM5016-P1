@@ -31,20 +31,20 @@ class UserHandler:
         result['urecentLogin'] = row[3]
         return result
 
-    def createNewUser(self, form):
-        print("form: ", form)
-        if len(form) != 4:
-            return jsonify(Error="Malformed post request"), 400
-        else:
-            huname = form['huname']
-            huemail = form['huemail']
-            hupassword = form['hupasword']
-            hubirthDate = form['hubirthDate']
-            huphoneNum = form['huphoneNum']
+    def createNewUser(self, userName, form):
+        # print("form: ", form)
+        # if len(form) != 4:
+        #     return jsonify(Error="Malformed post request"), 400
+        # else:
+            huname = userName
+            huemail = 'John.Doe@gmail.com'
+            hupassword = 'JohnDoe1357'
+            hubirthDate = '27/5/1993'
+            huphoneNum = '787-938-8539'
             if huname and huemail and hupassword and hubirthDate and huphoneNum:
                 dao = UserDAO()
                 huid = dao.insert(huname, huemail, hupassword, hubirthDate, huphoneNum)
-                result = self.build_user_attributes(huid, huname, huemail, hupassword, hubirthDate, huphoneNum)
+                result = self.build_human_attributes(huid, huname, huemail, hupassword, hubirthDate, huphoneNum)
                 return jsonify(User=result), 201
             else:
                 return jsonify(Error="Unexpected attributes in post request"), 400
