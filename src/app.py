@@ -20,13 +20,18 @@ def register():
     # else:
     #     return jsonify(Error="Method not allowed."), 405
 
-
+@app.route('/register/')
+def registerFix():
+    return redirect(url_for('register'))
 #    return 'This is the route to the registry page'
 
 @app.route('/sign-in')
 def signInPage():
     return 'This is the sign in page'
 
+@app.route('/sign-in/')
+def signInPageFix():
+    return redirect(url_for('signInPage'))
 
 @app.route('/sign-in/<id>')
 def signIn(id):
@@ -45,6 +50,10 @@ def getAllGroupChats(userid):
             return ChatHandler().searchGroupChats(request.args)
 #    return 'This is the route to the list of groups of user number: %s' % user_id
 
+@app.route('/<userid>/groupChats/')
+def getAllGroupChatsFix(userid):
+    return redirect(url_for('getAllGroupChats', userid = userid))
+
 @app.route('/<userid>/groupChats/Chat/<int:groupChatId>', methods=['GET', 'PUT', 'DELETE'])
 def getGroupChatById(userid, groupChatId):
 
@@ -59,6 +68,10 @@ def getGroupChatById(userid, groupChatId):
 
  #   return 'This is group %s : whose name is' % group_name
 #
+@app.route('/<userid>/groupChats/Chat/<int:groupChatId>/')
+def getGroupChatByIdFix(userid,groupChatId):
+    return redirect(url_for('getGroupChatById', userid = userid, groupChatId = groupChatId))
+
 @app.route('/<userid>/groupChats/Chat/<int:groupChatId>/messages', methods=['GET', 'PUT', 'DELETE'])
 def getAllMessages(userid, groupChatId):
     if request.method == 'GET':
@@ -69,6 +82,10 @@ def getAllMessages(userid, groupChatId):
         return ChatHandler().deleteGroupChat(groupChatId)
     else:
         return ChatHandler().getAllGroupChats(userid)
+
+@app.route('/<userid>/groupChats/Chat/<int:groupChatId>/messages/')
+def getAllMessagesFix(userid,groupChatId):
+    return redirect(url_for('getAllMessages', userid = userid, groupChatId = groupChatId))
 
 @app.route('/<uname>/Profile', methods=['GET'])
 def getProfileByName(uname):
