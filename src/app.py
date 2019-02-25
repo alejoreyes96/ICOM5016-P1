@@ -23,6 +23,10 @@ def register():
 
 #    return 'This is the route to the registry page'
 
+@app.route('/sign-in')
+def signInPage():
+    return 'This is the sign in page'
+
 @app.route('/sign-in/<id>')
 def signIn(id):
     return redirect(url_for('getAllGroupChats', userid = id))
@@ -64,7 +68,6 @@ def getProfileByName(user_name):
         return jsonify(Error="Method not allowed."), 405
 
     #return 'Welcome to %s profile page, where you can see which group she is a part of.' % user
-
 
 
 
