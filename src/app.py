@@ -1,10 +1,13 @@
 from flask import Flask, jsonify, request, redirect, url_for
 from handler.groupChats import ChatHandler
 from handler.user import UserHandler
+from flask_cors import CORS, cross_origin
+
 
 #Activate
 app = Flask(__name__)
-
+#Apply CORS to app
+CORS(app)
 
 @app.route('/')
 def greeting():

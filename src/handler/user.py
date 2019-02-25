@@ -97,7 +97,7 @@ class UserHandler:
     def deleteuser(self, uid):
         dao = UserDAO()
         if not dao.getUserById(uid):
-            return jsonify(Error="Group Chat not found."), 404
+            return jsonify(Error="User not found."), 404
         else:
             dao.delete(uid)
             return jsonify(DeleteStatus="OK"), 200
