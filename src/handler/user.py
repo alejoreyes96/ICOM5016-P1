@@ -31,6 +31,14 @@ class UserHandler:
         result['urecentLogin'] = row[3]
         return result
 
+    def build_user_attributes(self, uid, uname, unumberPosts, urecentLogin):
+        result = {}
+        result['uid'] = uid
+        result['uname'] = uname
+        result['unumberPosts'] = unumberPosts
+        result['urecentLogin'] = urecentLogin
+        return result
+
     def createNewUser(self, userName, form):
         # print("form: ", form)
         # if len(form) != 4:
@@ -50,26 +58,21 @@ class UserHandler:
                 return jsonify(Error="Unexpected attributes in post request"), 400
 
 
-    def updateNewUser(self,huid, form):
+    def updateUser(self, huid, form):
         dao = UserDAO()
-        if not dao.getGroupChatById(huid):
-            return jsonify(Error="GroupChat not found"), 404
+        if not dao.getUserById(huid):
+            return jsonify(Error="User not found"), 404
         else:
-            if len(form) != 4:
-                return jsonify(Error="Malformed post request"), 400
-            else:
-                huname = form['huname']
-                huemail = form['huemail']
-                hupassword = form['hupasword']
-                hubirthDate = form['hubirthDate']
-                huphoneNum = form['huphoneNum']
-                if huname and huemail and hupassword and hubirthDate and huphoneNum:
-                    dao = UserDAO()
-                    huid = dao.update(huname, huemail, hupassword, hubirthDate, huphoneNum)
-                    result = self.build_user_attributes(huid, huname, huemail, hupassword, hubirthDate, huphoneNum)
+            # if len(form) != 4:
+            #     return jsonify(Error="Malformed post request"), 400
+            # else:
+
+                # if huname and huemail and hupassword and hubirthDate and huphoneNum:
+                    updated = dao.update(huid)
+                    result = self.build_user_attributes(updated[0], updated[1], updated[2], updated[3])
                     return jsonify(User=result), 200
-                else:
-                    return jsonify(Error="Unexpected attributes in post request"), 400
+                # else:
+                #     return jsonify(Error="Unexpected attributes in post request"), 400
 
     def getUserbyId(self,uid):
         dao = UserDAO()

@@ -24,9 +24,6 @@ def regsiterUser(userName):
     else:
         return jsonify(Error="Method not allowed."), 405
 
-# @app.route('/register/')
-# def registerFix():
-#     return redirect(url_for('register'))
 
 @app.route('/sign-in/')
 @app.route('/sign-in')
@@ -106,16 +103,17 @@ def dislikeMedia(userid, groupChatId, messageid):
     return ChatHandler().dislikeMessage(groupChatId, userid, messageid)
 
 
-@app.route('/<userid>/Profile', methods=['GET'])
+@app.route('/<userid>/Profile', methods=['GET', 'PUT'])
 def getProfile(userid):
     if request.method == 'GET':
         if not userid == 'all':
             return UserHandler().getUserbyId(userid)
         else:
             return UserHandler().getAllUsers()
+    elif request.method == 'PUT':
+        return UserHandler().updateUser(userid, request.form)
     else:
         return jsonify(Error="Method not allowed."), 405
-
 
 
 

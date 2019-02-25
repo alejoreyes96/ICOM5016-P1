@@ -27,9 +27,10 @@ class UserDAO:
         return huid
 
 
-    def update(self, huname, huemail, hupassword, hubirthDate, huphoneNum):
-        huid = 2
-        return huid
+    def update(self, uid):
+        result = self.getUserById(uid)
+        result[3] = "UpdateDate 02/26/2019"
+        return result
 
 
 
