@@ -70,7 +70,7 @@ def getAllMessages(userid, groupChatId):
     else:
         return ChatHandler().getAllGroupChats(userid)
 
-@app.route('/Profile/<uname>', methods=['GET'])
+@app.route('/<uname>/Profile', methods=['GET'])
 def getProfileByName(uname):
     if request.method == 'GET':
         if not uname == 'all':
