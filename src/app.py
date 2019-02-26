@@ -16,8 +16,9 @@ def register():
     return 'Register for the FFM!'
     #
 
+@app.route('/register/<userName>/', methods=['POST'])
 @app.route('/register/<userName>', methods=['POST'])
-def regsiterUser(userName):
+def registerUser(userName):
     if request.method == 'POST':
         print("REQUEST: ", request.json)
         return UserHandler().createNewUser(userName, request.json)
@@ -30,11 +31,12 @@ def regsiterUser(userName):
 def signInPage():
     return 'This is the sign in page'
 
-
+@app.route('/sign-in/<id>/')
 @app.route('/sign-in/<id>')
 def signIn(id):
     return redirect(url_for('getAllGroupChats', userid = id))
 
+@app.route('/<userid>/groupChats/', methods=['GET', 'POST'])
 @app.route('/<userid>/groupChats', methods=['GET', 'POST'])
 def getAllGroupChats(userid):
     if request.method == 'POST':
@@ -48,10 +50,7 @@ def getAllGroupChats(userid):
         #     return ChatHandler().searchGroupChats(request.args)
 #    return 'This is the route to the list of groups of user number: %s' % user_id
 
-@app.route('/<userid>/groupChats/')
-def getAllGroupChatsFix(userid):
-    return redirect(url_for('getAllGroupChats', userid = userid))
-
+@app.route('/<userName>/groupChats/Chat/<int:groupChatId>/', methods=['GET', 'PUT', 'DELETE'])
 @app.route('/<userName>/groupChats/Chat/<int:groupChatId>', methods=['GET', 'PUT', 'DELETE'])
 def getGroupChatById(userName, groupChatId):
 
@@ -66,10 +65,8 @@ def getGroupChatById(userName, groupChatId):
 
  #   return 'This is group %s : whose name is' % group_name
 #
-@app.route('/<userid>/groupChats/Chat/<int:groupChatId>/')
-def getGroupChatByIdFix(userid,groupChatId):
-    return redirect(url_for('getGroupChatById', userid = userid, groupChatId = groupChatId))
 
+@app.route('/<userid>/groupChats/Chat/<int:groupChatId>/messages/', methods=['GET', 'POST'])
 @app.route('/<userid>/groupChats/Chat/<int:groupChatId>/messages', methods=['GET', 'POST'])
 def getAllMessages(userid, groupChatId):
 
@@ -82,7 +79,7 @@ def getAllMessages(userid, groupChatId):
         # else:
         #     return ChatHandler().searchGroupChats(request.args)
 
-
+@app.route('/<userid>/groupChats/Chat/<int:groupChatId>/messages/<int:messageid>/', methods=['GET', 'PUT', 'DELETE'])
 @app.route('/<userid>/groupChats/Chat/<int:groupChatId>/messages/<int:messageid>', methods=['GET', 'PUT', 'DELETE'])
 def getMessagesById(userid, groupChatId, messageid):
     if request.method == 'GET':
@@ -94,15 +91,17 @@ def getMessagesById(userid, groupChatId, messageid):
     else:
         return ChatHandler().getAllGroupChats(userid)
 
+@app.route('/<userid>/groupChats/Chat/<int:groupChatId>/messages/<int:messageid>/like/', methods=['PUT'])
 @app.route('/<userid>/groupChats/Chat/<int:groupChatId>/messages/<int:messageid>/like', methods=['PUT'])
 def likeMedia(userid, groupChatId, messageid):
     return ChatHandler().likeMessage(groupChatId, userid, messageid)
 
+@app.route('/<userid>/groupChats/Chat/<int:groupChatId>/messages/<int:messageid>/dislike/', methods=['PUT'])
 @app.route('/<userid>/groupChats/Chat/<int:groupChatId>/messages/<int:messageid>/dislike', methods=['PUT'])
 def dislikeMedia(userid, groupChatId, messageid):
     return ChatHandler().dislikeMessage(groupChatId, userid, messageid)
 
-
+@app.route('/<userid>/Profile/', methods=['GET', 'PUT'])
 @app.route('/<userid>/Profile', methods=['GET', 'PUT'])
 def getProfile(userid):
     if request.method == 'GET':
