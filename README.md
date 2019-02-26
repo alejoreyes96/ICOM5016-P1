@@ -17,6 +17,9 @@ by one user.
 6. Messages(Posts) - Has - Reactions is a many to many relationship, in this case we have that a weak entity which is reactions since 
 these can't exist without a message. Thus this implies total partition must be neeeded from reactions in this relationship.
 7. Messages(Posts) - Videos AND Pictures is a hierarchical relationship since a post can possibly contain videos and pictures but this 
-doesnt imply that it has to contain such things. 
-8. Messages(Posts) - Contains - Hashtags 
-9. Messages(Posts) - Has/Belongs - Replies
+doesnt imply that it has to contain such things. Most of the attributes are then inherited from the Message such as date, size, user id,
+etc.
+8. Messages(Posts) - Contains - Hashtags is a many to many relationship, in which we can see that one message can have many hashtags and 
+one hashtag can be in many messages. 
+9. Messages(Posts) - Has/Belongs - Replies is a one to many relationships since one message can have multiple replies but every reply can 
+only belong to one message. 
