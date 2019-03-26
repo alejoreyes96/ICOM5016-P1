@@ -356,7 +356,7 @@ class ChatHandler:
                 result = self.build_message_attributes(mid, mmessage, mupload_date, msize, mlength, mtype, mpath, mhashtag)
                 return jsonify(Message=result), 201
             else:
-                return jsonify(Error="Unexpected attributes in post request"), 400
+                return jsonify(Error="Malformed Post Request"), 400
 
     def getMessagesFromGroupChatById(self, gid, uid, mid):
         dao = GroupChatsDAO()
@@ -364,8 +364,10 @@ class ChatHandler:
         if not row:
             return jsonify(Error="Message Not Found"), 404
         else:
-            message = self.build_message_dict(row)
-            return jsonify(Message=message)
+            for row in chat_list:
+                result = self.build_groupChats_dict(row)
+                result_map.append(result)
+        return jsonify(GroupChat=result_map), 201
 
     def deleteUserFromGroupChatById(self, userid, userid2, groupchatid):
         usersInGroupChat = UserDAO().getUsersInGroupChatByUserIdAndGroupChatId(userid, groupchatid)
