@@ -1,77 +1,222 @@
-from flask import jsonify
+from config.dbconfig import pg_config
+import psycopg2
+
 class GroupChatsDAO:
 
-    def getAllGroupChats(self, uid):
-        if uid == 'Ale':
-            allGroups = [[1, "Test", "12/2/19", ["Ale", "Kahlil", "Crys"],
-                          [[1, uid, "24/2/2019", "230MB", "sample_video.mp4", 1,["likes: 2500", "dislikes: 30"]],
-                           [2, uid, "24/2/2019", "20MB", "sample_image.jpeg", 2, ["likes: 800", "dislikes: 80"]]], "Ale"],
-                         [2, "Char2", "23/2/19", ["You", "Me", "Us"],
-                          [[1, uid, "24/2/2019", "230MB", "sample_video.mp4", 1, ["likes: 14", "dislikes: 58"]],
-                           [2, uid, "24/2/2019", "20MB", "sample_image.jpeg", 1, ["likes: 140", "dislikes: 51"]]], "Ale"]]
-        elif uid == 'Kahlil':
-            allGroups = [[1, "Chat1", "23/2/19", ["Ale", "Kahlil", "Crys"],
-                          [[1, uid, "24/2/2019", "230MB", "sample_video.mp4", 1, ["likes: 875", "dislikes: 250"]],
-                           [2, uid, "24/2/2019", "20MB", "sample_image.jpeg", 2, ["likes: 1051", "dislikes: 542"]]], "Kahlil"]]
+    # def init(self):
+    connection_url = "user=%s password=%s host=%s port=%s dbname=%s" % (
+    pg_config['user'], pg_config['password'], pg_config['host'],
+    pg_config["port"], pg_config["dbname"])
+    conn = psycopg2.connect(connection_url)
 
-        elif uid == 'Crystal':
-            allGroups = [[1, "Chat1", "24/2/19", ["Ale", "Kahlil", "Crys"],
-                          [[1, uid, "24/2/2019", "230MB", "sample_video.mp4", 1, ["likes: 450", "dislikes: 64"]],
-                           [2, uid, "24/2/2019", "20MB", "sample_image.jpeg", 2, ["likes: 45", "dislikes: 7"]]], "Crystal"]]
-        else:
-            allGroups = []
-        return allGroups
-
-    def getGroupChatById(self, gid, uid):
-        allGroups = self.getAllGroupChats(uid)
+    def getAvailableGroupChatsByUserId(self, userid):
+        cursor = self.conn.cursor()
+        query = 'select gid, gname, gcreation_date, gpicture_id_path, first_name,last_name,users.uid from groupchats \
+          natural inner join ismember natural inner join users inner join Human on human.huid=users.human_id where uid = %s;'
+        cursor.execute(query, (userid,))
         result = []
-        for i in allGroups:
-            for j in i:
-                if i[0] == gid:
-                    result = i
+        for row in cursor:
+            result.append(row)
         return result
 
-    def getAllMessages(self, gid, uid):
-        group = self.getGroupChatById(gid,uid)
-        message = group[4]
-        return message
+    def getAllGroupChats(self):
+        cursor = self.conn.cursor()
+        query = 'select gid, gname,gcreation_date,gpicture_id_path,first_name,last_name,uid from groupChats \
+        inner join human on groupChats.huid=human.huid inner join users on users.human_id=human.huid;'
+        cursor.execute(query)
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
 
-    def getMessageById(self, gid, uid, mid):
-        result = self.getAllMessages(gid, uid)
-        message = []
-        for i in result:
-            if i[0] == mid:
-                message = i
-        return message
+    def getGroupChatById(self, gid):
+        cursor = self.conn.cursor()
+        query = 'select first_name, last_name, gid, gname,gcreation_date,gpicture_id_path, uid \
+                from human natural inner join groupchats inner join users on human.huid=users.human_id \
+                    where gid = ANY(select gid from groupchats inner join Human on \
+                    groupChats.huid=human.huid inner join users on users.human_id=human.huid where gid=%s);'
+        cursor.execute(query, (gid,))
+        result = []
+        result = cursor.fetchone()
+        return result
 
-    def update(self, gid, userName):
-        result = self.getGroupChatById(gid, userName)
-        result[2] = 'UpdatedUser'
+    def updateGroupChat(self, gid, gname, gpicture_id):
+        result = '4/1/19'
+        return result
+
+    def deleteGroupChat(self, gid):
+        result = []
+        return result
+
+    def createGroupChat(self, userid, gname):
+        if (userid == 1 or userid == 2 or userid == 3) and gname == 'Creators':
+            return [1, '3/1/19']
+        elif userid == 1:
+            return [4, '3/1/19']
+        elif (userid == 2 or userid == 3) and gname == 'Bros':
+            return [3, '3/1/19']
+        else:
+            return [5, '3/1/19']
 
         return result
 
-    def delete(self, gid):
-        return gid
+    def addUserToGroupChat(self, uid, groupchatid):
+        result = []
+        if uid == 1:
+            result = [1, 'crystal.torres', '02/25/2019', '03/26/2019']
+        elif uid == 2:
+            result = [2, 'kahlil-14', '02/25/2019', '03/28/2019']
+        elif uid == 3:
+            result = [3, 'alejo', '02/25/2019', '02/27/2019']
+        return result
 
-    def insert(self, gname, gcreationDate, guserList, gmediaList, gowner):
-        gid = 4
-        return gid
+    def deleteGroupChatById(self, userid, groupchatid):
+        result = []
+        return result
 
-    def insertMessage(self):
-        mid = 3
+    def deleteUserFromGroupChat(self, userid, userid2, groupchatid):
+        result = []
+        return result
+
+    def getMessagesByHashtagStringInGroupChat(self, userid, groupchatid, hashtagstring):
+        cursor = self.conn.cursor()
+        query = "select mid,mmessage,mupload_date,msize,mlength,mtype,mmedia_path,hhashtag from users natural \
+                        inner join messages natural inner join contains natural inner join hashtags natural inner join \
+                        posted_to where gid = %s and hhashtag=%s;"
+        cursor.execute(query, (groupchatid, hashtagstring,))
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
+
+    def getMessagesFromGroupChatByUserIdAndGroupChatId(self, userid, groupchatid):
+        cursor = self.conn.cursor()
+        query = "select mid,mmessage,mupload_date,msize,mlength,mtype,mmedia_path,uid from users natural \
+                inner join messages natural inner join posted_to where gid = %s Order By messages.mid;"
+        cursor.execute(query, (groupchatid,))
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
+
+    def getMessageLikesByMessageId(self, messageid):
+        cursor = self.conn.cursor()
+        query = "select messages.mid, count(*) from messages inner join reactions on reactions.mid=messages.mid \
+        where messages.mid=%s and rtype=True Group By messages.mid;"
+        cursor.execute(query, (messageid,))
+        result = cursor.fetchone()
+        return result
+
+    def getMessageDislikesByMessageId(self, messageid):
+        cursor = self.conn.cursor()
+        query = "select messages.mid, count(*) from messages inner join reactions on reactions.mid=messages.mid \
+        where messages.mid=%s and rtype=False Group By messages.mid;"
+        cursor.execute(query, (messageid,))
+        result = cursor.fetchone()
+        return result
+
+    def replyToMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(self, userid, groupchatid, messageid, text):
+        result = []
+        return result
+
+    def insertMessage(self, uid, gid, mmessage, mupload_date, msize, mlength, mtype, mpath, mhashtag):
+        result = []
+        mid = 1
         return mid
 
-    def updateMessage(self, gid, userName, mid):
-        result = self.getMessageById(gid,userName, mid)
-        result[2] = 'updated: 26/2/2019'
+    def getMessageFromGroupChatById(self, uid, gid, mid):
+        cursor = self.conn.cursor()
+        query = "select messages.mid,mmessage,mupload_date,msize,mlength,mtype,mmedia_path,messages.uid\
+         from users natural inner join messages natural inner join posted_to where posted_to.gid=%s\
+        and messages.mid=%s Order by messages.mid;"
+        cursor.execute(query, (gid, mid,))
+        result = cursor.fetchone()
         return result
 
-    def likeMessage(self, gid, uid, mid):
-        result = self.getMessageById(gid,uid, mid)
-        result[2] = 'updateLikes: 26/2/2019'
+
+
+    def getReplyById(self, uid, gid, mid, rpid):
+        cursor = self.conn.cursor()
+        query = "select replies.rpid,rpreply,rpupload_date,hhashtag from messages natural inner join contains \
+            inner join replies on contains.rpid=replies.rpid inner join posted_to on posted_to.mid=messages.mid inner \
+            join hashtags on contains.hid=hashtags.hid where messages.mid=%s and replies.rpid=%s and posted_to.gid=%s;"
+        cursor.execute(query, (mid, rpid, gid,))
+        result = cursor.fetchone()
         return result
 
-    def dislikeMessage(self, gid, uid, mid):
-        result = self.getMessageById(gid,uid, mid)
-        result[2] = 'updateDislikes: 26/2/2019'
+    def getMessageReactionsInGroupChatByUserIdAndGroupChatIdAndMessageId(self, uid, groupchatid, messageid):
+        cursor = self.conn.cursor()
+        query = "select reactions.rtype, reactions.rid, users.uid, user_name, rupload_date, human.first_name, \
+        human.last_name from messages inner join users on users.uid=messages.uid  inner join reactions on \
+        reactions.mid=messages.mid inner join ismember on users.uid=ismember.uid inner join human on \
+        users.human_id=human.huid where messages.mid=%s and ismember.gid=%s;"
+        cursor.execute(query, (messageid, groupchatid,))
+        result = []
+        for row in cursor:
+            result.append(row)
         return result
+
+    def getMessageLikesInGroupChatByUserIdAndGroupChatIdAndMessageId(self, userid, groupchatid, messageid):
+        cursor = self.conn.cursor()
+        query = "select reactions.rtype, reactions.rid, users.uid, user_name, rupload_date, human.first_name, \
+                human.last_name from messages inner join users on users.uid=messages.uid  inner join reactions on \
+                reactions.mid=messages.mid inner join ismember on users.uid=ismember.uid inner join human on \
+                users.human_id=human.huid where messages.mid=%s and ismember.gid=%s and reactions.rtype=true;"
+        cursor.execute(query, (messageid, groupchatid,))
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
+
+    def getMessageDislikesInGroupChatByUserIdAndGroupChatIdAndMessageId(self, userid, groupchatid, messageid):
+        cursor = self.conn.cursor()
+        query = "select reactions.rtype, reactions.rid, users.uid, user_name, rupload_date, human.first_name, \
+                human.last_name from messages inner join users on users.uid=messages.uid  inner join reactions on \
+                reactions.mid=messages.mid inner join ismember on users.uid=ismember.uid inner join human on \
+                users.human_id=human.huid where messages.mid=%s and ismember.gid=%s and reactions.rtype=false;"
+        cursor.execute(query, (messageid, groupchatid,))
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
+
+    def getAllMessages(self):
+        cursor = self.conn.cursor()
+        query = "select messages.mid,mmessage,mupload_date,msize,mlength,mtype,mmedia_path, uid\
+                 from messages;"
+        cursor.execute(query)
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
+
+    def getGroupChatInfoById(self, groupchatid):
+        cursor = self.conn.cursor()
+        query = 'select gid, gname,gcreation_date,gpicture_id_path,first_name,last_name,uid from groupChats \
+                inner join Human on groupChats.huid=human.huid inner join users on users.human_id=human.huid\
+                where groupChats.gid=%s;'
+        cursor.execute(query, (groupchatid,))
+        result = cursor.fetchone()
+        return result
+
+    def getOwnerOfGroupChatById(self, groupchatid):
+        cursor = self.conn.cursor()
+        query = 'select users.uid, user_name, ucreation_date, umost_recent_login, first_name,last_name\
+        from groupChats inner join Human on groupChats.huid=human.huid inner join users on \
+        users.human_id=human.huid where groupChats.gid=%s;'
+        cursor.execute(query, (groupchatid,))
+        result = cursor.fetchone()
+        return result
+
+    # def getRepliesFromMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(self, userid, groupchatid, messageid):
+
+    def updateReply(self, uid, gid, mid, rid, rpreply, rpupload_date, rphashtag):
+        result = []
+        return result
+
+    def deleteReply(self, uid, gid, mid, rid):
+        result = []
+        return result
+
+    def updateMessage(self, uid, gid, mid, mmessage, mupload_date, msize, mlength, mtype, mpath):
+        result = []
