@@ -1,8 +1,8 @@
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request, redirect, url_for
 from handler.groupChats import ChatHandler
 from handler.user import UserHandler
-from handler.statistics import StatsHandler
 from flask_cors import CORS
+from handler.statistics import StatsHandler
 
 #Activate
 app = Flask(__name__)
@@ -52,12 +52,6 @@ def getUserByUserId(userid):
 def getUserInformationByUserId(userid):
     return UserHandler().getUserInformationByUserId(userid)
 
-# View user information by username
-@app.route('/FFMA/users/<string:username>/profile/')
-@app.route('/FFMA/users/<string:username>/profile')
-def getUserInformationByUsername(username):
-    return UserHandler().getUserInformationByUsername(username)
-
 # View user contact information by id
 @app.route('/FFMA/users/<int:userid>/contacts/')
 @app.route('/FFMA/users/<int:userid>/contacts')
@@ -86,6 +80,7 @@ def getAvailableGroupChatsByUserId(userid):
     else:
         return ChatHandler().createGroupChat(userid, request.json)
 
+
 @app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/', methods=['GET', 'PUT', 'DELETE'])
 @app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>', methods=['GET', 'PUT', 'DELETE'])
 def getGroupChatById(userid, groupchatid):
@@ -95,14 +90,6 @@ def getGroupChatById(userid, groupchatid):
         return ChatHandler().deleteGroupChat(groupchatid)
     else:
         return ChatHandler().getGroupChatById(groupchatid)
-
-@app.route('/FFMA/groupChats/<int:groupchatid>/')
-def getGroupChatInfoById(groupchatid):
-    return ChatHandler().getGroupChatInfoById(groupchatid)
-
-@app.route('/FFMA/groupChats/<int:groupchatid>/owner/')
-def getOwnerOfGroupChatById(groupchatid):
-    return ChatHandler().getOwnerOfGroupChatById(groupchatid)
 
 # View messages by hash-tag string
 @app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/hashtags/<string:hashtagstring>/')
@@ -126,11 +113,11 @@ def getMessagesFromGroupChatById(userid, groupchatid, messageid):
     if request.method == 'PUT':
         return ChatHandler().updateMessage(userid, groupchatid, messageid, request.json)
     elif request.method == 'GET':
-        return ChatHandler().getMessagesFromGroupChatById(userid, groupchatid, messageid)
+        return ChatHandler().getMessageFromGroupChatById(userid, groupchatid, messageid)
     else:
         return ChatHandler().deleteMessage(groupchatid, messageid)
 
-# View reactions of a message in a group chat or like it
+# View likes of a message in a group chat or like it
 @app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/reactions/', methods=['GET', 'POST'])
 @app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/reactions', methods=['GET', 'POST'])
 def getMessageReactionsInGroupChatByUserIdAndGroupChatIdAndMessageId(userid, groupchatid, messageid):
@@ -139,20 +126,6 @@ def getMessageReactionsInGroupChatByUserIdAndGroupChatIdAndMessageId(userid, gro
 
     else:
         return ChatHandler().addReaction(userid, groupchatid, messageid, request.json)
-
-# View likes of a message in a group chat or like it
-@app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/reactions/likes/')
-@app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/reactions/likes')
-def getMessageLikesInGroupChatByUserIdAndGroupChatIdAndMessageId(userid, groupchatid, messageid):
-    if request.method == 'GET':
-        return ChatHandler().getMessageLikesInGroupChatByUserIdAndGroupChatIdAndMessageId(userid, groupchatid, messageid)
-
-# View dislikes of a message in a group chat or like it
-@app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/reactions/dislikes/')
-@app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/reactions/dislikes')
-def getMessageDislikesInGroupChatByUserIdAndGroupChatIdAndMessageId(userid, groupchatid, messageid):
-    if request.method == 'GET':
-        return ChatHandler().getMessageDislikesInGroupChatByUserIdAndGroupChatIdAndMessageId(userid, groupchatid, messageid)
 
 @app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/reactions/<int:rid>/',
            methods=['GET', 'PUT', 'DELETE'])
@@ -193,7 +166,7 @@ def getRepliesFromMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(userid, g
     else:
         return ChatHandler().getRepliesFromMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(userid, groupchatid, messageid)
 
-@app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/replies/<int:replyid>/', methods=['GET', 'PUT', 'DELETE'])
+@app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/replies/<int:replyid>', methods=['GET', 'PUT', 'DELETE'])
 @app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/replies/<int:replyid>', methods=['GET', 'PUT', 'DELETE'])
 def getRepliesById(userid, groupchatid, messageid, replyid):
     if request.method == 'PUT':
@@ -220,20 +193,48 @@ def deleteUserFromGroupChatById(userid, userid2, groupchatid):
     else:
         return jsonify(Error="Method not allowed."), 405
 
-@app.route('/FFMA/stats/')
+
+# View likes of a message in a group chat or like it
+@app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/reactions/likes/')
+@app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/reactions/likes')
+def getMessageLikesInGroupChatByUserIdAndGroupChatIdAndMessageId(userid,groupchatid, messageid):
+    if request.method == 'GET':
+        return ChatHandler().getMessageLikesInGroupChatByUserIdGroupChatIdAndMessageId(userid,groupchatid, messageid)
+
+# View dislikes of a message in a group chat or like it
+@app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/reactions/dislikes/')
+@app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/reactions/dislikes')
+def getMessageDislikesInGroupChatByUserIdAndGroupChatIdAndMessageId(userid,groupchatid, messageid):
+    if request.method == 'GET':
+        return ChatHandler().getMessageDislikesInGroupChatByUserIdGroupChatIdAndMessageId(userid,groupchatid, messageid)
+
+@app.route('/FFMA/groupChats/<int:groupchatid>/owner/')
+def getOwnerOfGroupChatById(groupchatid):
+    return UserHandler().getOwnerOfGroupChatById(groupchatid)
+
+@app.route('/FFMA/groupChats/<int:groupchatid>/')
+def getGroupChatInfoById(groupchatid):
+    return ChatHandler().getGroupChatInfoById(groupchatid)
+
+# View user information by username
+@app.route('/FFMA/users/<string:username>/profile/')
+@app.route('/FFMA/users/<string:username>/profile')
+def getUserInformationByUsername(username):
+    return UserHandler().getUserInformationByUsername(username)
+
+@app.route('/FFMA/Stats')
 def getStats():
     return StatsHandler().getAllStats()
 
-@app.route('/FFMA/Stats/Picture/<string:picture_name>/')
-def getStatsForPicture(picture_name):
-    return StatsHandler().getStatsForPicture(picture_name)
+@app.route('/FFMA/Stats/Picture/<string:picture_name>')
+def getStatsForPictures(picture_name):
+    return StatsHandler().getStatsForPictures(picture_name)
 
-
-@app.route('/FFMA/Stats/Hashtags/')
+@app.route('/FFMA/Stats/Hashtags')
 def getStatsForHashtags():
     return StatsHandler().getMostPopularHashtags()
 
-@app.route('/FFMA/Stats/Users/')
+@app.route('/FFMA/Stats/Users')
 def getStatsForUserActivity():
     return StatsHandler().getMostActiveUsers()
 

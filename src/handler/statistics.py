@@ -84,7 +84,7 @@ class StatsHandler:
         return jsonify(Stats=result_map),201
 
 
-    def getStatsForPicture(self,picture_name):
+    def getStatsForPictures(self,picture_name):
         dao = StatsDAO()
         stats = []
         stats.append(dao.getRepliesforPictures(picture_name))

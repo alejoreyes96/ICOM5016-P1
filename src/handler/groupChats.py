@@ -25,18 +25,18 @@ class ChatHandler:
         result['mlength'] = row[4]
         result['mtype'] = row[5]
         result['mpath'] = row[6]
-        result['mmedia_path'] = row[7]
+        result['mhashtag'] = row[7]
         result['uid'] = row[8]
         return result
 
-    def build_message_attributes(self, mid, mmessage, mupload_date, msize, mlength, mtype, mpath, mhashtag):
+    def build_message_attributes(self, mid, mmessage, mupload_date, msize, mlength, mgif, mpath, mhashtag):
         result = {}
         result['mid'] = mid
         result['mmessage'] = mmessage
         result['mupload_date'] = mupload_date
         result['msize'] = msize
         result['mlength'] = mlength
-        result['mtype'] = mtype
+        result['mgif'] = mgif
         result['mpath'] = mpath
         result['mhashtag'] = mhashtag
 
@@ -94,8 +94,8 @@ class ChatHandler:
         result['uid'] = row[2]
         result['user_name'] = row[3]
         result['rupload_date'] = row[4]
-        result['first_name'] = row[5]
-        result['last_name'] = row[6]
+        result['first_name']=row[5]
+        result['last_name']=row[6]
         return result
 
     def build_reactions_attributes(self, rid, rtype, rupload_date):
@@ -155,26 +155,22 @@ class ChatHandler:
         result['last_name'] = row[5]
         return result
 
-    def build_user_attributes(self, uid, uname, ucreationDate, urecentLogin, first_name, last_name):
+    def build_user_attributes(self, uid, uname, ucreationDate, urecentLogin):
         result = {}
         result['uid'] = uid
         result['uname'] = uname
         result['ucreationDate'] = ucreationDate
         result['urecentLogin'] = urecentLogin
-        result['first_name'] = first_name
-        result['last_name'] = last_name
         return result
 
     def build_likes_dict(self, row):
         result = {}
-        result['mid'] = row[0]
-        result['likes'] = row[1]
+        result['likes'] = row[0]
         return result
 
     def build_dislikes_dict(self, row):
         result = {}
-        result['mid'] = row[0]
-        result['dislikes'] = row[1]
+        result['dislikes'] = row[0]
         return result
 
     def getAvailableGroupChatsByUserId(self, userid):
@@ -208,13 +204,14 @@ class ChatHandler:
 
     def getGroupChatById(self, gid):
         dao = GroupChatsDAO()
-        chat = dao.getGroupChatById(gid)
+        chat_list = dao.getGroupChatById(gid)
         result_map = []
-        if not chat:
-            return jsonify(Error="Group chat Not Found"), 404
+        if not chat_list:
+            return jsonify(Error="Message Not Found"), 404
         else:
-            result = self.build_groupChats_dict(chat)
-            result_map.append(result)
+            for row in chat_list:
+                result = self.build_groupChats_dict(row)
+                result_map.append(result)
         return jsonify(GroupChat=result_map), 201
 
     def updateGroupChat(self, gid, json):
@@ -271,6 +268,18 @@ class ChatHandler:
                 result_map.append(self.build_reactions_dict(r))
             return jsonify(Reactions=result_map)
 
+    def getRepliesFromMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(self,userid, groupchatid, messageid):
+        dao = GroupChatsDAO()
+        result = dao.getRepliesFromMessageInGroupChatByUserIdAndGroupChatIdandMessageId(userid, groupchatid, messageid)
+        result_map = []
+        if result is None:
+            return jsonify(Error="Unable to get reactions")
+        else:
+            for r in result:
+                result_map.append(self.build_reactions_dict(r))
+            return jsonify(Reactions=result_map)
+
+
     def addReaction(self, userid, groupchatid, messageid, json):
 
         dao = GroupChatsDAO()
@@ -287,132 +296,37 @@ class ChatHandler:
             else:
                 return jsonify(Error="Unexpected attributes in post request"), 400
 
-    def updateReaction(self, groupchatid, messageid, reactionid, json):
+
+    def getMessageLikesInGroupChatByUserIdGroupChatIdAndMessageId(self,userid,messageid,groupchatid):
         dao = GroupChatsDAO()
-        if not dao.getReactionById(groupchatid, messageid, reactionid):
-            return jsonify(Error="Message not found"), 404
-        else:
-            if len(json) != 2:
-                return jsonify(Error="Malformed update request"), 400
-            else:
-                rtype = json['rtype']
-                rupload_date = json['rupload_date']
-
-                if rtype and rupload_date:
-                    dao.updateReaction(groupchatid, messageid, reactionid, rtype, rupload_date)
-                    result = self.build_reactions_attributes(reactionid, rtype, rupload_date)
-                    return jsonify(Reaction=result), 201
-                else:
-                    return jsonify(Error="Unexpected attributes in post request"), 400
-
-    def deleteReaction(self, groupchatid, messageid, reactionid):
-        dao = GroupChatsDAO()
-        if not dao.getReactionById(groupchatid, messageid, reactionid):
-            return jsonify(Error="Message not found"), 404
-        else:
-            dao.deleteReaction(groupchatid, messageid, reactionid)
-            return jsonify(DeleteStatus="OK"), 200
-
-
-    def getRepliesFromMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(self, userid, groupchatid, messageid):
-        dao = GroupChatsDAO()
-        result = dao.getRepliesFromMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(userid, groupchatid, messageid)
+        result = dao.getMessageLikesInGroupChatByUserIdGroupChatIdAndMessageId(userid,groupchatid, messageid)
         result_map = []
-        for r in result:
-            result_map.append(self.build_reply_dict(r))
-        return jsonify(Reactions=result_map)
-
-    def replyToMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(self, userid, groupchatid, messageid, form):
-
-        dao = GroupChatsDAO()
-        if len(form) != 3:
-            return jsonify(Error="Malformed update request"), 400
+        if result is None:
+            return jsonify(Error="Unable to get reactions")
         else:
-            rpreply = form['rpreply']
-            rpupload_date = form['rpupload_date']
-            rphashtag = form['rphashtag']
+            for r in result:
+                result_map.append(self.build_reactions_dict(r))
+            return jsonify(Reactions=result_map)
 
-            if rpreply and rpupload_date and rphashtag:
-
-                rpid = dao.replyToMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(userid, groupchatid, messageid, rpreply, rpupload_date, rphashtag)
-                result = self.build_reply_attributes(rpid, rpreply, rpupload_date, rphashtag)
-                return jsonify(Reply=result)
-            else:
-                return jsonify(Error="Unexpected attributes in post request"), 400
-
-    def postMessage(self, uid, gid, json):
-
-            mmessage = json['mmessage']
-            mupload_date= json['mupload_date']
-            msize = json['msize']
-            mlength = json['mlength']
-            mtype = json['mtype']
-            mpath = json['mpath']
-            mhashtag = json['mhashtag']
-
-            if mmessage and mupload_date and msize and mlength and mtype and mpath and mhashtag:
-                dao = GroupChatsDAO()
-                mid = dao.insertMessage(uid, gid, mmessage, mupload_date, msize, mlength, mtype, mpath, mhashtag)
-                result = self.build_message_attributes(mid, mmessage, mupload_date, msize, mlength, mtype, mpath, mhashtag)
-                return jsonify(Message=result), 201
-            else:
-                return jsonify(Error="Malformed Post Request"), 400
-
-    def getMessagesFromGroupChatById(self, gid, uid, mid):
+    def getMessageFromGroupChatById(self, gid, uid, mid):
         dao = GroupChatsDAO()
         row = dao.getMessageFromGroupChatById(gid, uid, mid)
         if not row:
             return jsonify(Error="Message Not Found"), 404
         else:
-            for row in chat_list:
-                result = self.build_groupChats_dict(row)
-                result_map.append(result)
-        return jsonify(GroupChat=result_map), 201
+            message = self.build_message_dict(row)
+            return jsonify(Message=message)
 
-    def deleteUserFromGroupChatById(self, userid, userid2, groupchatid):
-        usersInGroupChat = UserDAO().getUsersInGroupChatByUserIdAndGroupChatId(userid, groupchatid)
-        if usersInGroupChat is None or len(usersInGroupChat) == 0:
-            return jsonify(Error="User not found in this group chat and/or group chat does not exist.")
-        else:
-            dao = GroupChatsDAO()
-            dao.deleteUserFromGroupChat(userid, userid2, groupchatid)
-            return jsonify(DeleteStatus="Ok"), 200
-
-    def getReplyById(self, userid, groupchatid, messageid, replyid):
+    def getMessageDislikesInGroupChatByUserIdGroupChatIdAndMessageId(self,userid,messageid,groupchatid):
         dao = GroupChatsDAO()
-        row = dao.getReplyById(userid, groupchatid, messageid, replyid)
-        if not row:
-            return jsonify(Error="Reply Not Found"), 404
+        result = dao.getMessageDislikesInGroupChatByUserIdGroupChatIdAndMessageId(userid,groupchatid, messageid)
+        result_map = []
+        if result is None:
+            return jsonify(Error="Unable to get reactions")
         else:
-            reply = self.build_reply_dict(row)
-            return jsonify(Reply=reply)
-
-    def updateReply(self, userid, groupchatid, messageid, replyid, json):
-        dao = GroupChatsDAO()
-        if not dao.getReplyById(userid, groupchatid, messageid, replyid):
-            return jsonify(Error="Reply Not Found!"), 404
-        else:
-            if len(json) != 3:
-                return jsonify(Error="Malformed update request"), 400
-            else:
-                rpreply = json['rpreply']
-                rpupload_date = json['rpupload_date']
-                rphashtag = json['rphashtag']
-
-                if rpreply and rpupload_date and rphashtag:
-                    dao.updateReply(userid, groupchatid, messageid, replyid, rpreply, rpupload_date, rphashtag)
-                    result = self. build_reply_attributes(replyid, rpreply, rpupload_date, rphashtag)
-                    return jsonify(Reply=result), 200
-                else:
-                    return jsonify(Error="Unexpected attributes in update request"), 400
-
-    def deleteReply(self, userid, groupchatid, messageid, replyid):
-        dao = GroupChatsDAO()
-        if not dao.getReplyById(userid, groupchatid, messageid, replyid):
-            return jsonify(Error="Reply not found."), 404
-        else:
-            dao.deleteReply(userid, groupchatid, messageid, replyid)
-            return jsonify(DeleteStatus="OK"), 200
+            for r in result:
+                result_map.append(self.build_reactions_dict(r))
+            return jsonify(Reactions=result_map)
 
     def getAllMessages(self):
         dao = GroupChatsDAO()
@@ -435,104 +349,6 @@ class ChatHandler:
             for g in groupChats:
                 result_map.append(self.build_groupChats_dict(g))
             return jsonify(GroupChats=result_map)
-
-    def updateMessage(self, gid, uid, mid, json):
-        dao = GroupChatsDAO()
-        if not dao.getMessageById(gid, uid, mid):
-            return jsonify(Error = "Message not found"), 404
-        else:
-            if len(json) != 6:
-                return jsonify(Error="Malformed update request"), 400
-            else:
-                mmessage = json['mmessage']
-                mupload_date = json['mupload_date']
-                msize = json['msize']
-                mlength = json['mlength']
-                mtype = json['mtype']
-                mpath = json['mpath']
-
-                if mmessage and mupload_date and msize and mlength and mtype and mpath:
-                    dao.updateMessage(gid, uid, mid, mmessage, mupload_date, msize, mlength, mtype, mpath)
-                    result = self.build_message_attributes(mid, mmessage, mupload_date, msize, mlength, mtype, mpath)
-                    return jsonify(Message =result), 200
-                else:
-                    return jsonify(Error="Unexpected attributes in update request"), 400
-
-    def deleteMessage(self, gid, mid):
-        dao = GroupChatsDAO()
-        if not dao.getMessageById(gid, mid):
-            return jsonify(Error="Message not found."), 404
-        else:
-            dao.deleteMessage(gid, mid)
-            return jsonify(DeleteStatus="OK"), 200
-
-    def addUserToGroupChat(self, userid, groupchatid, form):
-        if len(form) != 4:
-            return jsonify(Error="Malformed Post Request"), 400
-        else:
-            username = form['username']
-            ucreation_date = form['ucreation_date']
-            urecent_login = form['urecent_login']
-            if username and ucreation_date and urecent_login:
-                dao = GroupChatsDAO()
-                dao.addUserToGroupChat(userid, groupchatid)
-                result = self.build_user_attributes(userid, username, ucreation_date, urecent_login)
-                if result is None:
-                    return jsonify(Error="Unable to add user to group chat")
-                else:
-                    return jsonify(UserAdded=result)
-
-            else:
-                return jsonify(Error="Malformed Post Request"), 400
-
-    def getMessageLikesByMessageId(self, messageid):
-        dao = GroupChatsDAO()
-        row = dao.getMessageLikesByMessageId(messageid)
-        if not row:
-            return jsonify(Error="No Likes found for this message"), 404
-        else:
-            likes = self.build_likes_dict(row)
-            return jsonify(Reaction=likes)
-
-    def getMessageDislikesByMessageId(self, messageid):
-        dao = GroupChatsDAO()
-        row = dao.getMessageDislikesByMessageId(messageid)
-        if not row:
-            return jsonify(Error="No Dislikes found for this message"), 404
-        else:
-            dislikes = self.build_dislikes_dict(row)
-            return jsonify(Reaction=dislikes)
-
-    def getMessageLikesInGroupChatByUserIdAndGroupChatIdAndMessageId(self, userid, groupchatid, messageid):
-        dao = GroupChatsDAO()
-        result = dao.getMessageLikesInGroupChatByUserIdAndGroupChatIdAndMessageId(userid, groupchatid, messageid)
-        result_map = []
-        if result is None:
-            return jsonify(Error="Unable to get reactions")
-        else:
-            for r in result:
-                result_map.append(self.build_reactions_dict(r))
-            return jsonify(Reactions=result_map)
-
-    def getMessageDislikesInGroupChatByUserIdAndGroupChatIdAndMessageId(self, userid, groupchatid, messageid):
-        dao = GroupChatsDAO()
-        result = dao.getMessageDislikesInGroupChatByUserIdAndGroupChatIdAndMessageId(userid, groupchatid, messageid)
-        result_map = []
-        if result is None:
-            return jsonify(Error="Unable to get reactions")
-        else:
-            for r in result:
-                result_map.append(self.build_reactions_dict(r))
-            return jsonify(Reactions=result_map)
-
-    def getOwnerOfGroupChatById(self, groupchatid):
-        dao = GroupChatsDAO()
-        row = dao.getOwnerOfGroupChatById(groupchatid)
-        if not row:
-            return jsonify(Error="Owner not found"), 404
-        else:
-            owner = self.build_user_dict(row)
-            return jsonify(Owner=owner)
 
     def getGroupChatInfoById(self, groupchatid):
         dao = GroupChatsDAO()

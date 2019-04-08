@@ -1,13 +1,13 @@
 import psycopg2
-from config.dbconfig import pg_config
 import datetime as dt
 
 class StatsDAO:
     # def __init__(self):
-    connection_url = "user=%s password=%s host=%s port=%s dbname=%s" % (
-        pg_config['user'], pg_config['password'], pg_config['host'],
-        pg_config["port"], pg_config["dbname"])
-    conn = psycopg2.connect(connection_url)
+    # connection_url = "user=%s password=%s host=%s port=%s dbname=%s" % (pg_config['user'], pg_config['password'],\
+    # pg_config['host'],pg_config["port"], pg_config["dbname"])
+    # conn = psycopg2.connect(connection_url)
+    conn = psycopg2.connect(host='127.0.0.1', database='appdb', user='roxy', password='password')
+
 
     def getAllUserCount(self):
         cursor = self.conn.cursor()
@@ -100,10 +100,11 @@ class StatsDAO:
 
     def getMostActiveUsers(self):
         cursor = self.conn.cursor()
-        query = 'select user_name, uid from users where umost_recent_login=%s limit 3;'
+        query='select user_name, uid from users where umost_recent_login=%s limit 3;'
         date = dt.datetime.now().date().strftime("%m/%d/%Y")
-        cursor.execute(query, (date,))
+        cursor.execute(query,(date,))
         result = []
         for row in cursor:
             result.append(row)
         return result
+

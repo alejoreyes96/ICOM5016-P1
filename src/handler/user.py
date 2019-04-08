@@ -1,4 +1,3 @@
-
 from flask import jsonify
 from dao.user import UserDAO
 
@@ -34,18 +33,16 @@ class UserHandler:
         result['uname'] = row[1]
         result['ucreationDate'] = row[2]
         result['urecentLogin'] = row[3]
-        result['first_name'] = row[4]
-        result['last_name'] = row[5]
+        result['first_name']=row[4]
+        result['last_name']=row[5]
         return result
 
-    def build_user_attributes(self, uid, uname, ucreationDate, urecentLogin, first_name, last_name):
+    def build_user_attributes(self, uid, uname, ucreationDate, urecentLogin):
         result = {}
         result['uid'] = uid
         result['uname'] = uname
         result['ucreationDate'] = ucreationDate
         result['urecentLogin'] = urecentLogin
-        result['first_name'] = first_name
-        result['last_name'] = last_name
         return result
 
     def build_userinfo_dict(self, row):
@@ -126,15 +123,6 @@ class UserHandler:
             result_map = self.build_userinfo_dict(result)
         return jsonify(Users=result_map)
 
-    def getUserInformationByUsername(self, username):
-        dao = UserDAO()
-        result = dao.getUserInformationByUsername(username)
-        if result is None:
-            return jsonify(Error="User doesn't exist!")
-        else:
-            result_map = self.build_userinfo_dict(result)
-        return jsonify(Users=result_map)
-
     def getUserContactsByUserId(self, userid):
         dao = UserDAO()
         user_list = dao.getUserContactsByUserId(userid)
@@ -180,6 +168,24 @@ class UserHandler:
         for r in result:
             result_map.append(self.build_user_dict(r))
         return jsonify(Users=result_map), 201
+
+    def getOwnerOfGroupChatById(self, groupchatid):
+        dao = UserDAO()
+        row = dao.getOwnerOfGroupChatById(groupchatid)
+        if not row:
+            return jsonify(Error="Owner not found"), 404
+        else:
+            owner = self.build_user_dict(row)
+            return jsonify(Owner=owner)
+
+    def getUserInformationByUsername(self, username):
+        dao = UserDAO()
+        result = dao.getUserInformationByUsername(username)
+        if result is None:
+            return jsonify(Error="User doesn't exist!")
+        else:
+            result_map = self.build_userinfo_dict(result)
+        return jsonify(Users=result_map)
 
     # def createNewUser(self, userName, form):
     #     # print("form: ", form)
