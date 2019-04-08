@@ -108,17 +108,21 @@ class ChatHandler:
     def build_reply_dict(self, row):
         result = {}
         result['rpid'] = row[0]
-        result['rpreply'] = row[1]
+        result['rp_reply_text'] = row[1]
         result['rpupload_date'] = row[2]
-        result['rphashtag'] = row[3]
+        result['uid'] = row[3]
+        result['user_name'] = row[4]
+        result['first_name'] = row[5]
+
         return result
 
-    def build_reply_attributes(self, rpid, rpreply, rpupload_date, rphashtag):
+    def build_reply_attributes(self, rpid, rp_reply_text, rpupload_date, mid, uid):
         result = {}
         result['rpid'] = rpid
-        result['rpreply'] = rpreply
         result['rpupload_date'] = rpupload_date
-        result['rphashtag'] = rphashtag
+        result['rp_reply_text'] = rp_reply_text
+        result['mid'] = mid
+        result['uid'] = uid
         return result
 
     # def build_sends_dict(self, row):
@@ -273,11 +277,11 @@ class ChatHandler:
         result = dao.getRepliesFromMessageInGroupChatByUserIdAndGroupChatIdandMessageId(userid, groupchatid, messageid)
         result_map = []
         if result is None:
-            return jsonify(Error="Unable to get reactions")
+            return jsonify(Error="Unable to get replies")
         else:
             for r in result:
-                result_map.append(self.build_reactions_dict(r))
-            return jsonify(Reactions=result_map)
+                result_map.append(self.build_reply_dict(r))
+            return jsonify(Replies=result_map)
 
 
     def addReaction(self, userid, groupchatid, messageid, json):
@@ -297,9 +301,9 @@ class ChatHandler:
                 return jsonify(Error="Unexpected attributes in post request"), 400
 
 
-    def getMessageLikesInGroupChatByUserIdGroupChatIdAndMessageId(self,userid,messageid,groupchatid):
+    def getMessageLikesInGroupChatByUserIdGroupChatIdAndMessageId(self,messageid,groupchatid):
         dao = GroupChatsDAO()
-        result = dao.getMessageLikesInGroupChatByUserIdGroupChatIdAndMessageId(userid,groupchatid, messageid)
+        result = dao.getMessageLikesInGroupChatByUserIdGroupChatIdAndMessageId(groupchatid, messageid)
         result_map = []
         if result is None:
             return jsonify(Error="Unable to get reactions")

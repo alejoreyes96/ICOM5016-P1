@@ -199,7 +199,7 @@ def deleteUserFromGroupChatById(userid, userid2, groupchatid):
 @app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/reactions/likes')
 def getMessageLikesInGroupChatByUserIdAndGroupChatIdAndMessageId(userid,groupchatid, messageid):
     if request.method == 'GET':
-        return ChatHandler().getMessageLikesInGroupChatByUserIdGroupChatIdAndMessageId(userid,groupchatid, messageid)
+        return ChatHandler().getMessageLikesInGroupChatByUserIdGroupChatIdAndMessageId(groupchatid, messageid)
 
 # View dislikes of a message in a group chat or like it
 @app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/reactions/dislikes/')
