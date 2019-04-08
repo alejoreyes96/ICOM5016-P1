@@ -35,6 +35,7 @@ class UserHandler:
         result['urecentLogin'] = row[3]
         result['first_name']=row[4]
         result['last_name']=row[5]
+        result['profile_picture'] = row[6]
         return result
 
     def build_user_attributes(self, uid, uname, ucreationDate, urecentLogin):

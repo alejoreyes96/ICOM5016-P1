@@ -7,7 +7,7 @@ class GroupChatsDAO:
     # connection_url = "user=%s password=%s host=%s port=%s dbname=%s" % (pg_config['user'], pg_config['password'],\
     # pg_config['host'],pg_config["port"], pg_config["dbname"])
     # conn = psycopg2.connect(connection_url)
-    conn = psycopg2.connect(host='127.0.0.1', database='appdb',user='roxy', password='password')
+    conn = psycopg2.connect(host='127.0.0.1', database='chatDB',user='alejoreyes96', password='alejo3579')
 
     def getAvailableGroupChatsByUserId(self, userid):
         cursor = self.conn.cursor()
@@ -104,7 +104,7 @@ class GroupChatsDAO:
     def getMessagesFromGroupChatByUserIdAndGroupChatId(self, userid, groupchatid):
         cursor = self.conn.cursor()
         query = "select mid,mmessage,mupload_date,msize,mlength,mtype,mmedia_path,uid from users natural \
-                inner join messages natural inner join posted_to where gid = %s;"
+                inner join messages natural inner join posted_to where gid = %s order by messages.mid;"
         cursor.execute(query, (groupchatid,))
         result = []
         for row in cursor:
@@ -145,15 +145,6 @@ class GroupChatsDAO:
         result = cursor.fetchone()
         return result
 
-    def getMessagesFromGroupChatByUserIdAndGroupChatId(self, userid, groupchatid):
-        cursor = self.conn.cursor()
-        query = "select messages.mid,mmessage,mupload_date,msize,mlength,mtype,mmedia_path,messages.uid\
-         from users natural inner join messages natural inner join posted_to  where posted_to.gid=%s;"
-        cursor.execute(query, (groupchatid,))
-        result = []
-        for row in cursor:
-            result.append(row)
-        return result
 
     def getReplyById(self, uid, gid, mid, rpid):
         cursor = self.conn.cursor()

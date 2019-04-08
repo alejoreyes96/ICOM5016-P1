@@ -9,7 +9,7 @@ class UserDAO:
     #connection_url = "user=%s password=%s host=%s port=%s dbname=%s" % (pg_config['user'], pg_config['password'],\
     # pg_config['host'],pg_config["port"], pg_config["dbname"])
     #conn = psycopg2.connect(connection_url)
-    conn = psycopg2.connect(host='127.0.0.1',database='appdb',user='roxy',password='password')
+    conn = psycopg2.connect(host='127.0.0.1', database='chatDB',user='alejoreyes96', password='alejo3579')
 
     def registerHuman(self, username, email, password, birth_date, first_name, last_name, phone):
         if username == 'Crystal':
@@ -34,7 +34,7 @@ class UserDAO:
 
     def getAllUsers(self):
         cursor = self.conn.cursor()
-        query = "select uid, user_name, ucreation_date, umost_recent_login,first_name,last_name from \
+        query = "select uid, user_name, ucreation_date, umost_recent_login,first_name,last_name, profile_picture from \
         users inner join human on users.human_id=human.huid;"
         cursor.execute(query)
         result = []
@@ -44,7 +44,7 @@ class UserDAO:
 
     def getUserByUserId(self, userid):
         cursor = self.conn.cursor()
-        query = "select uid, user_name, ucreation_date, umost_recent_login,first_name,last_name from\
+        query = "select uid, user_name, ucreation_date, umost_recent_login,first_name,last_name, profile_picture from\
          users inner join human on users.human_id=human.huid where users.uid = %s;"
         cursor.execute(query, (userid,))
         result = cursor.fetchone()
