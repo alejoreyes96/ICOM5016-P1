@@ -226,6 +226,7 @@ def getUserInformationByUsername(username):
 def getStats():
     return StatsHandler().getAllStats()
 
+
 @app.route('/FFMA/Stats/Picture/<string:picture_name>')
 def getStatsForPictures(picture_name):
     return StatsHandler().getStatsForPictures(picture_name)

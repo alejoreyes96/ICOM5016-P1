@@ -108,3 +108,45 @@ class StatsDAO:
             result.append(row)
         return result
 
+    def getMessagesPerDay(self):
+        cursor = self.conn.cursor()
+        date = dt.datetime.now().strftime("%m/%d/%Y")
+        query = "select mupload_date, count(mupload_date) from messages where mupload_date between '01/01/2017' and %s group by mupload_Date order by mupload_date;"
+        cursor.execute(query,(date,))
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
+
+    def getRepliesPerDay(self):
+        cursor = self.conn.cursor()
+
+        date = dt.datetime.now().strftime("%m/%d/%Y")
+        query = "select rpupload_date, count(rpupload_date) from replies where rpupload_date between '01/01/2017' and %s group by rpupload_date order by rpupload_date;"
+        cursor.execute(query, (date,))
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
+
+    def getLikesPerDay(self):
+        cursor = self.conn.cursor()
+
+        date = dt.datetime.now().strftime("%m/%d/%Y")
+        query = "select rupload_date, count(rupload_date) from reactions where rupload_date between '01/01/2017' and %s and rtype=true group by rupload_Date order by rupload_date;"
+        cursor.execute(query, (date,))
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
+
+    def getDislikesPerDay(self):
+        cursor = self.conn.cursor()
+
+        date = dt.datetime.now().strftime("%m/%d/%Y")
+        query = "select rupload_date, count(rupload_date) from reactions where rupload_date between '01/01/2017' and %s and rtype=false group by rupload_Date order by rupload_date;"
+        cursor.execute(query, (date,))
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
