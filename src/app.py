@@ -199,7 +199,7 @@ def deleteUserFromGroupChatById(userid, userid2, groupchatid):
 @app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/reactions/likes')
 def getMessageLikesInGroupChatByUserIdAndGroupChatIdAndMessageId(userid,groupchatid, messageid):
     if request.method == 'GET':
-        return ChatHandler().getMessageLikesInGroupChatByUserIdGroupChatIdAndMessageId(userid,groupchatid, messageid)
+        return ChatHandler().getMessageLikesInGroupChatByUserIdGroupChatIdAndMessageId(groupchatid, messageid)
 
 # View dislikes of a message in a group chat or like it
 @app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/reactions/dislikes/')
@@ -227,6 +227,7 @@ def getStats():
     return StatsHandler().getAllStats()
 
 @app.route('/FFMA/Stats/Picture/<string:picture_name>/')
+
 def getStatsForPictures(picture_name):
     return StatsHandler().getStatsForPictures(picture_name)
 
@@ -237,6 +238,10 @@ def getStatsForHashtags():
 @app.route('/FFMA/Stats/Users/')
 def getStatsForUserActivity():
     return StatsHandler().getMostActiveUsers()
+
+@app.route('/FFMA/messages/days/')
+def getMessagesPerDay():
+    return ChatHandler().getMessagesPerDay()
 
 if __name__ == '__main__':
     app.run(debug=True)

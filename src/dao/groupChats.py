@@ -155,21 +155,25 @@ class GroupChatsDAO:
         result = cursor.fetchone()
         return result
 
-    def getRepliesFromMessageInGroupChatByUserIdAndGroupChatIdandMessageId(self, uid, gid, mid, rpid):
+    def getRepliesFromMessageInGroupChatByUserIdAndGroupChatIdandMessageId(self, uid, gid, mid):
         cursor = self.conn.cursor()
-        query = "select replies.rpid,rp_reply_text,rpupload_date from messages\
-        inner join replies on messages.mid=replies.mid inner join posted_to on posted_to.mid=messages.mid \
+        query = "select distinct replies.rpid,rp_reply_text,rpupload_date, users.uid, user_name, human.first_name from messages \
+        inner join replies on messages.mid=replies.mid inner join users on users.uid=replies.uid   \
+        inner join ismember on users.uid=ismember.uid inner join human on  \
+        users.human_id=human.huid inner join posted_to on posted_to.mid=messages.mid  \
          where messages.mid=%s and posted_to.gid=%s;"
-        cursor.execute(query, (mid,gid,rpid,))
-        result = cursor.fetchone()
+        cursor.execute(query, (mid,gid,))
+        result = []
+        for row in cursor:
+            result.append(row)
         return result
 
-    def getMessageReactionsInGroupChatByUserIdAndGroupChatIdAndMessageId(self, uid, groupchatid, messageid):
+    def getMessageReactionsInGroupChatByUserIdAndGroupChatIdAndMessageId(self,groupchatid, messageid):
         cursor = self.conn.cursor()
         query = "select reactions.rtype, reactions.rid, users.uid, user_name, rupload_date, human.first_name, \
-        human.last_name from messages inner join users on users.uid=messages.uid  inner join reactions on \
-        reactions.mid=messages.mid inner join ismember on users.uid=ismember.uid inner join human on \
-        users.human_id=human.huid where messages.mid=%s and ismember.gid=%s;"
+        human.last_name from messages inner join reactions on \
+        reactions.mid=messages.mid inner join users on users.uid=reactions.uid   inner join ismember on users.uid=ismember.uid inner join human on \
+        users.human_id=human.huid  where messages.mid=%s and ismember.gid=%s;"
         cursor.execute(query, (groupchatid, messageid,))
         result = []
         for row in cursor:
@@ -186,12 +190,12 @@ class GroupChatsDAO:
             result.append(row)
         return result
 
-    def getMessageLikesInGroupChatByUserIdGroupChatIdAndMessageId(self,userid,messageid,groupchatid):
+    def getMessageLikesInGroupChatByUserIdGroupChatIdAndMessageId(self,messageid,groupchatid):
         cursor = self.conn.cursor()
         query = "select reactions.rtype, reactions.rid, users.uid, user_name, rupload_date, human.first_name, \
-        human.last_name from messages inner join users on users.uid=messages.uid  inner join reactions on \
-        reactions.mid=messages.mid inner join ismember on users.uid=ismember.uid inner join human on \
-        users.human_id=human.huid where messages.mid=%s and ismember.gid=%s and reactions.rtype=true;"
+        human.last_name from messages inner join reactions on \
+        reactions.mid=messages.mid inner join users on users.uid=reactions.uid   inner join ismember on users.uid=ismember.uid inner join human on \
+        users.human_id=human.huid  where messages.mid=%s and ismember.gid=%s and reactions.rtype=true;"
         cursor.execute(query,(messageid,groupchatid,))
         result = []
         for row in cursor:
@@ -201,9 +205,9 @@ class GroupChatsDAO:
     def getMessageDislikesInGroupChatByUserIdGroupChatIdAndMessageId(self,userid,messageid,groupchatid):
         cursor = self.conn.cursor()
         query = "select reactions.rtype, reactions.rid, users.uid, user_name, rupload_date, human.first_name, \
-        human.last_name from messages inner join users on users.uid=messages.uid  inner join reactions on \
-        reactions.mid=messages.mid inner join ismember on users.uid=ismember.uid inner join human on \
-        users.human_id=human.huid where messages.mid=%s and ismember.gid=%s and reactions.rtype=false;"
+        human.last_name from messages inner join reactions on \
+        reactions.mid=messages.mid inner join users on users.uid=reactions.uid   inner join ismember on users.uid=ismember.uid inner join human on \
+        users.human_id=human.huid  where messages.mid=%s and ismember.gid=%s and reactions.rtype=false;"
         cursor.execute(query,(messageid,groupchatid,))
         result = []
         for row in cursor:

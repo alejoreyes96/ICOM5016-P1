@@ -52,7 +52,7 @@ class UserDAO:
 
     def getUserInformationByUserId(self, userid):
         cursor = self.conn.cursor()
-        query = "select human.huid, first_name,last_name,birthdate,huemail,phone_number,users.uid,user_name,\
+        query = "select human.huid, profile_picture, first_name,last_name,birthdate,huemail,phone_number,users.uid,user_name,\
         ucreation_date, umost_recent_login from human inner join users on human.huid=users.human_id where users.uid=%s;"
         cursor.execute(query, (userid,))
         result = cursor.fetchone()
@@ -60,7 +60,7 @@ class UserDAO:
 
     def getUserInformationByUsername(self, username):
         cursor = self.conn.cursor()
-        query = "select human.huid, first_name,last_name,birthdate,huemail,phone_number,users.uid,user_name,\
+        query = "select human.huid,  profile_picture, first_name,last_name,birthdate,huemail,phone_number,users.uid,user_name,\
         ucreation_date, umost_recent_login from human inner join users on human.huid=users.human where users.user_name=%s;"
         cursor.execute(query, (username,))
         result = cursor.fetchone()
@@ -68,7 +68,7 @@ class UserDAO:
 
     def getUserContactsByUserId(self, userid):
         cursor = self.conn.cursor()
-        query = "select users.uid, user_name, ucreation_date, umost_recent_login, first_name,last_name from friends \
+        query = "select users.uid,  profile_picture, user_name, ucreation_date, umost_recent_login, first_name,last_name from friends \
                  inner join users on friends.fuid = users.uid inner join human on users.human_id=human.huid where\
                  friends.uid =%s;"
         cursor.execute(query,(userid,))
@@ -79,7 +79,7 @@ class UserDAO:
 
     def getUserByUsername(self, username):
         cursor = self.conn.cursor()
-        query = "select uid, user_name, ucreation_date, umost_recent_login,first_name,last_name from users\
+        query = "select uid, user_name,  profile_picture, ucreation_date, umost_recent_login,first_name,last_name from users\
          inner join human on users.human_id=human.huid where users.user_name = %s;"
         cursor.execute(query, (username,))
         result = cursor.fetchone()
@@ -87,7 +87,7 @@ class UserDAO:
 
     def getUserContactsByUsername(self, username):
         cursor = self.conn.cursor()
-        query = "select users.uid, user_name, ucreation_date, umost_recent_login, first_name,last_name from friends \
+        query = "select users.uid,  profile_picture, user_name, ucreation_date, umost_recent_login, first_name,last_name from friends \
                 inner join users on friends.fuid = users.uid inner join human on users.human_id=human.huid \
                 where friends.uid = (select uid from users where user_name = %s);"
         cursor.execute(query, (username,))
@@ -108,9 +108,9 @@ class UserDAO:
 
     def getUsersInGroupChatByUserIdAndGroupChatId(self, userid, groupchatid):
         cursor = self.conn.cursor()
-        query = "select uid, user_name,ucreation_date,umost_recent_login,first_name,last_name from ismember \
-                 natural inner join users inner join human on human.huid=users.human_id where gid = %s AND uid != %s;"
-        cursor.execute(query, (groupchatid,userid,))
+        query = "select uid, user_name,  profile_picture, ucreation_date,umost_recent_login,first_name,last_name from ismember \
+                 natural inner join users inner join human on human.huid=users.human_id where gid = %s;"
+        cursor.execute(query, (groupchatid,))
         result = []
         for row in cursor:
             result.append(row)
@@ -118,7 +118,7 @@ class UserDAO:
 
     def getOwnerOfGroupChatById(self, groupchatid):
         cursor = self.conn.cursor()
-        query = 'select users.uid, user_name, ucreation_date, umost_recent_login, first_name,last_name\
+        query = 'select users.uid,  profile_picture, user_name, ucreation_date, umost_recent_login, first_name,last_name\
         from groupChats inner join Human on groupChats.huid=human.huid inner join users on \
         users.human_id=human.huid where groupChats.gid=%s;'
         cursor.execute(query, (groupchatid,))
