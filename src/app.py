@@ -222,19 +222,19 @@ def getGroupChatInfoById(groupchatid):
 def getUserInformationByUsername(username):
     return UserHandler().getUserInformationByUsername(username)
 
-@app.route('/FFMA/Stats')
+@app.route('/FFMA/Stats/')
 def getStats():
     return StatsHandler().getAllStats()
 
-@app.route('/FFMA/Stats/Picture/<string:picture_name>')
+@app.route('/FFMA/Stats/Picture/<string:picture_name>/')
 def getStatsForPictures(picture_name):
     return StatsHandler().getStatsForPictures(picture_name)
 
-@app.route('/FFMA/Stats/Hashtags')
+@app.route('/FFMA/Stats/Hashtags/')
 def getStatsForHashtags():
     return StatsHandler().getMostPopularHashtags()
 
-@app.route('/FFMA/Stats/Users')
+@app.route('/FFMA/Stats/Users/')
 def getStatsForUserActivity():
     return StatsHandler().getMostActiveUsers()
 
