@@ -172,7 +172,7 @@ class GroupChatsDAO:
         cursor = self.conn.cursor()
         date = dt.datetime.now().date().strftime("%m/%d/%Y")
         query = "insert into replies(rpuload_date,rpreply,mid,uid) values (%s, %s, %s, %s) returning rpid;"
-        cursor.execute(query, (date,text,messageid,userid))
+        cursor.execute(query, (date,text,messageid,userid,))
         rpid = cursor.fetchone()[0]
         self.conn.commit()
         return rpid
@@ -181,7 +181,7 @@ class GroupChatsDAO:
         cursor = self.conn.cursor()
         date = dt.datetime.now().date().strftime("%m/%d/%Y")
         query = "insert into reactions(rupload_date,rtype,mid,rpid,uid) values(%s,%s,null,%s,%s) returning rid;"
-        cursor.execute(query, (date,rtype,replyid,userid))
+        cursor.execute(query, (date,rtype,replyid,userid,))
         rid = cursor.fetchone()[0]
         self.conn.commit()
         return rid
@@ -190,7 +190,7 @@ class GroupChatsDAO:
         cursor = self.conn.cursor()
         date = dt.datetime.now().date().strftime("%m/%d/%Y")
         query = "insert into reactions(rupload_date,rtype,mid,rpid,uid) values(%s,%s,%s,null,%s) returning rid;"
-        cursor.execute(query, (date,rtype,messageid,userid))
+        cursor.execute(query, (date,rtype,messageid,userid,))
         rid = cursor.fetchone()[0]
         self.conn.commit()
         return rid
@@ -201,7 +201,7 @@ class GroupChatsDAO:
         query = "with first_get as(insert into messages(uid,mupload_date,msize,mmessage,\
         mmedia_path,mlength,mtype) values(%s,%s,%s,%s,%s,%s,%s) returning mid) insert into \
         posted_to(mid,gid) values((select mid from first_get),%s) returning mid;"
-        cursor.execute(query, (uid, gid, mmessage, date, msize, mlength, mgif, mpath, mhashtag))
+        cursor.execute(query, (uid, gid, mmessage, date, msize, mlength, mgif, mpath, mhashtag,))
         mid = cursor.fetchone()[0]
         self.conn.commit()
         return mid
@@ -220,7 +220,7 @@ class GroupChatsDAO:
     def addUserToGroupChat(self, uid, groupchatid):
         cursor = self.conn.cursor()
         query = "insert into ismember(uid,gid) values(%s,%s) returning gid;"
-        cursor.execute(query, (uid,groupchatid))
+        cursor.execute(query, (uid,groupchatid,))
         gid = cursor.fetchone()[0]
         self.conn.commit()
         return gid
@@ -228,76 +228,76 @@ class GroupChatsDAO:
     def updateGroupChatName(self, gid, gname):
         cursor = self.conn.cursor()
         query = "update parts set pname = %s, pcolor = %s, pmaterial = %s, pprice = %s where pid = %s;"
-        cursor.execute(query, (gid, gname))
+        cursor.execute(query, (gid, gname,))
         self.conn.commit()
         return gid
 
     def updateGroupChatPicture(self, gid, picture):
         cursor = self.conn.cursor()
         query = "update parts set pname = %s, pcolor = %s, pmaterial = %s, pprice = %s where pid = %s;"
-        cursor.execute(query, (gid, picture))
+        cursor.execute(query, (gid, picture,))
         self.conn.commit()
         return gid
 
     def updateReaction(self, rid, rtype):
         cursor = self.conn.cursor()
         query = "update parts set pname = %s, pcolor = %s, pmaterial = %s, pprice = %s where pid = %s;"
-        cursor.execute(query, (rid,rtype)
+        cursor.execute(query, (rid,rtype,))
         self.conn.commit()
         return rid
 
     def updateMessage(self,mid, mmessage, msize, mlength, mgif, mpath, mhashtag):
         cursor = self.conn.cursor()
         query = "update parts set pname = %s, pcolor = %s, pmaterial = %s, pprice = %s where pid = %s;"
-        cursor.execute(query, (mid, mmessage, msize, mlength, mgif, mpath, mhashtag))
+        cursor.execute(query, (mid, mmessage, msize, mlength, mgif, mpath, mhashtag,))
         self.conn.commit()
         return mid
 
     def updateReply(self,rpid,text):
         cursor = self.conn.cursor()
         query = "update parts set pname = %s, pcolor = %s, pmaterial = %s, pprice = %s where pid = %s;"
-        cursor.execute(query, (rpid,text))
+        cursor.execute(query, (rpid,text,))
         self.conn.commit()
         return rpid
 
-    def deleteGroupChat(self, gid):
+    def deleteGroupChatById(self, gid):
         cursor = self.conn.cursor()
-        query = "delete from parts where pid = %s;"
+        query = "delete from group_chats where gid = %s;"
         cursor.execute(query, (gid,))
+        self.conn.commit()
+        return gid
+
+    def deleteGroupChatByName(self, gname):
+        cursor = self.conn.cursor()
+        query = "delete from group_chats where gid=all(select gid from group_chats where gname=%s);"
+        cursor.execute(query, (gname,))
         self.conn.commit()
         return gid
 
     def deleteMessage(self, mid):
         cursor = self.conn.cursor()
-        query = "delete from parts where pid = %s;"
+        query = "delete from messages where mid = %s;"
         cursor.execute(query, (mid,))
         self.conn.commit()
         return mid
 
     def deleteReply(self, rpid):
         cursor = self.conn.cursor()
-        query = "delete from parts where pid = %s;"
+        query = "delete from replies where rpid = %s;"
         cursor.execute(query, (rpid,))
         self.conn.commit()
         return rpid
 
     def deleteReaction(self, rid):
         cursor = self.conn.cursor()
-        query = "delete from parts where pid = %s;"
+        query = "delete from reaction where rid = %s;"
         cursor.execute(query, (rid,))
         self.conn.commit()
         return rid
 
     def deleteUserFromGroupChat(self, userid,groupchatid):
         cursor = self.conn.cursor()
-        query = "delete from parts where pid = %s;"
-        cursor.execute(query, (gid,userid))
+        query = "delete from ismember where gid = %s and uid=%s;"
+        cursor.execute(query, (groupchatid,userid,))
         self.conn.commit()
         return uid
-
-    def deleteAccount(self,uid):
-        cursor = self.conn.cursor()
-        query = "delete from parts where pid = %s;"
-        cursor.execute(query, (uid,))
-        self.conn.commit()
-        return huid

@@ -144,3 +144,17 @@ class UserDAO:
         cursor.execute(query, (groupchatid,))
         result = cursor.fetchone()
         return result
+
+    def deleteFriendById(self,fuid):
+        cursor = self.conn.cursor()
+        query = "delete from friends where fuid = %s;"
+        cursor.execute(query, (fuid,))
+        self.conn.commit()
+        return fuid
+
+    def deleteFriendById(self,fname):
+        cursor = self.conn.cursor()
+        query = "delete from friends where fuid = all(select uid from users where uid=%s);"
+        cursor.execute(query, (fname,))
+        self.conn.commit()
+        return fuid
