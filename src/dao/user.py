@@ -2,6 +2,7 @@
 #from config.dbconfig import pg_config
 import psycopg2
 from flask import jsonify
+import datetime as dt
 
 class UserDAO:
 
@@ -11,26 +12,45 @@ class UserDAO:
     #conn = psycopg2.connect(connection_url)
     conn = psycopg2.connect(host='127.0.0.1', database='appdb',user='kahlil', password='password')
 
-    def registerHuman(self, username, email, password, birth_date, first_name, last_name, phone):
-        if username == 'Crystal':
-            return 2
-        elif username == 'Kahlil':
-            return 1
-        elif username == 'Alejandro':
-            return 3
-        else:
-            return 69
+    # insert human
+    def registerHuman(self,first_name,last_name,birth_date,email,password,phone,username,profile_pic):
+        cursor = self.conn.cursor()
+        date = dt.datetime.now().date().strftime("%m/%d/%Y")
+        query = "with first_get as(insert into human(first_name,last_name,birthdate,huemail,hupassword,phone_number) \
+        values(%s,%s,%s,%s,%s,%s) returning huid) insert into users(human_id,user_name,ucreation_date,umost_\
+        recent_login,profile_pic) values((select huid from first_get),%s,%s,%s,%s) returning uid;"
+        cursor.execute(query, (first_name,last_name,birth_date,email,password,phone,username,date,date,profile_pic))
+        uid = cursor.fetchone()[0]
+        self.conn.commit()
+        return uid
 
-    def signInUser(self, username, password):
-        if username == 'Crystal':
-            result = [1, username, '02/25/2019', '02/26/2019']
-        elif username == 'Kahlil':
-            result = [2, username, '02/25/2019', '02/28/2019']
-        elif username == 'Alejandro':
-            result = [3, username, '02/25/2019', '02/27/2019']
-        else:
-            result = [69, username, '03/28/2019', '03/29/2019']
-        return result
+    def registerFriendByUserId(self,userid,friendid):
+        cursor = self.conn.cursor()
+        query = "insert into friends(fuid,uid) values (%s, %s) returning fuid;"
+        cursor.execute(query, (friendid,userid))
+        fuid = cursor.fetchone()[0]
+        self.conn.commit()
+        return fuid
+
+    def registerFriendByUserEmail(self,userid,friend_email):
+        cursor = self.conn.cursor()
+        query = "with first_get as(select uid from human inner join users on human.huid=users.human_id where \
+        huemail=%s)insert into friends(fuid,uid) values((select uid from first_get),%s) returning fuid;"
+        cursor.execute(query, (friend_email,userid))
+        fuid = cursor.fetchone()[0]
+        self.conn.commit()
+        return fuid
+
+    #def signInUser(self, username, password):
+     #   if username == 'Crystal':
+      #      result = [1, username, '02/25/2019', '02/26/2019']
+       # elif username == 'Kahlil':
+        #    result = [2, username, '02/25/2019', '02/28/2019']
+       # elif username == 'Alejandro':
+        #    result = [3, username, '02/25/2019', '02/27/2019']
+       # else:
+        #    result = [69, username, '03/28/2019', '03/29/2019']
+       # return result
 
     def getAllUsers(self):
         cursor = self.conn.cursor()
@@ -124,10 +144,3 @@ class UserDAO:
         cursor.execute(query, (groupchatid,))
         result = cursor.fetchone()
         return result
-
-    #
-    #
-    # def update(self, uid):
-    #     result = self.getUserById(uid)
-    #     result[3] = "UpdateDate 02/26/2019"
-    #     return result

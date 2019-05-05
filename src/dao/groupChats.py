@@ -1,5 +1,6 @@
 #from config.dbconfig import pg_config
 import psycopg2
+import datetime as dt
 
 class GroupChatsDAO:
 
@@ -19,8 +20,6 @@ class GroupChatsDAO:
         for row in cursor:
             result.append(row)
         return result
-
-
 
     def getGroupChatInfoById(self,groupchatid):
         cursor = self.conn.cursor()
@@ -50,44 +49,6 @@ class GroupChatsDAO:
         cursor.execute(query, (gid,))
         result = cursor.fetchone()
         return result
-
-    def updateGroupChat(self, gid, gname, gpicture_id):
-        result = '4/1/19'
-        return result
-
-    def deleteGroupChat(self, gid):
-        result = []
-        return result
-
-    def createGroupChat(self, userid, gname):
-        if (userid == 1 or userid == 2 or userid == 3) and gname == 'Creators':
-            return [1, '3/1/19']
-        elif userid == 1:
-            return [4, '3/1/19']
-        elif (userid == 2 or userid == 3) and gname == 'Bros':
-            return [3, '3/1/19']
-        else:
-            return [5, '3/1/19']
-        return result
-
-    def addUserToGroupChat(self, uid, groupchatid):
-        result = []
-        if uid == 1:
-            result = [1, 'crystal.torres', '02/25/2019', '03/26/2019']
-        elif uid == 2:
-            result = [2, 'kahlil-14', '02/25/2019', '03/28/2019']
-        elif uid == 3:
-            result = [3, 'alejo', '02/25/2019', '02/27/2019']
-        return result
-
-    def deleteGroupChatById(self, userid, groupchatid):
-        result = []
-        return result
-
-    def deleteUserFromGroupChat(self, userid, userid2, groupchatid):
-        result = []
-        return result
-
 
     def getMessagesByHashtagStringInGroupChat(self, userid, groupchatid, hashtagstring):
         cursor = self.conn.cursor()
@@ -127,14 +88,6 @@ class GroupChatsDAO:
         result = cursor.fetchone()
         return result
 
-    def replyToMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(self, userid, groupchatid, messageid, text):
-        result = []
-        return result
-
-    def insertMessage(self, uid, gid, mmessage, mupload_date, msize, mlength, mgif, mpath, mhashtag):
-        result = []
-        mid = 1
-        return mid
 
     def getMessageFromGroupChatById(self, uid, gid, mid):
         cursor = self.conn.cursor()
@@ -214,13 +167,137 @@ class GroupChatsDAO:
             result.append(row)
         return result
 
-    def updateReply(self, uid, gid, mid, rid, rpreply, rpupload_date, rphashtag):
-        result = []
-        return result
 
-    def deleteReply(self, uid, gid, mid, rid):
-        result = []
-        return result
+    def replyToMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(self, userid,groupchatid,messageid,text):
+        cursor = self.conn.cursor()
+        date = dt.datetime.now().date().strftime("%m/%d/%Y")
+        query = "insert into replies(rpuload_date,rpreply,mid,uid) values (%s, %s, %s, %s) returning rpid;"
+        cursor.execute(query, (date,text,messageid,userid))
+        rpid = cursor.fetchone()[0]
+        self.conn.commit()
+        return rpid
 
-    def updateMessage(self, uid, gid, mid, mmessage, mupload_date, msize, mlength, mgif, mpath):
-        result = []
+    def reactToReplyInGroupChatByUserIdAndGroupChatIdAndMessageId(self, userid, groupchatid,replyid,rtype):
+        cursor = self.conn.cursor()
+        date = dt.datetime.now().date().strftime("%m/%d/%Y")
+        query = "insert into reactions(rupload_date,rtype,mid,rpid,uid) values(%s,%s,null,%s,%s) returning rid;"
+        cursor.execute(query, (date,rtype,replyid,userid))
+        rid = cursor.fetchone()[0]
+        self.conn.commit()
+        return rid
+
+    def reactToMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(self, userid, groupchatid, messageid,rtype):
+        cursor = self.conn.cursor()
+        date = dt.datetime.now().date().strftime("%m/%d/%Y")
+        query = "insert into reactions(rupload_date,rtype,mid,rpid,uid) values(%s,%s,%s,null,%s) returning rid;"
+        cursor.execute(query, (date,rtype,messageid,userid))
+        rid = cursor.fetchone()[0]
+        self.conn.commit()
+        return rid
+
+    def insertMessage(self, uid, gid, mmessage, msize, mlength, mgif, mpath, mhashtag):
+        cursor = self.conn.cursor()
+        date = dt.datetime.now().date().strftime("%m/%d/%Y")
+        query = "with first_get as(insert into messages(uid,mupload_date,msize,mmessage,\
+        mmedia_path,mlength,mtype) values(%s,%s,%s,%s,%s,%s,%s) returning mid) insert into \
+        posted_to(mid,gid) values((select mid from first_get),%s) returning mid;"
+        cursor.execute(query, (uid, gid, mmessage, date, msize, mlength, mgif, mpath, mhashtag))
+        mid = cursor.fetchone()[0]
+        self.conn.commit()
+        return mid
+
+    def createGroupChat(self, userid, gname,picture_id):
+        cursor = self.conn.cursor()
+        date = dt.datetime.now().date().strftime("%m/%d/%Y")
+        query = "with first_get as(select human_id from users where uid=%s)insert into \
+        group_chats(gname,gcreation_date,gpicture_id_path,huid) values(%s,%s,%s,\
+        (select human_id from first_get)) returning gid;"
+        cursor.execute(query, (userid,gname,date,picture_id,))
+        gid = cursor.fetchone()[0]
+        self.conn.commit()
+        return gid
+
+    def addUserToGroupChat(self, uid, groupchatid):
+        cursor = self.conn.cursor()
+        query = "insert into ismember(uid,gid) values(%s,%s) returning gid;"
+        cursor.execute(query, (uid,groupchatid))
+        gid = cursor.fetchone()[0]
+        self.conn.commit()
+        return gid
+
+    def updateGroupChatName(self, gid, gname):
+        cursor = self.conn.cursor()
+        query = "update parts set pname = %s, pcolor = %s, pmaterial = %s, pprice = %s where pid = %s;"
+        cursor.execute(query, (gid, gname))
+        self.conn.commit()
+        return gid
+
+    def updateGroupChatPicture(self, gid, picture):
+        cursor = self.conn.cursor()
+        query = "update parts set pname = %s, pcolor = %s, pmaterial = %s, pprice = %s where pid = %s;"
+        cursor.execute(query, (gid, picture))
+        self.conn.commit()
+        return gid
+
+    def updateReaction(self, rid, rtype):
+        cursor = self.conn.cursor()
+        query = "update parts set pname = %s, pcolor = %s, pmaterial = %s, pprice = %s where pid = %s;"
+        cursor.execute(query, (rid,rtype)
+        self.conn.commit()
+        return rid
+
+    def updateMessage(self,mid, mmessage, msize, mlength, mgif, mpath, mhashtag):
+        cursor = self.conn.cursor()
+        query = "update parts set pname = %s, pcolor = %s, pmaterial = %s, pprice = %s where pid = %s;"
+        cursor.execute(query, (mid, mmessage, msize, mlength, mgif, mpath, mhashtag))
+        self.conn.commit()
+        return mid
+
+    def updateReply(self,rpid,text):
+        cursor = self.conn.cursor()
+        query = "update parts set pname = %s, pcolor = %s, pmaterial = %s, pprice = %s where pid = %s;"
+        cursor.execute(query, (rpid,text))
+        self.conn.commit()
+        return rpid
+
+    def deleteGroupChat(self, gid):
+        cursor = self.conn.cursor()
+        query = "delete from parts where pid = %s;"
+        cursor.execute(query, (gid,))
+        self.conn.commit()
+        return gid
+
+    def deleteMessage(self, mid):
+        cursor = self.conn.cursor()
+        query = "delete from parts where pid = %s;"
+        cursor.execute(query, (mid,))
+        self.conn.commit()
+        return mid
+
+    def deleteReply(self, rpid):
+        cursor = self.conn.cursor()
+        query = "delete from parts where pid = %s;"
+        cursor.execute(query, (rpid,))
+        self.conn.commit()
+        return rpid
+
+    def deleteReaction(self, rid):
+        cursor = self.conn.cursor()
+        query = "delete from parts where pid = %s;"
+        cursor.execute(query, (rid,))
+        self.conn.commit()
+        return rid
+
+    def deleteUserFromGroupChat(self, userid,groupchatid):
+        cursor = self.conn.cursor()
+        query = "delete from parts where pid = %s;"
+        cursor.execute(query, (gid,userid))
+        self.conn.commit()
+        return uid
+
+    def deleteAccount(self,uid):
+        cursor = self.conn.cursor()
+        query = "delete from parts where pid = %s;"
+        cursor.execute(query, (uid,))
+        self.conn.commit()
+        return huid
