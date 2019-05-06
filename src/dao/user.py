@@ -13,13 +13,13 @@ class UserDAO:
     conn = psycopg2.connect(host='127.0.0.1', database='appdb',user='kahlil', password='password')
 
     # insert human
-    def registerHuman(self,first_name,last_name,birth_date,email,password,phone,username,profile_pic):
+    def registerHuman(self,first_name,last_name,birth_date,email,password,phone,username):
         cursor = self.conn.cursor()
         date = dt.datetime.now().date().strftime("%m/%d/%Y")
         query = "with first_get as(insert into human(first_name,last_name,birthdate,huemail,hupassword,phone_number) \
         values(%s,%s,%s,%s,%s,%s) returning huid) insert into users(human_id,user_name,ucreation_date,umost_\
-        recent_login,profile_pic) values((select huid from first_get),%s,%s,%s,%s) returning uid;"
-        cursor.execute(query, (first_name,last_name,birth_date,email,password,phone,username,date,date,profile_pic))
+        recent_login,profile_pic) values((select huid from first_get),%s,%s,%s,null) returning uid;"
+        cursor.execute(query, (first_name,last_name,birth_date,email,password,phone,username,date,date,))
         uid = cursor.fetchone()[0]
         self.conn.commit()
         return uid
@@ -152,9 +152,9 @@ class UserDAO:
         self.conn.commit()
         return fuid
 
-    def deleteFriendById(self,fname):
+    def deleteFriendByName(self,fname):
         cursor = self.conn.cursor()
-        query = "delete from friends where fuid = all(select uid from users where uid=%s);"
+        query = "delete from friends where fuid = all(select uid from users where user_name=%s);"
         cursor.execute(query, (fname,))
         self.conn.commit()
         return fuid

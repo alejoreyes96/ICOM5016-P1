@@ -6,25 +6,25 @@ class UserHandler:
     def build_human_dict(self,row):
         result = {}
         result['huid'] = row[0]
-        result['huname'] = row[1]
-        result['huemail'] = row[2]
-        result['hupassword'] = row[3]
-        result['hubirthdate'] = row[4]
-        result['hufirst_name'] = row[5]
-        result['hulast_name'] = row[6]
-        result['huphone'] = row[7]
+        result['hufirst_name'] = row[1]
+        result['hulast_name'] = row[2]
+        result['hubirthdate'] = row[3]
+        result['huemail'] = row[4]
+        result['hupassword'] = row[5]
+        result['huphone'] = row[6]
+        result['huusername'] = row[7]
         return result
 
-    def build_human_attributes(self, huid, huname, huemail, hupassword, hubirthdate, hufirst_name, hulast_name, huphone):
+    def build_human_attributes(self, huid, huusername, huemail, hupassword, hubirthdate, hufirst_name, hulast_name, huphone):
         result = {}
         result['huid'] = huid
-        result['huname'] = huname
-        result['huemail'] = huemail
-        result['hupassword'] = hupassword
-        result['hubirthdate'] = hubirthdate
         result['hufirst_name'] = hufirst_name
         result['hulast_name'] = hulast_name
+        result['hubirthdate'] = hubirthdate
+        result['huemail'] = huemail
+        result['hupassword'] = hupassword
         result['huphone'] = huphone
+        result['huusername'] = huusername
         return result
 
     def build_user_dict(self, row):
@@ -70,7 +70,7 @@ class UserHandler:
         result['gowner'] = row[5]
         return result
 
-    def registerHuman(self, form):
+    def registerHumanandcreateuser(self, form):
         if len(form) != 7:
             return jsonify(Error="Malformed Post Request"), 400
         else:
@@ -83,19 +83,65 @@ class UserHandler:
             phone = form['phone']
             if username and password and birth_date and first_name and last_name and email and phone:
                 dao = UserDAO()
-                huid = dao.registerHuman(username, email, password, birth_date, first_name, last_name, phone)
-                result = self.build_human_attributes(huid, username, email, password, birth_date, first_name, last_name, phone)
+                huid = dao.registerHuman(first_name,last_name,birth_date,email,password,phone,username)
+                result = self.build_human_attributes(huid,first_name,last_name,birth_date,email,password,phone,username)
                 return jsonify(User=result), 201
             else:
                 return jsonify(Error="Malformed Post Request"), 400
 
-    def signInUser(self, form):
-        username = form['username']
-        password = form['password']
+    def registerFriendByUserId(self,form):
+        if len(form) != 2:
+            return jsonify(Error="Malformed Post Request"), 400
+        else:
+            userid = form['uid']
+            friendid = form['fuid']
+            if userid and friendid:
+                dao = UserDAO()
+                fuid = dao.registerFriendByUserId(userid,friendid)
+                result = self.build_friend_attributes(fuid,userid,friendid)
+                return jsonify(Friend=result),201
+            else:
+                return jsonify(Error="Malformed Post Request"), 400
+
+    def registerFriendByUserEmail(self,form):
+        if len(form) != 2:
+            return jsonify(Error="Malformed Post Request"), 400
+        else:
+            userid = form['uid']
+            email = form['email']
+            if userid and email:
+                dao = UserDAO()
+                fuid = dao.registerFriendByUserEmail(userid,email)
+                result = self.build_friend_email_attributes(fuid,userid,email)
+                return jsonify(Friend=result),201
+            else:
+                return jsonify(Error="Malformed Post Request"), 400
+
+
+    def deleteFriendById(self,fuid):
         dao = UserDAO()
-        result = dao.signInUser(username, password)
-        dict_map = self.build_user_dict(result)
-        return jsonify(Users=dict_map)
+        if not dao.getUserByUserId(fuid):
+            return jsonify(Error="User not found."), 404
+        else:
+            dao.deleteFriendById(fuid)
+        return jsonify(DeleteStatus="OK"), 200
+
+    def deleteFriendByName(self,fname):
+        dao = UserDAO()
+        if not dao.getUserByUsername(fname):
+            return jsonify(Error="User not found."), 404
+        else:
+            dao.deleteFriendByName(fname)
+        return jsonify(DeleteStatus="OK"), 200
+
+
+    #def signInUser(self, form):
+     #   username = form['username']
+      #  password = form['password']
+      #  dao = UserDAO()
+      #  result = dao.signInUser(username, password)
+      #  dict_map = self.build_user_dict(result)
+      #  return jsonify(Users=dict_map)
 
     def getAllUsers(self):
         dao = UserDAO()
@@ -188,64 +234,4 @@ class UserHandler:
             result_map = self.build_userinfo_dict(result)
         return jsonify(Users=result_map)
 
-    # def createNewUser(self, userName, form):
-    #     # print("form: ", form)
-    #     # if len(form) != 4:
-    #     #     return jsonify(Error="Malformed post request"), 400
-    #     # else:
-    #         huname = userName
-    #         huemail = 'John.Doe@gmail.com'
-    #         hupassword = 'JohnDoe1357'
-    #         hubirthDate = '27/5/1993'
-    #         huphoneNum = '787-938-8539'
-    #         if huname and huemail and hupassword and hubirthDate and huphoneNum:
-    #             dao = UserDAO()
-    #             huid = dao.insert(huname, huemail, hupassword, hubirthDate, huphoneNum)
-    #             result = self.build_human_attributes(huid, huname, huemail, hupassword, hubirthDate, huphoneNum)
-    #             return jsonify(User=result), 201
-    #         else:
-    #             return jsonify(Error="Unexpected attributes in post request"), 400
 
-    # def updateUser(self, huid, form):
-    #     dao = UserDAO()
-    #     if not dao.getUserById(huid):
-    #         return jsonify(Error="User not found"), 404
-    #     else:
-    #         # if len(form) != 4:
-    #         #     return jsonify(Error="Malformed post request"), 400
-    #         # else:
-    #
-    #             # if huname and huemail and hupassword and hubirthDate and huphoneNum:
-    #                 updated = dao.update(huid)
-    #                 result = self.build_user_attributes(updated[0], updated[1], updated[2], updated[3])
-    #                 return jsonify(User=result), 200
-    #             # else:
-    #             #     return jsonify(Error="Unexpected attributes in post request"), 400
-
-    # def getUserbyId(self,uid):
-    #     dao = UserDAO()
-    #     row = dao.getUserById(uid)
-    #     if not row:
-    #         return jsonify(Error="User Not Found"), 404
-    #     else:
-    #         user = self.build_user_dict(row)
-    #         return jsonify(User=user)
-    #
-    #
-    # def getAllUsers(self):
-    #     dao = UserDAO()
-    #     users_list = dao.getAllUsers()
-    #     result_list = []
-    #     for row in users_list:
-    #         result = self.build_user_dict(row)
-    #         result_list.append(result)
-    #
-    #     return jsonify(Users=result_list)
-    #
-    # def deleteuser(self, uid):
-    #     dao = UserDAO()
-    #     if not dao.getUserById(uid):
-    #         return jsonify(Error="Group Chat not found."), 404
-    #     else:
-    #         dao.delete(uid)
-    #         return jsonify(DeleteStatus="OK"), 200
