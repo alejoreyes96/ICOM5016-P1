@@ -225,41 +225,6 @@ class GroupChatsDAO:
         self.conn.commit()
         return gid
 
-    def updateGroupChatName(self, gid, gname):
-        cursor = self.conn.cursor()
-        query = "update parts set pname = %s, pcolor = %s, pmaterial = %s, pprice = %s where pid = %s;"
-        cursor.execute(query, (gid, gname,))
-        self.conn.commit()
-        return gid
-
-    def updateGroupChatPicture(self, gid, picture):
-        cursor = self.conn.cursor()
-        query = "update parts set pname = %s, pcolor = %s, pmaterial = %s, pprice = %s where pid = %s;"
-        cursor.execute(query, (gid, picture,))
-        self.conn.commit()
-        return gid
-
-    def updateReaction(self, rid, rtype):
-        cursor = self.conn.cursor()
-        query = "update parts set pname = %s, pcolor = %s, pmaterial = %s, pprice = %s where pid = %s;"
-        cursor.execute(query, (rid,rtype,))
-        self.conn.commit()
-        return rid
-
-    def updateMessage(self,mid, mmessage, msize, mlength, mgif, mpath, mhashtag):
-        cursor = self.conn.cursor()
-        query = "update parts set pname = %s, pcolor = %s, pmaterial = %s, pprice = %s where pid = %s;"
-        cursor.execute(query, (mid, mmessage, msize, mlength, mgif, mpath, mhashtag,))
-        self.conn.commit()
-        return mid
-
-    def updateReply(self,rpid,text):
-        cursor = self.conn.cursor()
-        query = "update parts set pname = %s, pcolor = %s, pmaterial = %s, pprice = %s where pid = %s;"
-        cursor.execute(query, (rpid,text,))
-        self.conn.commit()
-        return rpid
-
     def deleteGroupChatById(self, gid):
         cursor = self.conn.cursor()
         query = "delete from group_chats where gid = %s;"
@@ -301,3 +266,36 @@ class GroupChatsDAO:
         cursor.execute(query, (groupchatid,userid,))
         self.conn.commit()
         return uid
+
+    def updateGroupChatName(self, gid, gname,picture):
+        cursor = self.conn.cursor()
+        if picture is None:
+            query = "update group_chats set gname=%s where gid = %s;"
+            cursor.execute(query, (gid, gname,))
+            self.conn.commit()
+        else:
+            query = "update group_chats set gname=%s, gpicture_id_path=%s where gid = %s;"
+            cursor.execute(query, (gid, gname,picture,))
+            self.conn.commit()
+        return gid
+
+    def updateReaction(self, rid, rtype):
+        cursor = self.conn.cursor()
+        query = "update reactions set rtype=%s where rid=%s;;"
+        cursor.execute(query, (rtype,rid,))
+        self.conn.commit()
+        return rid
+
+    def updateMessage(self,mid, mmessage, msize, mlength, mgif, mpath, mhashtag):
+        cursor = self.conn.cursor()
+        query = "update parts set mmessage=%s, msize = %s, mlength = %s, mgif = %s, mpath = %s where mid = %s;"
+        cursor.execute(query, (mid, mmessage, msize, mlength, mgif, mpath, mhashtag,))
+        self.conn.commit()
+        return mid
+
+    def updateReply(self,rpid,text):
+        cursor = self.conn.cursor()
+        query = "update reply set rpreply= %s where rpid = %s;"
+        cursor.execute(query, (text,rp,))
+        self.conn.commit()
+        return rpid
