@@ -70,6 +70,34 @@ class UserHandler:
         result['gowner'] = row[5]
         return result
 
+    def build_friend_dict(self,row):
+        result = {}
+        result['fuid']=row[0]
+        result['userid']=row[1]
+        result['friendid']=row[2]
+        return result
+
+    def build_friend_attributes(self,fuid,uid,fuid2):
+        result = {}
+        result['fuid']=fuid
+        result['userid']=uid
+        result['friendid']=fuid2
+        return result
+
+    def build_friend_email_dict(self,row):
+        result = {}
+        result['fuid']=row[0]
+        result['userid']=row[1]
+        result['email']=row[2]
+        return result
+
+    def build_friend_email_attributes(self,fuid,uid,email):
+        result = {}
+        result['fuid'] = fuid
+        result['userid'] = uid
+        result['email'] = email
+        return result
+
     def registerHumanandcreateuser(self, form):
         if len(form) != 7:
             return jsonify(Error="Malformed Post Request"), 400
@@ -120,7 +148,7 @@ class UserHandler:
 
     def deleteFriendById(self,fuid):
         dao = UserDAO()
-        if not dao.getUserByUserId(fuid):
+        if not dao.getFriendByUserId(fuid):
             return jsonify(Error="User not found."), 404
         else:
             dao.deleteFriendById(fuid)
@@ -128,7 +156,7 @@ class UserHandler:
 
     def deleteFriendByName(self,fname):
         dao = UserDAO()
-        if not dao.getUserByUsername(fname):
+        if not dao.getFriendByUserName(fname):
             return jsonify(Error="User not found."), 404
         else:
             dao.deleteFriendByName(fname)

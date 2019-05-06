@@ -145,9 +145,23 @@ class UserDAO:
         result = cursor.fetchone()
         return result
 
+    def getFriendByUserId(self,fuid):
+        cursor = self.conn.cursor()
+        query = "select fuid from friends natural inner join users where users.uid=%s;"
+        cursor.execute(query, (fuid,))
+        result = cursor.fetchone()
+        return result
+
+    def getFriendByUserName(self, fname):
+        cursor = self.conn.cursor()
+        query = "select fuid from friends natural inner join users where users.user_name=%s;"
+        cursor.execute(query, (fname,))
+        result = cursor.fetchone()
+        return result
+
     def deleteFriendById(self,fuid):
         cursor = self.conn.cursor()
-        query = "delete from friends where fuid = %s;"
+        query = "delete from friends where fuid=%s"
         cursor.execute(query, (fuid,))
         self.conn.commit()
         return fuid
