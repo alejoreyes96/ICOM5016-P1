@@ -50,6 +50,15 @@ class GroupChatsDAO:
         result = cursor.fetchone()
         return result
 
+    def getGroupChatByName(self, gname):
+        cursor = self.conn.cursor()
+        query = "select gid, gname, gcreation_date, gpicture_id_path, first_name,last_name,uid \
+                 from groupchats inner join Human on groupChats.huid=human.huid inner join users on \
+                 users.human_id=human.huid where gname = %s;"
+        cursor.execute(query, (gname,))
+        result = cursor.fetchone()
+        return result
+
     def getMessagesByHashtagStringInGroupChat(self, userid, groupchatid, hashtagstring):
         cursor = self.conn.cursor()
         query = "select messages.mid,mmessage,mupload_date,msize,mlength,mtype,mmedia_path,users.uid \
@@ -267,28 +276,23 @@ class GroupChatsDAO:
         self.conn.commit()
         return uid
 
-    def updateGroupChatName(self, gid, gname,picture):
+    def updateGroupChat(self, gid, gname,picture):
         cursor = self.conn.cursor()
-        if picture is None:
-            query = "update group_chats set gname=%s where gid = %s;"
-            cursor.execute(query, (gid, gname,))
-            self.conn.commit()
-        else:
-            query = "update group_chats set gname=%s, gpicture_id_path=%s where gid = %s;"
-            cursor.execute(query, (gid, gname,picture,))
-            self.conn.commit()
+        query = "update group_chats set gname=%s, gpicture_id_path=%s where gid = %s;"
+        cursor.execute(query, (gid, gname,picture,))
+        self.conn.commit()
         return gid
 
     def updateReaction(self, rid, rtype):
         cursor = self.conn.cursor()
-        query = "update reactions set rtype=%s where rid=%s;;"
+        query = "update reactions set rtype=%s where rid=%s;"
         cursor.execute(query, (rtype,rid,))
         self.conn.commit()
         return rid
 
     def updateMessage(self,mid, mmessage, msize, mlength, mgif, mpath, mhashtag):
         cursor = self.conn.cursor()
-        query = "update parts set mmessage=%s, msize = %s, mlength = %s, mgif = %s, mpath = %s where mid = %s;"
+        query = "update messages set mmessage=%s, msize = %s, mlength = %s, mgif = %s, mpath = %s where mid = %s;"
         cursor.execute(query, (mid, mmessage, msize, mlength, mgif, mpath, mhashtag,))
         self.conn.commit()
         return mid

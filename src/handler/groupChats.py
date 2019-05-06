@@ -2,6 +2,7 @@ from flask import jsonify
 from dao.groupChats import GroupChatsDAO
 from dao.statistics import StatsDAO
 from dao.user import UserDAO
+import datetime as dt
 
 class ChatHandler:
 
@@ -55,14 +56,16 @@ class ChatHandler:
         result['gname'] = row[1]
         result['gcreation_date'] = row[2]
         result['gpicture_id'] = row[3]
+        result['gowner_id'] = row[4]
         return result
 
-    def build_groupChat_attributes(self, gid, gname, gcreation_date, gpicture_id):
+    def build_groupChat_attributes(self, gid, gname, gcreation_date, gpicture_id,userid):
         result = {}
         result['gid'] = gid
         result['gname'] = gname
         result['gcreation_date'] = gcreation_date
         result['gpicture_id'] = gpicture_id
+        result['gowner_id'] = userid
         return result
 
     def build_groupChats_dict(self, row):
@@ -199,12 +202,11 @@ class ChatHandler:
         else:
             gname = form['gname']
             gpicture_id = form['gpicture_id']
-            if gname and gpicture_id:
+            gcreation_date = dt.datetime.now().date().strftime("%m/%d/%Y")
+            if gname and gpicture_id and userid:
                 dao = GroupChatsDAO()
-                response = dao.createGroupChat(userid, gname)
-                gid = response[0]
-                gcreation_date = response[1]
-                result = self.build_groupChat_attributes(gid, gname, gcreation_date, gpicture_id)
+                gid= dao.createGroupChat(userid, gname,gpicture_id)
+                result = self.build_groupChat_attributes(gid, gname, gcreation_date, gpicture_id,userid)
                 if result is None:
                     return jsonify(Error="Unable to create group chat")
                 else:
@@ -225,7 +227,7 @@ class ChatHandler:
                 result_map.append(result)
         return jsonify(GroupChat=result_map), 201
 
-    def updateGroupChat(self, gid, json):
+    def updateGroupChat(self, gid, form):
          dao = GroupChatsDAO()
          if not dao.getGroupChatById(gid):
              return jsonify(Error="GroupChat not found"), 404
@@ -235,20 +237,28 @@ class ChatHandler:
              else:
                 gname = json['gname']
                 gpicture_id = json['gpicture_id']
-
+                gcreation_date = dt.datetime.now().date().strftime("%m/%d/%Y")
                 if gname and gpicture_id:
-                     response = dao.updateGroupChat(gid, gname, gpicture_id)
-                     result = self.build_groupChat_attributes(gid, gname, response, gpicture_id)
+                     gid = dao.updateGroupChat(gid, gname, gpicture_id)
+                     result = self.build_groupChat_attributes(gid, gname,gcreation_date,gpicture_id)
                      return jsonify(GroupChat=result), 200
                 else:
                      return jsonify(Error="Unexpected attributes in update request"), 400
 
-    def deleteGroupChat(self, gid):
+    def deleteGroupChatById(self, gid):
         dao = GroupChatsDAO()
         if not dao.getGroupChatById(gid):
             return jsonify(Error="Group Chat not found."), 404
         else:
-            dao.deleteGroupChat(gid)
+            dao.deleteGroupChatById(gid)
+            return jsonify(DeleteStatus="OK"), 200
+
+    def deleteGroupChatByName(self, gname):
+        dao = GroupChatsDAO()
+        if not dao.getGroupChatByName(gname):
+            return jsonify(Error="Group Chat not found."), 404
+        else:
+            dao.deleteGroupChatByName(gname)
             return jsonify(DeleteStatus="OK"), 200
 
 
