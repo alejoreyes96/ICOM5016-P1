@@ -479,7 +479,7 @@ class ChatHandler:
     def deleteUserFromGroupChat(self, gid,userid):
         dao = GroupChatsDAO()
         if not dao.getMemberFromGroupChat(gid,userid):
-            return jsonify(Error="Group Chat not found."), 404
+            return jsonify(Error="Member not found in Group Chat."), 404
         else:
             dao.deleteUserFromGroupChat(userid,gid)
             return jsonify(DeleteStatus="OK"), 200

@@ -184,6 +184,13 @@ class GroupChatsDAO:
         result = cursor.fetchone()
         return result
 
+    def getMemberFromGroupChat(self,gid, userid):
+        cursor = self.conn.cursor()
+        query = "select * from ismember where gid=%s and uid=%s;"
+        cursor.execute(query, (gid, userid,))
+        result = cursor.fetchone()
+        return result
+
 
     def replyToMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(self, userid,groupchatid,messageid,text):
         cursor = self.conn.cursor()
