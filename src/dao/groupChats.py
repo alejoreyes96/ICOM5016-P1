@@ -8,7 +8,6 @@ class GroupChatsDAO:
     # connection_url = "user=%s password=%s host=%s port=%s dbname=%s" % (pg_config['user'], pg_config['password'],\
     # pg_config['host'],pg_config["port"], pg_config["dbname"])
     # conn = psycopg2.connect(connection_url)
-    conn = psycopg2.connect(host='127.0.0.1', database='appdb',user='roxy', password='CRYSmarie2015')
 
     def getAvailableGroupChatsByUserId(self, userid):
         cursor = self.conn.cursor()
@@ -232,13 +231,13 @@ class GroupChatsDAO:
         self.conn.commit()
         return rid
 
-    def insertMessage(self, uid, gid, mmessage, msize, mlength, mgif, mpath, mhashtag):
+    def insertMessage(self, uid, gid, mmessage, msize, mlength, mtype, mpath, mhashtag):
         cursor = self.conn.cursor()
         date = dt.datetime.now().date().strftime("%m/%d/%Y")
         query = "with first_get as(insert into messages(uid,mupload_date,msize,mmessage,\
         mmedia_path,mlength,mtype) values(%s,%s,%s,%s,%s,%s,%s) returning mid) insert into \
         posted_to(mid,gid) values((select mid from first_get),%s) returning mid;"
-        cursor.execute(query, (uid, gid, mmessage, date, msize, mlength, mgif, mpath, mhashtag,))
+        cursor.execute(query, (uid, date, msize, mmessage, mpath,mlength, mtype,gid,mhashtag,))
         mid = cursor.fetchone()[0]
         self.conn.commit()
         return mid

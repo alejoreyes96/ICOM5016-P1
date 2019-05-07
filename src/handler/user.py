@@ -263,3 +263,10 @@ class UserHandler:
         return jsonify(Users=result_map)
 
 
+    def deleteAccount(self,uid):
+        dao = UserDAO()
+        if not dao.getUserByUserId(uid):
+            return jsonify(Error="User not found."), 404
+        else:
+            dao.deleteAccount(uid)
+        return jsonify(DeleteStatus="OK"), 200

@@ -10,7 +10,6 @@ class UserDAO:
     #connection_url = "user=%s password=%s host=%s port=%s dbname=%s" % (pg_config['user'], pg_config['password'],\
     # pg_config['host'],pg_config["port"], pg_config["dbname"])
     #conn = psycopg2.connect(connection_url)
-    conn = psycopg2.connect(host='127.0.0.1', database='appdb',user='roxy', password='CRYSmarie2015')
 
     # insert human
     def registerHuman(self,first_name,last_name,birth_date,email,password,phone,username):
@@ -172,3 +171,17 @@ class UserDAO:
         cursor.execute(query, (fname,))
         self.conn.commit()
         return fuid
+
+    def deleteFriendByName(self, fname):
+        cursor = self.conn.cursor()
+        query = "delete from friends where fuid = all(select uid from users where user_name=%s);"
+        cursor.execute(query, (fname,))
+        self.conn.commit()
+        return fuid
+
+    def deleteAccount(self,uid):
+        cursor = self.conn.cursor()
+        query = "delete from friends where fuid = all(select uid from users where user_name=%s);"
+        cursor.execute(query, (uid,))
+        self.conn.commit()
+        return uid

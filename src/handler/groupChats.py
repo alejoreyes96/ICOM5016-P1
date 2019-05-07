@@ -47,7 +47,6 @@ class ChatHandler:
         result['mgif'] = mgif
         result['mpath'] = mpath
         result['mhashtag'] = mhashtag
-
         return result
 
     def build_groupChat_dict(self, row):
@@ -79,12 +78,6 @@ class ChatHandler:
         result['uid'] = row[6]
         return result
 
-    # def build_creates_dict(self, row):
-    #     result = {}
-    #     result['chuid'] = row[0]
-    #     result['cgid'] = row[1]
-    #     return result
-    #
     def build_ismember_dict(self, row):
          result = {}
          result['gid'] = row[0]
@@ -96,12 +89,6 @@ class ChatHandler:
         result['gid'] = gid
         result['uid'] = uid
         return result
-
-    # def build_reacts_dict(self, row):
-    #     result = {}
-    #     result['rrid'] = row[0]
-    #     result['rmid'] = row[1]
-    #     return result
 
     def build_reactions_dict(self, row):
         result = {}
@@ -141,18 +128,6 @@ class ChatHandler:
         result['uid'] = uid
         return result
 
-    # def build_sends_dict(self, row):
-    #     result = {}
-    #     result['suid'] = row[0]
-    #     result['smid'] = row[1]
-    #     return result
-    #
-    # def build_contains_dict(self, row):
-    #     result = {}
-    #     result['cmid'] = row[0]
-    #     result['chid'] = row[1]
-    #     return result
-    #
     def build_reply_update_dict(self, row):
          result = {}
          result['rpid'] = row[0]
@@ -451,11 +426,18 @@ class ChatHandler:
         if len(json) != 7:
             return jsonify(Error="Malformed update request"), 400
         else:
-
-            if rtype and rupload_date:
-                rid = dao.addReaction(userid, groupchatid, messageid, rtype, rupload_date)
-                result = self.build_reactions_attributes(rid, rtype, rupload_date)
-                return jsonify(Reaction=result), 201
+            mmessage=json['mmessage']
+            mupload_date=json['mupload_date']
+            msize=json['msize']
+            mlength=json['mlength']
+            mtype=json['mtype']
+            mpath=json['mpath']
+            mhashtag=json['mhashtag']
+            uid=userid
+            if mmessage and msize and mlength and mtype and mpath and mhashtag:
+                mid = dao.insertMessage(uid, groupchatid, mmessage, msize, mlength, mtype, mpath, mhashtag)
+                result = self.build_message_attributes(mid,mmessage,mupload_date,msize,mlength.mtype,mpath,mhashtag,uid)
+                return jsonify(Message=result), 201
             else:
                 return jsonify(Error="Unexpected attributes in post request"), 400
 
