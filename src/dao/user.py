@@ -156,6 +156,13 @@ class UserDAO:
         result = cursor.fetchone()
         return result
 
+    def updateUser(self,uid,uname,profile_pic):
+        cursor = self.conn.cursor()
+        query = "update users set user_name=%s, profile_pic=%s where uid=%s;"
+        cursor.execute(query, (uname,profile_pic,uid,))
+        self.conn.commit()
+        return fuid
+
     def deleteFriendById(self,fuid):
         cursor = self.conn.cursor()
         query = "delete from friends where fuid=%s"

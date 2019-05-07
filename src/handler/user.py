@@ -1,5 +1,7 @@
 from flask import jsonify
 from dao.user import UserDAO
+import datetime as dt
+
 
 class UserHandler:
 
@@ -35,7 +37,7 @@ class UserHandler:
         result['urecentLogin'] = row[3]
         result['first_name']=row[4]
         result['last_name']=row[5]
-        result['profile_picture'] = row[6]
+        result['profile_pic'] = row[6]
         return result
 
     def build_user_attributes(self, uid, uname, ucreationDate, urecentLogin):
@@ -44,6 +46,14 @@ class UserHandler:
         result['uname'] = uname
         result['ucreationDate'] = ucreationDate
         result['urecentLogin'] = urecentLogin
+        return result
+
+    def build_user_update_attributes(self, uid, uname,urecentLogin,picture):
+        result = {}
+        result['uid'] = uid
+        result['uname'] = uname
+        result['urecentLogin'] = urecentLogin
+        result['profile_pic'] = picture
         return result
 
     def build_userinfo_dict(self, row):
@@ -262,6 +272,23 @@ class UserHandler:
             result_map = self.build_userinfo_dict(result)
         return jsonify(Users=result_map)
 
+    def updateUser(self, uid, form):
+        dao = PartsDAO()
+        if not dao.getUserByUserId(uid):
+                return jsonify(Error="User not found."), 404
+        else:
+            if len(form) != 2:
+                return jsonify(Error="Malformed update request"), 400
+            else:
+                profile_pic = form['picture']
+                uname = form['user_name']
+                date = dt.datetime.now().date().strftime("%m/%d/%Y")
+                if profile_pic and uname:
+                    dao.updateUser(uid,uname,profile_pic)
+                    result = self.build_user_update_attributes(uid,uname,date,profile_pic)
+                    return jsonify(User=result), 200
+                else:
+                    return jsonify(Error="Unexpected attributes in update request"), 400
 
     def deleteAccount(self,uid):
         dao = UserDAO()
