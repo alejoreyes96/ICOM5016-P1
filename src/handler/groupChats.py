@@ -85,12 +85,18 @@ class ChatHandler:
     #     result['cgid'] = row[1]
     #     return result
     #
-    # def build_isMember_dict(self, row):
-    #     result = {}
-    #     result['igid'] = row[0]
-    #     result['iuid'] = row[1]
-    #     return result
-    #
+    def build_ismember_dict(self, row):
+         result = {}
+         result['gid'] = row[0]
+         result['uid'] = row[1]
+         return result
+
+    def build_ismember_attributes(self,gid,uid):
+        result = {}
+        result['gid'] = gid
+        result['uid'] = uid
+        return result
+
     # def build_reacts_dict(self, row):
     #     result = {}
     #     result['rrid'] = row[0]
@@ -301,23 +307,6 @@ class ChatHandler:
             return jsonify(Replies=result_map)
 
 
-    def addReaction(self, userid, groupchatid, messageid, json):
-
-        dao = GroupChatsDAO()
-        if len(json) != 2:
-            return jsonify(Error="Malformed update request"), 400
-        else:
-            rtype = json['rtype']
-            rupload_date = json['rupload_date']
-
-            if rtype and rupload_date:
-                rid = dao.addReaction(userid, groupchatid, messageid, rtype, rupload_date)
-                result = self.build_reactions_attributes(rid, rtype, rupload_date)
-                return jsonify(Reaction = result), 201
-            else:
-                return jsonify(Error="Unexpected attributes in post request"), 400
-
-
     def getMessageLikesInGroupChatByUserIdGroupChatIdAndMessageId(self,messageid,groupchatid):
         dao = GroupChatsDAO()
         result = dao.getMessageLikesInGroupChatByUserIdGroupChatIdAndMessageId(groupchatid, messageid)
@@ -390,3 +379,161 @@ class ChatHandler:
             for m in messagesperday:
                 result_map.append(self.build_messages_per_day(m))
             return jsonify(List=result_map)
+
+
+
+    def reactToMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(self,userid,groupchatid,messageid,form):
+        dao = GroupChatsDAO()
+        if len(form) != 1:
+            return jsonify(Error="Malformed update request"), 400
+        else:
+            rtype = json['rtype']
+            rupload_date = dt.datetime.now().date().strftime("%m/%d/%Y")
+            if rtype and rupload_date:
+                rid = dao.reactToMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(userid,groupchatid,messageid,rtype)
+                result = self.build_reactions_attributes(rid,rtype,rupload_date)
+                return jsonify(Reaction=result), 201
+            else:
+                return jsonify(Error="Unexpected attributes in post request"), 400
+
+    def replyToMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(self, userid, groupchatid, messageid, json):
+        dao = GroupChatsDAO()
+        if len(json) != 2:
+            return jsonify(Error="Malformed update request"), 400
+        else:
+            rpreply = json['rpreply']
+            rpupload_date = dt.datetime.now().date().strftime("%m/%d/%Y")
+            if rtype and rpupload_date:
+                rpid = dao.replyToMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(userid,groupchatid,messageid,rpreply)
+                result = self.build_reply_attributes(rpid,rpupload_date,rpreply,messageid,userid)
+                return jsonify(Reaction=result), 201
+            else:
+                return jsonify(Error="Unexpected attributes in post request"), 400
+
+    def addUserToGroupChat(self,json):
+        dao = GroupChatsDAO()
+        if len(json) != 2:
+            return jsonify(Error="Malformed update request"), 400
+        else:
+            userid = json['uid']
+            groupchatid = json['gid']
+            if email:
+                gid = dao.addUserToGroupChat(userid, groupchatid)
+                result = self.build_ismember_attributes(gid,userid)
+                return jsonify(Reaction=result), 201
+            else:
+                return jsonify(Error="Unexpected attributes in post request"), 400
+
+    def insertMessage(self, userid, groupchatid,json):
+        dao = GroupChatsDAO()
+        if len(json) != 7:
+            return jsonify(Error="Malformed update request"), 400
+        else:
+
+            if rtype and rupload_date:
+                rid = dao.addReaction(userid, groupchatid, messageid, rtype, rupload_date)
+                result = self.build_reactions_attributes(rid, rtype, rupload_date)
+                return jsonify(Reaction=result), 201
+            else:
+                return jsonify(Error="Unexpected attributes in post request"), 400
+
+    def reactToReplyInGroupChatByUserIdAndGroupChatIdAndMessageId(self, userid, groupchatid, messageid, json):
+        dao = GroupChatsDAO()
+        if len(form) != 1:
+            return jsonify(Error="Malformed update request"), 400
+        else:
+            rtype = json['rtype']
+            rupload_date = dt.datetime.now().date().strftime("%m/%d/%Y")
+            if rtype:
+                rid = dao.reactToReplyInGroupChatByUserIdAndGroupChatIdAndMessageId(userid, groupchatid, messageid,rtype)
+                result = self.build_reactions_attributes(rid, rtype, rupload_date)
+                return jsonify(Reaction=result), 201
+            else:
+                return jsonify(Error="Unexpected attributes in post request"), 400
+
+    def deleteMessage(self, mid):
+        dao = GroupChatsDAO()
+        if not dao.getMessageById(mid):
+            return jsonify(Error="Group Chat not found."), 404
+        else:
+            dao.deleteGroupChatByName(gname)
+            return jsonify(DeleteStatus="OK"), 200
+
+
+    def deleteReply(self, rpid):
+        dao = GroupChatsDAO()
+        if not dao.getReplyById(rpid):
+            return jsonify(Error="Group Chat not found."), 404
+        else:
+            dao.deleteReply(rpid)
+            return jsonify(DeleteStatus="OK"), 200
+
+    def deleteReaction(self, rid):
+        dao = GroupChatsDAO()
+        if not dao.getReactionById(rid):
+            return jsonify(Error="Group Chat not found."), 404
+        else:
+            dao.deleteReaction(rid)
+            return jsonify(DeleteStatus="OK"), 200
+
+    def deleteUserFromGroupChat(self, gid,userid):
+        dao = GroupChatsDAO()
+        if not dao.getMemberFromGroupChat(gid,userid):
+            return jsonify(Error="Group Chat not found."), 404
+        else:
+            dao.deleteUserFromGroupChat(userid,gid)
+            return jsonify(DeleteStatus="OK"), 200
+
+    def updateMessage(self, gid, form):
+        dao = GroupChatsDAO()
+        if not dao.getGroupChatById(gid):
+            return jsonify(Error="GroupChat not found"), 404
+        else:
+            if len(json) != 2:
+                return jsonify(Error="Malformed update request"), 400
+            else:
+                gname = json['gname']
+                gpicture_id = json['gpicture_id']
+                gcreation_date = dt.datetime.now().date().strftime("%m/%d/%Y")
+                if gname and gpicture_id:
+                    gid = dao.updateGroupChat(gid, gname, gpicture_id)
+                    result = self.build_groupChat_attributes(gid, gname, gcreation_date, gpicture_id)
+                    return jsonify(GroupChat=result), 200
+                else:
+                    return jsonify(Error="Unexpected attributes in update request"), 400
+
+    def updateReply(self, gid, form):
+        dao = GroupChatsDAO()
+        if not dao.getGroupChatById(gid):
+            return jsonify(Error="GroupChat not found"), 404
+        else:
+            if len(json) != 2:
+                return jsonify(Error="Malformed update request"), 400
+            else:
+                gname = json['gname']
+                gpicture_id = json['gpicture_id']
+                gcreation_date = dt.datetime.now().date().strftime("%m/%d/%Y")
+                if gname and gpicture_id:
+                    gid = dao.updateGroupChat(gid, gname, gpicture_id)
+                    result = self.build_groupChat_attributes(gid, gname, gcreation_date, gpicture_id)
+                    return jsonify(GroupChat=result), 200
+                else:
+                    return jsonify(Error="Unexpected attributes in update request"), 400
+
+    def updateReaction(self, gid, form):
+        dao = GroupChatsDAO()
+        if not dao.getGroupChatById(gid):
+            return jsonify(Error="GroupChat not found"), 404
+        else:
+            if len(json) != 2:
+                return jsonify(Error="Malformed update request"), 400
+            else:
+                gname = json['gname']
+                gpicture_id = json['gpicture_id']
+                gcreation_date = dt.datetime.now().date().strftime("%m/%d/%Y")
+                if gname and gpicture_id:
+                    gid = dao.updateGroupChat(gid, gname, gpicture_id)
+                    result = self.build_groupChat_attributes(gid, gname, gcreation_date, gpicture_id)
+                    return jsonify(GroupChat=result), 200
+                else:
+                    return jsonify(Error="Unexpected attributes in update request"), 400
