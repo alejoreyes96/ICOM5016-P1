@@ -8,11 +8,11 @@ class GroupChatsDAO:
     # connection_url = "user=%s password=%s host=%s port=%s dbname=%s" % (pg_config['user'], pg_config['password'],\
     # pg_config['host'],pg_config["port"], pg_config["dbname"])
     # conn = psycopg2.connect(connection_url)
-    conn = psycopg2.connect(host='127.0.0.1', database='appdb',user='kahlil', password='password')
+    conn = psycopg2.connect(host='127.0.0.1', database='appdb',user='roxy', password='CRYSmarie2015')
 
     def getAvailableGroupChatsByUserId(self, userid):
         cursor = self.conn.cursor()
-        query = 'select  gid, gname, gcreation_date, gpicture_id_path, first_name,last_name,uid from groupchats\
+        query = 'select  gid, gname, gcreation_date, gpicture_id_path, first_name,last_name,uid from group_chats\
          natural inner join ismember natural inner join users inner join Human on human.huid=human_id where \
          users.uid = %s;'
         cursor.execute(query, (userid,))
@@ -23,17 +23,17 @@ class GroupChatsDAO:
 
     def getGroupChatInfoById(self,groupchatid):
         cursor = self.conn.cursor()
-        query = 'select gid, gname,gcreation_date,gpicture_id_path,first_name,last_name,uid from groupChats \
-                inner join Human on groupChats.huid=human.huid inner join users on users.human_id=human.huid\
-                where groupChats.gid=%s;'
+        query = 'select gid, gname,gcreation_date,gpicture_id_path,first_name,last_name,uid from group_Chats \
+                inner join Human on group_Chats.huid=human.huid inner join users on users.human_id=human.huid\
+                where group_Chats.gid=%s;'
         cursor.execute(query,(groupchatid,) )
         result = cursor.fetchone()
         return result
 
     def getAllGroupChats(self):
         cursor = self.conn.cursor()
-        query = 'select gid, gname,gcreation_date,gpicture_id_path,first_name,last_name,uid from groupChats \
-        inner join Human on groupChats.huid=human.huid inner join users on users.human_id=human.huid;'
+        query = 'select gid, gname,gcreation_date,gpicture_id_path,first_name,last_name,uid from group_Chats \
+        inner join Human on group_Chats.huid=human.huid inner join users on users.human_id=human.huid;'
         cursor.execute(query, )
         result = []
         for row in cursor:
@@ -44,7 +44,7 @@ class GroupChatsDAO:
     def getGroupChatById(self, gid):
         cursor = self.conn.cursor()
         query = "select gid, gname, gcreation_date, gpicture_id_path, first_name,last_name,uid \
-                 from groupchats inner join Human on groupChats.huid=human.huid inner join users on \
+                 from group_chats inner join Human on group_Chats.huid=human.huid inner join users on \
                  users.human_id=human.huid where gid = %s;"
         cursor.execute(query, (gid,))
         result = cursor.fetchone()
@@ -53,7 +53,7 @@ class GroupChatsDAO:
     def getGroupChatByName(self, gname):
         cursor = self.conn.cursor()
         query = "select gid, gname, gcreation_date, gpicture_id_path, first_name,last_name,uid \
-                 from groupchats inner join Human on groupChats.huid=human.huid inner join users on \
+                 from group_chats inner join Human on group_Chats.huid=human.huid inner join users on \
                  users.human_id=human.huid where gname = %s;"
         cursor.execute(query, (gname,))
         result = cursor.fetchone()
