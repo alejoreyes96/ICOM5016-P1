@@ -251,9 +251,9 @@ class ChatHandler:
                 else:
                      return jsonify(Error="Unexpected attributes in update request"), 400
 
-    def deleteGroupChatById(self, gid):
+    def deleteGroupChatById(self, gid,uid):
         dao = GroupChatsDAO()
-        if not dao.getGroupChatById(gid):
+        if not dao.getGroupChatByGroupChatIdAndUserId(gid,uid):
             return jsonify(Error="Group Chat not found."), 404
         else:
             dao.deleteGroupChatById(gid)

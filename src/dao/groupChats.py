@@ -176,6 +176,14 @@ class GroupChatsDAO:
             result.append(row)
         return result
 
+    def getGroupChatByGroupChatIdAndUserId(self, gid,uid):
+        cursor = self.conn.cursor()
+        query = "select gid from group_chats inner join Human on group_Chats.huid=human.huid inner join users on \
+                 users.human_id=human.huid where gid =%s and users.uid=%s;"
+        cursor.execute(query, (gid,uid,))
+        result = cursor.fetchone()
+        return result
+
 
     def replyToMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(self, userid,groupchatid,messageid,text):
         cursor = self.conn.cursor()
