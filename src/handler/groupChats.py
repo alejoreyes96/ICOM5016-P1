@@ -153,12 +153,34 @@ class ChatHandler:
     #     result['chid'] = row[1]
     #     return result
     #
-    # def build_replied_dict(self, row):
-    #     result = {}
-    #     result['rrpid'] = row[0]
-    #     result['rmid'] = row[1]
-    #     return result
-    #
+    def build_reply_update_dict(self, row):
+         result = {}
+         result['rpid'] = row[0]
+         result['rpreply'] = row[1]
+         result['rpupload_date'] = row[2]
+         return result
+
+    def build_reply_update_attributes(self, rpid,rpreply,rpupload_date):
+         result = {}
+         result['rpid'] = rpid
+         result['rpreply'] = rpreply
+         result['rpupload_date'] = rpupload_date
+         return result
+
+    def build_reaction_update_dict(self, row):
+        result = {}
+        result['rid'] = row[0]
+        result['rtype'] = row[1]
+        result['rupload_date'] = row[2]
+        return result
+
+    def build_reaction_update_attributes(self, rid, rtype, rupload_date):
+        result = {}
+        result['rid'] = rid
+        result['rtype'] = rtype
+        result['rupload_date'] = rupload_date
+        return result
+
     # def build_makesReply_dict(self, row):
     #     result = {}
     #     result['mrpid'] = row[0]
@@ -502,38 +524,36 @@ class ChatHandler:
                 else:
                     return jsonify(Error="Unexpected attributes in update request"), 400
 
-    def updateReply(self, gid, form):
+    def updateReply(self, rpid, json):
         dao = GroupChatsDAO()
-        if not dao.getGroupChatById(gid):
-            return jsonify(Error="GroupChat not found"), 404
+        if not dao.getReplyByIdOnly(rpid):
+            return jsonify(Error="Reply not found"), 404
         else:
-            if len(json) != 2:
+            if len(json) != 1:
                 return jsonify(Error="Malformed update request"), 400
             else:
-                gname = json['gname']
-                gpicture_id = json['gpicture_id']
-                gcreation_date = dt.datetime.now().date().strftime("%m/%d/%Y")
-                if gname and gpicture_id:
-                    gid = dao.updateGroupChat(gid, gname, gpicture_id)
-                    result = self.build_groupChat_attributes(gid, gname, gcreation_date, gpicture_id)
-                    return jsonify(GroupChat=result), 200
+                rpreply = json['rpreply']
+                rpupdate_date = dt.datetime.now().date().strftime("%m/%d/%Y")
+                if rpreply:
+                    rpid = dao.updateReply(rpid,rpreply)
+                    result = self.build_reply_update_attributes(rpid,rpreply,rpupdate_date)
+                    return jsonify(Update=result), 200
                 else:
                     return jsonify(Error="Unexpected attributes in update request"), 400
 
-    def updateReaction(self, gid, form):
+    def updateReaction(self, rid, json):
         dao = GroupChatsDAO()
-        if not dao.getGroupChatById(gid):
-            return jsonify(Error="GroupChat not found"), 404
+        if not dao.getReactionByIdOnly(rid):
+            return jsonify(Error="Reaction not found"), 404
         else:
-            if len(json) != 2:
+            if len(json) != 1:
                 return jsonify(Error="Malformed update request"), 400
             else:
-                gname = json['gname']
-                gpicture_id = json['gpicture_id']
-                gcreation_date = dt.datetime.now().date().strftime("%m/%d/%Y")
-                if gname and gpicture_id:
-                    gid = dao.updateGroupChat(gid, gname, gpicture_id)
-                    result = self.build_groupChat_attributes(gid, gname, gcreation_date, gpicture_id)
-                    return jsonify(GroupChat=result), 200
+                rtype = json['rtype']
+                rupdate_date = dt.datetime.now().date().strftime("%m/%d/%Y")
+                if rtype:
+                    rid = dao.updateGroupChat(rid,rtype)
+                    result = self.build_reaction_update_attributes(rid,rtype,rupdate_date)
+                    return jsonify(Update=result), 200
                 else:
                     return jsonify(Error="Unexpected attributes in update request"), 400

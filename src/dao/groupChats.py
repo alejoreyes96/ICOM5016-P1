@@ -191,6 +191,19 @@ class GroupChatsDAO:
         result = cursor.fetchone()
         return result
 
+    def getReplyByIdOnly(self,rpid):
+        cursor = self.conn.cursor()
+        query = "select * from replies where rpid=%s;"
+        cursor.execute(query, (rpid,))
+        result = cursor.fetchone()
+        return result
+
+    def getReactionByIdOnly(self, rid):
+        cursor = self.conn.cursor()
+        query = "select * from reactions where rid=%s;"
+        cursor.execute(query, (rid,))
+        result = cursor.fetchone()
+        return result
 
     def replyToMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(self, userid,groupchatid,messageid,text):
         cursor = self.conn.cursor()
