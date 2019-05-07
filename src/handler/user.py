@@ -163,13 +163,13 @@ class UserHandler:
         return jsonify(DeleteStatus="OK"), 200
 
 
-    #def signInUser(self, form):
-     #   username = form['username']
-      #  password = form['password']
-      #  dao = UserDAO()
-      #  result = dao.signInUser(username, password)
-      #  dict_map = self.build_user_dict(result)
-      #  return jsonify(Users=dict_map)
+    def signInUser(self, form):
+        username = form['username']
+        password = form['password']
+        dao = UserDAO()
+        result = dao.signInUser(username, password)
+        dict_map = self.build_userinfo_dict(result)
+        return jsonify(Users=dict_map)
 
     def getAllUsers(self):
         dao = UserDAO()

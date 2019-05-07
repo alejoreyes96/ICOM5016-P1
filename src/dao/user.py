@@ -26,7 +26,7 @@ class UserDAO:
     def registerFriendByUserId(self,userid,friendid):
         cursor = self.conn.cursor()
         query = "insert into friends(fuid,uid) values (%s, %s) returning fuid;"
-        cursor.execute(query, (friendid,userid))
+        cursor.execute(query, (friendid,userid,))
         fuid = cursor.fetchone()[0]
         self.conn.commit()
         return fuid
@@ -35,21 +35,19 @@ class UserDAO:
         cursor = self.conn.cursor()
         query = "with first_get as(select uid from human inner join users on human.huid=users.human_id where \
         huemail=%s)insert into friends(fuid,uid) values((select uid from first_get),%s) returning fuid;"
-        cursor.execute(query, (friend_email,userid))
+        cursor.execute(query, (friend_email,userid,))
         fuid = cursor.fetchone()[0]
         self.conn.commit()
         return fuid
 
-    #def signInUser(self, username, password):
-     #   if username == 'Crystal':
-      #      result = [1, username, '02/25/2019', '02/26/2019']
-       # elif username == 'Kahlil':
-        #    result = [2, username, '02/25/2019', '02/28/2019']
-       # elif username == 'Alejandro':
-        #    result = [3, username, '02/25/2019', '02/27/2019']
-       # else:
-        #    result = [69, username, '03/28/2019', '03/29/2019']
-       # return result
+    def signInUser(self, username, password):
+        cursor = self.conn.cursor()
+        query = "select uid, user_name, ucreation_date, umost_recent_login,first_name,last_name, profile_pic\
+        from users inner join human on users.human_id=human.huid where user_name=%s and hupassword=%s; "
+        cursor.execute(query, (username,password,))
+        fuid = cursor.fetchone()[0]
+        self.conn.commit()
+        return fuid
 
     def getAllUsers(self):
         cursor = self.conn.cursor()
