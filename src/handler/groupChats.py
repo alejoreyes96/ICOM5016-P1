@@ -255,7 +255,7 @@ class ChatHandler:
                 result_map.append(result)
         return jsonify(GroupChat=result_map), 201
 
-    def updateGroupChat(self, gid, form):
+    def updateGroupChat(self, gid, json):
          dao = GroupChatsDAO()
          if not dao.getGroupChatById(gid):
              return jsonify(Error="GroupChat not found"), 404
