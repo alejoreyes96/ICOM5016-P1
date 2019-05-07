@@ -181,7 +181,11 @@ class UserDAO:
 
     def deleteAccount(self,uid):
         cursor = self.conn.cursor()
-        query = "delete from friends where fuid = all(select uid from users where user_name=%s);"
+        query = "with first_delete as(delete from ismember where uid=%s),second_delete as(delete from replies \
+        where uid=%s),third_delete as(delete from reactions where uid=%s),fourth_delete as(delete from messages\
+        where uid=%s),fifth_delete as(delete from users where uid=4 returning human_id),sixth_delete as(delete \
+        from human where huid=(select human_id from fifth_delete))delete from group_chats where huid=(select \
+        human_id from fifth_delete);"
         cursor.execute(query, (uid,))
         self.conn.commit()
         return uid
