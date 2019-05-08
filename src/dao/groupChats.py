@@ -197,6 +197,14 @@ class GroupChatsDAO:
         result = cursor.fetchone()
         return result
 
+    def getHashtagByHashtag(self, hhashtag):
+        cursor = self.conn.cursor()
+        query = "select * from hashtags where hhashtag=%s;"
+        cursor.execute(query, (hhashtag,))
+        result = cursor.fetchone()
+        return result
+
+
     def getReactionByIdOnly(self, rid):
         cursor = self.conn.cursor()
         query = "select * from reactions where rid=%s;"
@@ -231,16 +239,52 @@ class GroupChatsDAO:
         self.conn.commit()
         return rid
 
-    def insertMessage(self, uid, gid, mmessage, msize, mlength, mtype, mpath, mhashtag):
+    def insertMessage(self, uid, gid, mmessage, msize, mlength, mtype, mpath):
         cursor = self.conn.cursor()
         date = dt.datetime.now().date().strftime("%m/%d/%Y")
-        query = "with first_get as(insert into messages(uid,mupload_date,msize,mmessage,\
-        mmedia_path,mlength,mtype) values(%s,%s,%s,%s,%s,%s,%s) returning mid) insert into \
-        posted_to(mid,gid) values((select mid from first_get),%s) returning mid;"
-        cursor.execute(query, (uid, date, msize, mmessage, mpath,mlength, mtype,gid,mhashtag,))
+        query = "with first_get as(insert into messages(uid,mupload_date,msize,mmessage,mmedia_path,mlength,mtype)\
+        values(1,'04/04/2018',3,'i am very pretty','pretty.png',0,'png') returning mid)\
+        insert into posted_to(mid,gid) values((select mid from first_get),1) returning mid;"
+        cursor.execute(query, (uid, date, msize, mmessage, mpath,mlength, mtype,gid,))
         mid = cursor.fetchone()[0]
         self.conn.commit()
         return mid
+
+    def insertHashtagAndContainsFromMessage(self,mid,hhashtag):
+        cursor = self.conn.cursor()
+        query = "with first_try as (insert into hashtags(hhashtag) values(%s) returning hid) insert into \
+        contains(mid,hid,rpid) values(%s,(select hid from first_try),null) returning cid;"
+        cursor.execute(query, (hhashtag,mid,))
+        hid = cursor.fetchone()[0]
+        self.conn.commit()
+        return hid
+
+    def insertContainsFromMessage(self,mid,hhashtag):
+        cursor = self.conn.cursor()
+        query = "with first_try as (select hid from hashtags where hhashtag=%s)insert into contains(mid,hid,rpid)\
+        values(%s,(select hid from first_try),null) returning cid;"
+        cursor.execute(query, (hhashtag,mid,))
+        hid = cursor.fetchone()[0]
+        self.conn.commit()
+        return hid
+
+    def insertHashtagAndContainsFromReply(self,rpid,hhashtag):
+        cursor = self.conn.cursor()
+        query = "with first_try as (insert into hashtags(hhashtag) values(%s) returning hid) insert into \
+        contains(mid,hid,rpid) values(null,(select hid from first_try),%s) returning cid;"
+        cursor.execute(query, (hhashtag,rpid,))
+        hid = cursor.fetchone()[0]
+        self.conn.commit()
+        return hid
+
+    def insertContainsFromReply(self, rpid, hhashtag):
+        cursor = self.conn.cursor()
+        query = "with first_try as (select hid from hashtags where hhashtag=%s)insert into contains(mid,hid,rpid)\
+           values(null,(select hid from first_try),%s) returning cid;"
+        cursor.execute(query, (hhashtag, mid,))
+        hid = cursor.fetchone()[0]
+        self.conn.commit()
+        return hid
 
     def createGroupChat(self, userid, gname,picture_id):
         cursor = self.conn.cursor()
@@ -317,10 +361,10 @@ class GroupChatsDAO:
         self.conn.commit()
         return rid
 
-    def updateMessage(self,mid, mmessage, msize, mlength, mgif, mpath, mhashtag):
+    def updateMessage(self,mid, mmessage, msize, mlength, mgif, mpath):
         cursor = self.conn.cursor()
         query = "update messages set mmessage=%s, msize = %s, mlength = %s, mgif = %s, mpath = %s where mid = %s;"
-        cursor.execute(query, (mid, mmessage, msize, mlength, mgif, mpath, mhashtag,))
+        cursor.execute(query, (mid, mmessage, msize, mlength, mgif, mpath,))
         self.conn.commit()
         return mid
 

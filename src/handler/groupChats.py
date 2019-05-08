@@ -434,9 +434,14 @@ class ChatHandler:
             mpath=json['mpath']
             mhashtag=json['mhashtag']
             uid=userid
-            if mmessage and msize and mlength and mtype and mpath and mhashtag:
-                mid = dao.insertMessage(uid, groupchatid, mmessage, msize, mlength, mtype, mpath, mhashtag)
+            if mmessage and msize and mlength and mtype and mpath:
+                mid = dao.insertMessage(uid, groupchatid, mmessage, msize, mlength, mtype, mpath)
                 result = self.build_message_attributes(mid,mmessage,mupload_date,msize,mlength.mtype,mpath,mhashtag,uid)
+                for value in mhashtag:
+                    if dao.getHashtagByName(value) is None:
+                        entry = dao.insertHashtagAndContainsFromMessage(mid,value)
+                    else:
+                        entry = dao.insertContainsFromMessage(mid,value)
                 return jsonify(Message=result), 201
             else:
                 return jsonify(Error="Unexpected attributes in post request"), 400
@@ -488,21 +493,32 @@ class ChatHandler:
             dao.deleteUserFromGroupChat(userid,gid)
             return jsonify(DeleteStatus="OK"), 200
 
-    def updateMessage(self, gid, form):
+    def updateMessage(self,userid,groupchatid,mid,json):
         dao = GroupChatsDAO()
-        if not dao.getGroupChatById(gid):
-            return jsonify(Error="GroupChat not found"), 404
+        if not dao.getMessageById(mid):
+            return jsonify(Error="Message not found"), 404
         else:
-            if len(json) != 2:
+            if len(json) != 7:
                 return jsonify(Error="Malformed update request"), 400
             else:
-                gname = json['gname']
-                gpicture_id = json['gpicture_id']
-                gcreation_date = dt.datetime.now().date().strftime("%m/%d/%Y")
-                if gname and gpicture_id:
-                    gid = dao.updateGroupChat(gid, gname, gpicture_id)
-                    result = self.build_groupChat_attributes(gid, gname, gcreation_date, gpicture_id)
-                    return jsonify(GroupChat=result), 200
+                mmessage = json['mmessage']
+                mupload_date = json['mupload_date']
+                msize = json['msize']
+                mlength = json['mlength']
+                mtype = json['mtype']
+                mpath = json['mpath']
+                mhashtag = json['mhashtag']
+                uid = userid
+                if mmessage and msize and mlength and mtype and mpath:
+                    dao.updateMessage(uid, groupchatid, mmessage, msize, mlength, mtype, mpath)
+                    result = self.build_message_attributes(mid, mmessage, mupload_date, msize, mlength.mtype, mpath,mhashtag, uid)
+                    for value in mhashtag:
+                        if not dao.getHashtagByName(value):
+                            entry = dao.insertHashtagAndContainsFromMessage(mid, value)
+                        else:
+                            entry = dao.insertContainsFromMessage(mid, value)
+
+                    return jsonify(Message=result), 201
                 else:
                     return jsonify(Error="Unexpected attributes in update request"), 400
 
