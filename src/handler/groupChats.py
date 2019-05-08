@@ -395,14 +395,25 @@ class ChatHandler:
 
     def replyToMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(self, userid, groupchatid, messageid, json):
         dao = GroupChatsDAO()
-        if len(json) != 2:
+        if len(json) != 7:
             return jsonify(Error="Malformed update request"), 400
         else:
             rpreply = json['rpreply']
             rpupload_date = dt.datetime.now().date().strftime("%m/%d/%Y")
+            rpsize = json['rpsize']
+            rplength = json['rplength']
+            rptype = json['rptype']
+            rppath = json['rppath']
+            rphashtag = json['rphashtag']
             if rtype and rpupload_date:
-                rpid = dao.replyToMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(userid,groupchatid,messageid,rpreply)
+                rpid = dao.replyToMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(userid,groupchatid,messageid,rpreply,
+                                                                                       rpsize,rplength,rptype,rppath)
                 result = self.build_reply_attributes(rpid,rpupload_date,rpreply,messageid,userid)
+                for value in rphashtag:
+                    if dao.getHashtagByName(value) is None:
+                        entry = dao.insertHashtagAndContainsFromReply(rpid,value)
+                    else:
+                        entry = dao.insertContainsFromReply(rpid,value)
                 return jsonify(Reaction=result), 201
             else:
                 return jsonify(Error="Unexpected attributes in post request"), 400

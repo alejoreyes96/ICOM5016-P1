@@ -212,11 +212,13 @@ class GroupChatsDAO:
         result = cursor.fetchone()
         return result
 
-    def replyToMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(self, userid,groupchatid,messageid,text):
+    def replyToMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(self, userid,groupchatid,messageid,
+                                                                    text,rpsize,rplength,rptype,rppath):
         cursor = self.conn.cursor()
         date = dt.datetime.now().date().strftime("%m/%d/%Y")
-        query = "insert into replies(rpuload_date,rpreply,mid,uid) values (%s, %s, %s, %s) returning rpid;"
-        cursor.execute(query, (date,text,messageid,userid,))
+        query = "insert into replies(rpuload_date,rpreply,mid,uid,rppicture,rptype,rpsize,rplength) \
+        values (%s, %s, %s, %s,%s,%s,%s,%s) returning rpid;"
+        cursor.execute(query, (date,text,messageid,userid,rppath,rptype,rpsize,rplength,))
         rpid = cursor.fetchone()[0]
         self.conn.commit()
         return rpid
