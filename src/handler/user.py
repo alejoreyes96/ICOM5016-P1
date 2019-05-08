@@ -70,6 +70,21 @@ class UserHandler:
         result['umost_recent_login'] = row[9]
         return result
 
+    def build_userinfo_attributes(self, huid,first_name,last_name,birthdate,huemail,phone_number,uid,
+                                  user_name,ucreation_date,umost_recent_login):
+        result = {}
+        result['huid'] = huid
+        result['first_name'] = first_name
+        result['last_name'] = last_name
+        result['birthdate'] = birthdate
+        result['huemail'] = huemail
+        result['phone_number'] = phone_number
+        result['uid'] = uid
+        result['user_name'] = user_name
+        result['ucreation_date'] = ucreation_date
+        result['umost_recent_login'] = umost_recent_login
+        return result
+
     def build_groupChat_dict(self, row):
         result = {}
         result['gid'] = row[0]
@@ -174,12 +189,22 @@ class UserHandler:
 
 
     def signInUser(self, form):
-        username = form['username']
-        password = form['password']
-        dao = UserDAO()
-        result = dao.signInUser(username, password)
-        dict_map = self.build_userinfo_dict(result)
-        return jsonify(Users=dict_map)
+        if len(form) != 2:
+            return jsonify(Error="Malformed Post Request"), 400
+        else:
+            username = form['user_name']
+            password = form['password']
+            dao = UserDAO()
+            if username and password:
+                result = dao.signInUser(username, password)
+                if result is None:
+                    return jsonify(Error="User not found."), 404
+                else:
+                    dict_map = self.build_userinfo_attributes(result)
+                    return jsonify(Users=dict_map)
+            else:
+                return jsonify(Error="Malformed Post Request"), 400
+
 
     def getAllUsers(self):
         dao = UserDAO()

@@ -111,36 +111,29 @@ class ChatHandler:
     def build_reply_dict(self, row):
         result = {}
         result['rpid'] = row[0]
-        result['rp_reply_text'] = row[1]
+        result['rp_reply'] = row[1]
         result['rpupload_date'] = row[2]
-        result['uid'] = row[3]
-        result['user_name'] = row[4]
-        result['first_name'] = row[5]
-
+        result['rpsize']=row[3]
+        result['rplength'] = row[4]
+        result['rppicture'] = row[5]
+        result['rptype'] = row[6]
+        result['uid'] = row[7]
+        result['user_name'] = row[8]
+        result['first_name'] = row[9]
         return result
 
-    def build_reply_attributes(self, rpid, rp_reply_text, rpupload_date, mid, uid):
+    def build_reply_attributes(self, rpid, rp_reply, rpupload_date,rpsize,rplength,rppicture,rptype, mid, uid):
         result = {}
         result['rpid'] = rpid
         result['rpupload_date'] = rpupload_date
-        result['rp_reply_text'] = rp_reply_text
+        result['rp_reply'] = rp_reply
+        result['rpsize'] = rpsize
+        result['rplength'] = rplength
+        result['rppicture'] = rppicture
+        result['rptype'] = rptype
         result['mid'] = mid
         result['uid'] = uid
         return result
-
-    def build_reply_update_dict(self, row):
-         result = {}
-         result['rpid'] = row[0]
-         result['rpreply'] = row[1]
-         result['rpupload_date'] = row[2]
-         return result
-
-    def build_reply_update_attributes(self, rpid,rpreply,rpupload_date):
-         result = {}
-         result['rpid'] = rpid
-         result['rpreply'] = rpreply
-         result['rpupload_date'] = rpupload_date
-         return result
 
     def build_reaction_update_dict(self, row):
         result = {}
@@ -155,12 +148,6 @@ class ChatHandler:
         result['rtype'] = rtype
         result['rupload_date'] = rupload_date
         return result
-
-    # def build_makesReply_dict(self, row):
-    #     result = {}
-    #     result['mrpid'] = row[0]
-    #     result['mmid'] = row[1]
-    #     return result
 
     def build_user_dict(self, row):
         result = {}
@@ -521,7 +508,7 @@ class ChatHandler:
                 mhashtag = json['mhashtag']
                 uid = userid
                 if mmessage and msize and mlength and mtype and mpath:
-                    dao.updateMessage(uid, groupchatid, mmessage, msize, mlength, mtype, mpath)
+                    dao.updateMessage(mid, groupchatid, mmessage, msize, mlength, mtype, mpath)
                     result = self.build_message_attributes(mid, mmessage, mupload_date, msize, mlength.mtype, mpath,mhashtag, uid)
                     for value in mhashtag:
                         if not dao.getHashtagByName(value):
@@ -533,7 +520,7 @@ class ChatHandler:
                 else:
                     return jsonify(Error="Unexpected attributes in update request"), 400
 
-    def updateReply(self, rpid, json):
+    def updateReply(self, userid,rpid, json):
         dao = GroupChatsDAO()
         if not dao.getReplyByIdOnly(rpid):
             return jsonify(Error="Reply not found"), 404
@@ -542,10 +529,21 @@ class ChatHandler:
                 return jsonify(Error="Malformed update request"), 400
             else:
                 rpreply = json['rpreply']
-                rpupdate_date = dt.datetime.now().date().strftime("%m/%d/%Y")
+                rpupdate_date = json['rpupload_date']
+                rpsize = json['rpsize']
+                rplength = json['rplength']
+                rptype = json['rptype']
+                rppath = json['rppath']
+                rphashtag = json['rphashtag']
+                uid = userid
                 if rpreply:
-                    rpid = dao.updateReply(rpid,rpreply)
-                    result = self.build_reply_update_attributes(rpid,rpreply,rpupdate_date)
+                    rpid = dao.updateReply(rpid,rpreply,rpsize,rplength,rptype,rppath)
+                    result = self.build_reply_attributes(rpid,rpupdate_date,rpreply,rpsize,rplength,rptype,rppath,messageid,uid)
+                    for value in rphashtag:
+                        if dao.getHashtagByName(value) is None:
+                            entry = dao.insertHashtagAndContainsFromReply(rpid, value)
+                        else:
+                            entry = dao.insertContainsFromReply(rpid, value)
                     return jsonify(Update=result), 200
                 else:
                     return jsonify(Error="Unexpected attributes in update request"), 400
