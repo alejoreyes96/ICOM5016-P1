@@ -140,7 +140,7 @@ def getMessageReactionsById(userid, groupchatid, messageid, rid):
     elif request.method == 'DELETE':
         return ChatHandler().deleteReaction(groupchatid, messageid, rid)
     else:
-        return ChatHandler().getMessageReactionsById(userid, groupchatid, messageid, rid)
+        return ChatHandler().getMessageReactionById(userid, groupchatid, messageid, rid)
 
 @app.route('/FFMA/messages/')
 def getAllMessages():
@@ -168,7 +168,7 @@ def getRepliesFromMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(userid, g
     else:
         return ChatHandler().getRepliesFromMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(userid, groupchatid, messageid)
 
-@app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/replies/<int:replyid>', methods=['GET', 'PUT', 'DELETE'])
+@app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/replies/<int:replyid>/', methods=['GET', 'PUT', 'DELETE'])
 @app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/replies/<int:replyid>', methods=['GET', 'PUT', 'DELETE'])
 def getRepliesById(userid, groupchatid, messageid, replyid):
     if request.method == 'PUT':

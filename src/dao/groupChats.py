@@ -74,7 +74,7 @@ class GroupChatsDAO:
         cursor = self.conn.cursor()
         query = "select mid,mmessage,mupload_date,msize,mlength,mtype,mmedia_path,uid from users natural \
                 inner join messages natural inner join posted_to where gid = %s order by messages.mid;"
-        cursor.execute(query, (groupchatid,))
+        cursor.execute(query,(groupchatid,))
         result = []
         for row in cursor:
             result.append(row)
@@ -122,18 +122,19 @@ class GroupChatsDAO:
         users.uid, user_name, human.first_name from messages inner join replies on messages.mid=replies.mid \
         inner join users on users.uid=replies.uid inner join ismember on users.uid=ismember.uid inner join \
         human on users.human_id=human.huid inner join posted_to on posted_to.mid=messages.mid where \
-        messages.mid=%s and posted_to.gid=%s;"
+        messages.mid=%s and posted_to.gid=%s order by replies.rpid;"
         cursor.execute(query, (mid,gid,))
         result = []
         for row in cursor:
             result.append(row)
         return result
 
-    def getMessageReactionsInGroupChatByUserIdAndGroupChatIdAndMessageId(self,groupchatid, messageid):
+    def getMessageReactionsInGroupChatByUserIdAndGroupChatIdAndMessageId(self,userid,groupchatid, messageid):
         cursor = self.conn.cursor()
         query = "select reactions.rtype, reactions.rid, users.uid, user_name, rupload_date, human.first_name, \
         human.last_name from messages inner join reactions on \
-        reactions.mid=messages.mid inner join users on users.uid=reactions.uid   inner join ismember on users.uid=ismember.uid inner join human on \
+        reactions.mid=messages.mid inner join users on users.uid=reactions.uid   inner join ismember \
+        on users.uid=ismember.uid inner join human on \
         users.human_id=human.huid  where messages.mid=%s and ismember.gid=%s;"
         cursor.execute(query, (groupchatid, messageid,))
         result = []
@@ -205,9 +206,9 @@ class GroupChatsDAO:
         return result
 
 
-    def getReactionByIdOnly(self, rid):
+    def getReactionById(self, rid):
         cursor = self.conn.cursor()
-        query = "select * from reactions where rid=%s;"
+        query = "select rid,rtype,rupload_date from reactions where rid=%s;"
         cursor.execute(query, (rid,))
         result = cursor.fetchone()
         return result
@@ -337,7 +338,7 @@ class GroupChatsDAO:
 
     def deleteReaction(self, rid):
         cursor = self.conn.cursor()
-        query = "delete from reaction where rid = %s;"
+        query = "delete from reactions where rid = %s;"
         cursor.execute(query, (rid,))
         self.conn.commit()
         return rid
@@ -352,7 +353,7 @@ class GroupChatsDAO:
     def updateGroupChat(self, gid, gname,picture):
         cursor = self.conn.cursor()
         query = "update group_chats set gname=%s, gpicture_id_path=%s where gid = %s;"
-        cursor.execute(query, (gid, gname,picture,))
+        cursor.execute(query, (gname,picture,gid,))
         self.conn.commit()
         return gid
 

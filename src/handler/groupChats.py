@@ -223,16 +223,14 @@ class ChatHandler:
         chat_list = dao.getGroupChatById(gid)
         result_map = []
         if not chat_list:
-            return jsonify(Error="Message Not Found"), 404
+            return jsonify(Error="GroupChat Not Found"), 404
         else:
-            for row in chat_list:
-                result = self.build_groupChats_dict(row)
-                result_map.append(result)
-        return jsonify(GroupChat=result_map), 201
+            result_map = self.build_groupChats_dict(chat_list)
+            return jsonify(GroupChat=result_map), 201
 
     def updateGroupChat(self, uid,gid, json):
          dao = GroupChatsDAO()
-         if not dao.getGroupChatInfoById(gid):
+         if not dao.getGroupChatById(gid):
              return jsonify(Error="GroupChat not found"), 404
          else:
              if len(json) != 2:
@@ -243,7 +241,7 @@ class ChatHandler:
                 gcreation_date = dt.datetime.now().date().strftime("%m/%d/%Y")
                 if gname and gpicture_id:
                      gid = dao.updateGroupChat(gid, gname, gpicture_id)
-                     result = self.build_groupChat_attributes(gid, gname,gcreation_date,gpicture_id)
+                     result = self.build_groupChat_attributes(gid, gname,gcreation_date,gpicture_id,uid)
                      return jsonify(GroupChat=result), 200
                 else:
                      return jsonify(Error="Unexpected attributes in update request"), 400
@@ -283,7 +281,7 @@ class ChatHandler:
 
     def getMessageReactionsInGroupChatByUserIdAndGroupChatIdAndMessageId(self, userid, groupchatid, messageid):
         dao = GroupChatsDAO()
-        result = dao.getMessageReactionsInGroupChatByUserIdAndGroupChatIdAndMessageId(userid,groupchatid, messageid)
+        result = dao.getMessageReactionsInGroupChatByUserIdAndGroupChatIdAndMessageId(userid,groupchatid,messageid)
         result_map = []
         if result is None:
             return jsonify(Error="Unable to get reactions")
@@ -364,6 +362,24 @@ class ChatHandler:
             return jsonify(Error="Group chat not found"), 404
         else:
             groupchat = self.build_groupChats_dict(row)
+            return jsonify(GroupChat=groupchat)
+
+    def getReplyById(self, uid,gid,mid,rpid):
+        dao = GroupChatsDAO()
+        row = dao.getReplyById(uid,gid,mid,rpid)
+        if not row:
+            return jsonify(Error="Reply not found"), 404
+        else:
+            groupchat = self.build_reply_dict(row)
+            return jsonify(GroupChat=groupchat)
+
+    def getMessageReactionById(self, uid,gid,mid,rpid):
+        dao = GroupChatsDAO()
+        row = dao.getReactionById(rpid)
+        if not row:
+            return jsonify(Error="Reply not found"), 404
+        else:
+            groupchat = self.build_reaction_update_dict(row)
             return jsonify(GroupChat=groupchat)
 
     def getMessagesPerDay(self):
@@ -477,9 +493,9 @@ class ChatHandler:
             return jsonify(DeleteStatus="OK"), 200
 
 
-    def deleteReply(self, rpid):
+    def deleteReply(self, uid,gid,mid,rpid):
         dao = GroupChatsDAO()
-        if not dao.getReplyById(rpid):
+        if not dao.getReplyById(uid,gid,mid,rpid):
             return jsonify(Error="Group Chat not found."), 404
         else:
             dao.deleteReply(rpid)
@@ -560,7 +576,7 @@ class ChatHandler:
 
     def updateReaction(self, gid,mid,rid, json):
         dao = GroupChatsDAO()
-        if not dao.getReactionByIdOnly(rid):
+        if not dao.getReactionById(rid):
             return jsonify(Error="Reaction not found"), 404
         else:
             if len(json) != 1:
