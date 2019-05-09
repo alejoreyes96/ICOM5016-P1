@@ -123,7 +123,7 @@ class UserHandler:
         result['email'] = email
         return result
 
-    def registerHumanandcreateuser(self, form):
+    def registerHumanAndCreateUser(self, form):
         if len(form) != 7:
             return jsonify(Error="Malformed Post Request"), 400
         else:
@@ -136,7 +136,7 @@ class UserHandler:
             phone = form['phone']
             if username and password and birth_date and first_name and last_name and email and phone:
                 dao = UserDAO()
-                huid = dao.registerHuman(first_name,last_name,birth_date,email,password,phone,username)
+                huid = dao.registerHumanAndCreateUser(first_name,last_name,birth_date,email,password,phone,username)
                 result = self.build_human_attributes(huid,first_name,last_name,birth_date,email,password,phone,username)
                 return jsonify(User=result), 201
             else:
@@ -200,7 +200,7 @@ class UserHandler:
                 if result is None:
                     return jsonify(Error="User not found."), 404
                 else:
-                    dict_map = self.build_userinfo_attributes(result)
+                    dict_map = self.build_user_dict(result)
                     return jsonify(Users=dict_map)
             else:
                 return jsonify(Error="Malformed Post Request"), 400

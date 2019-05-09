@@ -20,7 +20,7 @@ def greeting():
 def registerHuman():
     if request.method == 'POST':
         print("REQUEST: ", request.json)
-        return UserHandler().registerHuman(request.json)
+        return UserHandler().registerHumanAndCreateUser(request.json)
     else:
         return jsonify(Error="Method not allowed."), 405
 
@@ -29,6 +29,7 @@ def registerHuman():
 @app.route('/FFMA/sign-in', methods=['GET', 'POST'])
 def signInUser():
     if request.method == 'POST':
+        print("REQUEST",request.json)
         return UserHandler().signInUser(request.json)
     else:
         return jsonify(Error="Method not allowed."), 405
@@ -78,6 +79,7 @@ def getAvailableGroupChatsByUserId(userid):
     if request.method == 'GET':
         return ChatHandler().getAvailableGroupChatsByUserId(userid)
     else:
+        print("Request",request.json)
         return ChatHandler().createGroupChat(userid, request.json)
 
 
@@ -85,9 +87,9 @@ def getAvailableGroupChatsByUserId(userid):
 @app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>', methods=['GET', 'PUT', 'DELETE'])
 def getGroupChatById(userid, groupchatid):
     if request.method == 'PUT':
-        return ChatHandler().updateGroupChat(groupchatid, request.json)
+        return ChatHandler().updateGroupChat(userid,groupchatid, request.json)
     elif request.method == 'DELETE':
-        return ChatHandler().deleteGroupChat(groupchatid)
+        return ChatHandler().deleteGroupChatById(userid,groupchatid)
     else:
         return ChatHandler().getGroupChatById(groupchatid)
 

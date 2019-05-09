@@ -217,9 +217,9 @@ class ChatHandler:
                 result_map.append(result)
         return jsonify(GroupChat=result_map), 201
 
-    def updateGroupChat(self, gid, json):
+    def updateGroupChat(self, uid,gid, json):
          dao = GroupChatsDAO()
-         if not dao.getGroupChatById(gid):
+         if not dao.getGroupChatInfoById(gid):
              return jsonify(Error="GroupChat not found"), 404
          else:
              if len(json) != 2:
@@ -235,7 +235,7 @@ class ChatHandler:
                 else:
                      return jsonify(Error="Unexpected attributes in update request"), 400
 
-    def deleteGroupChatById(self, gid,uid):
+    def deleteGroupChatById(self, uid,gid):
         dao = GroupChatsDAO()
         if not dao.getGroupChatByGroupChatIdAndUserId(gid,uid):
             return jsonify(Error="Group Chat not found."), 404
