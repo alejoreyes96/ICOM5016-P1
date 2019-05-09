@@ -106,7 +106,7 @@ def getMessagesFromGroupChatByUserIdAndGroupChatId(userid, groupchatid):
     if request.method == 'GET':
         return ChatHandler().getMessagesFromGroupChatByUserIdAndGroupChatId(userid, groupchatid)
     else:
-        return ChatHandler().postMessage(userid, groupchatid, request.json)
+        return ChatHandler().insertMessage(userid, groupchatid, request.json)
 
 # view messages by id
 @app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/', methods=['GET', 'PUT', 'DELETE'])
@@ -117,7 +117,7 @@ def getMessagesFromGroupChatById(userid, groupchatid, messageid):
     elif request.method == 'GET':
         return ChatHandler().getMessageFromGroupChatById(userid, groupchatid, messageid)
     else:
-        return ChatHandler().deleteMessage(groupchatid, messageid)
+        return ChatHandler().deleteMessage(userid,groupchatid, messageid)
 
 # View likes of a message in a group chat or like it
 @app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/reactions/', methods=['GET', 'POST'])

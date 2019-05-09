@@ -49,6 +49,19 @@ class ChatHandler:
         result['mhashtag'] = mhashtag
         return result
 
+    def build_messages_attributes(self, mid,mmessage,mupload_date,msize,mlength,mtype,mpath,mhashtag,uid):
+        result = {}
+        result['mid'] = mid
+        result['mmessage'] = mmessage
+        result['mupload_date'] = mupload_date
+        result['msize'] = msize
+        result['mlength'] = mlength
+        result['mtype'] = mtype
+        result['mpath'] = mpath
+        result['mhashtag'] = mhashtag
+        result['uid'] = uid
+        return result
+
     def build_groupChat_dict(self, row):
         result = {}
         result['gid'] = row[0]
@@ -434,9 +447,9 @@ class ChatHandler:
             uid=userid
             if mmessage and msize and mlength and mtype and mpath:
                 mid = dao.insertMessage(uid, groupchatid, mmessage, msize, mlength, mtype, mpath)
-                result = self.build_message_attributes(mid,mmessage,mupload_date,msize,mlength.mtype,mpath,mhashtag,uid)
+                result = self.build_messages_attributes(mid,mmessage,mupload_date,msize,mlength,mtype,mpath,mhashtag,uid)
                 for value in mhashtag:
-                    if dao.getHashtagByName(value) is None:
+                    if dao.getHashtagByHashtag(value) is None:
                         entry = dao.insertHashtagAndContainsFromMessage(mid,value)
                     else:
                         entry = dao.insertContainsFromMessage(mid,value)
@@ -458,12 +471,12 @@ class ChatHandler:
             else:
                 return jsonify(Error="Unexpected attributes in post request"), 400
 
-    def deleteMessage(self, mid):
+    def deleteMessage(self, uid,gid,mid):
         dao = GroupChatsDAO()
-        if not dao.getMessageById(mid):
+        if not dao.getMessageFromGroupChatById(uid,gid,mid):
             return jsonify(Error="Group Chat not found."), 404
         else:
-            dao.deleteGroupChatByName(gname)
+            dao.deleteMessage(mid)
             return jsonify(DeleteStatus="OK"), 200
 
 
@@ -493,7 +506,7 @@ class ChatHandler:
 
     def updateMessage(self,userid,groupchatid,mid,json):
         dao = GroupChatsDAO()
-        if not dao.getMessageById(mid):
+        if not dao.getMessageFromGroupChatById(userid,groupchatid,mid):
             return jsonify(Error="Message not found"), 404
         else:
             if len(json) != 7:
@@ -508,10 +521,10 @@ class ChatHandler:
                 mhashtag = json['mhashtag']
                 uid = userid
                 if mmessage and msize and mlength and mtype and mpath:
-                    dao.updateMessage(mid, groupchatid, mmessage, msize, mlength, mtype, mpath)
-                    result = self.build_message_attributes(mid, mmessage, mupload_date, msize, mlength.mtype, mpath,mhashtag, uid)
+                    dao.updateMessage(mid, mmessage, msize, mlength, mtype, mpath)
+                    result = self.build_messages_attributes(mid, mmessage, mupload_date, msize, mlength,mtype, mpath,mhashtag, uid)
                     for value in mhashtag:
-                        if not dao.getHashtagByName(value):
+                        if not dao.getHashtagByHashtag(value):
                             entry = dao.insertHashtagAndContainsFromMessage(mid, value)
                         else:
                             entry = dao.insertContainsFromMessage(mid, value)

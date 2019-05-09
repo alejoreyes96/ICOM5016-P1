@@ -245,8 +245,8 @@ class GroupChatsDAO:
         cursor = self.conn.cursor()
         date = dt.datetime.now().date().strftime("%m/%d/%Y")
         query = "with first_get as(insert into messages(uid,mupload_date,msize,mmessage,mmedia_path,mlength,mtype)\
-        values(1,'04/04/2018',3,'i am very pretty','pretty.png',0,'png') returning mid)\
-        insert into posted_to(mid,gid) values((select mid from first_get),1) returning mid;"
+        values(%s,%s,%s,%s,%s,%s,%s) returning mid)\
+        insert into posted_to(mid,gid) values((select mid from first_get),%s) returning mid;"
         cursor.execute(query, (uid, date, msize, mmessage, mpath,mlength, mtype,gid,))
         mid = cursor.fetchone()[0]
         self.conn.commit()
@@ -321,7 +321,7 @@ class GroupChatsDAO:
         self.conn.commit()
         return gid
 
-    def deleteMessage(self, mid):
+    def deleteMessage(self,mid):
         cursor = self.conn.cursor()
         query = "delete from messages where mid = %s;"
         cursor.execute(query, (mid,))
@@ -366,7 +366,7 @@ class GroupChatsDAO:
     def updateMessage(self,mid, mmessage, msize, mlength, mtype, mpath):
         cursor = self.conn.cursor()
         query = "update messages set mmessage=%s, msize = %s, mlength = %s, mtype = %s, mmedia_path = %s where mid = %s;"
-        cursor.execute(query, (mid, mmessage, msize, mlength, mtype, mpath,))
+        cursor.execute(query, (mmessage, msize, mlength, mtype, mpath,mid,))
         self.conn.commit()
         return mid
 
