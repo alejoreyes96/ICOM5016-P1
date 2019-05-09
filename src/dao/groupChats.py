@@ -216,8 +216,8 @@ class GroupChatsDAO:
                                                                     text,rpsize,rplength,rptype,rppath):
         cursor = self.conn.cursor()
         date = dt.datetime.now().date().strftime("%m/%d/%Y")
-        query = "insert into replies(rpuload_date,rpreply,mid,uid,rppicture,rptype,rpsize,rplength) \
-        values (%s, %s, %s, %s,%s,%s,%s,%s) returning rpid;"
+        query = "insert into replies(rpupload_date,rpreply,mid,uid,rppicture,rptype,rpsize,rplength) \
+        values (%s,%s,%s,%s,%s,%s,%s,%s) returning rpid;"
         cursor.execute(query, (date,text,messageid,userid,rppath,rptype,rpsize,rplength,))
         rpid = cursor.fetchone()[0]
         self.conn.commit()
@@ -283,7 +283,7 @@ class GroupChatsDAO:
         cursor = self.conn.cursor()
         query = "with first_try as (select hid from hashtags where hhashtag=%s)insert into contains(mid,hid,rpid)\
            values(null,(select hid from first_try),%s) returning cid;"
-        cursor.execute(query, (hhashtag, mid,))
+        cursor.execute(query, (hhashtag, rpid,))
         hid = cursor.fetchone()[0]
         self.conn.commit()
         return hid
@@ -347,7 +347,7 @@ class GroupChatsDAO:
         query = "delete from ismember where gid = %s and uid=%s;"
         cursor.execute(query, (groupchatid,userid,))
         self.conn.commit()
-        return uid
+        return userid
 
     def updateGroupChat(self, gid, gname,picture):
         cursor = self.conn.cursor()
@@ -372,7 +372,7 @@ class GroupChatsDAO:
 
     def updateReply(self,rpid,rpreply,rpsize,rplength,rptype,rppath):
         cursor = self.conn.cursor()
-        query = "update reply set rpreply= %s, rppicture=%s,rptype=%s, rpsize=%s,rplength=%s where rpid = %s;"
+        query = "update replies set rpreply= %s, rppicture=%s,rptype=%s, rpsize=%s,rplength=%s where rpid = %s;"
         cursor.execute(query, (rpreply,rppath,rptype,rpsize,rplength,rpid,))
         self.conn.commit()
         return rpid

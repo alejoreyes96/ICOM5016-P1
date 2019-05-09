@@ -406,9 +406,9 @@ class ChatHandler:
             if rptype and rpupload_date:
                 rpid = dao.replyToMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(userid,groupchatid,messageid,rpreply,
                                                                                        rpsize,rplength,rptype,rppath)
-                result = self.build_reply_attributes(rpid,rpupload_date,rpreply,messageid,userid)
+                result = self.build_reply_attributes(rpid,rpreply,rpupload_date,rpsize,rplength,rppath,rptype, messageid, userid)
                 for value in rphashtag:
-                    if dao.getHashtagByName(value) is None:
+                    if dao.getHashtagByHashtag(value) is None:
                         entry = dao.insertHashtagAndContainsFromReply(rpid,value)
                     else:
                         entry = dao.insertContainsFromReply(rpid,value)
@@ -416,16 +416,15 @@ class ChatHandler:
             else:
                 return jsonify(Error="Unexpected attributes in post request"), 400
 
-    def addUserToGroupChat(self,json):
+    def addUserToGroupChat(self,userid,groupchatid,json):
         dao = GroupChatsDAO()
-        if len(json) != 2:
+        if len(json) != 1:
             return jsonify(Error="Malformed update request"), 400
         else:
-            userid = json['uid']
-            groupchatid = json['gid']
-            if email:
-                gid = dao.addUserToGroupChat(userid, groupchatid)
-                result = self.build_ismember_attributes(gid,userid)
+            userid2 = json['uid']
+            if userid2:
+                gid = dao.addUserToGroupChat(userid2, groupchatid)
+                result = self.build_ismember_attributes(gid,userid2)
                 return jsonify(Reaction=result), 201
             else:
                 return jsonify(Error="Unexpected attributes in post request"), 400
@@ -494,12 +493,12 @@ class ChatHandler:
             dao.deleteReaction(rid)
             return jsonify(DeleteStatus="OK"), 200
 
-    def deleteUserFromGroupChat(self, gid,userid):
+    def deleteUserFromGroupChat(self, userid1,userid2,gid):
         dao = GroupChatsDAO()
-        if not dao.getMemberFromGroupChat(gid,userid):
+        if dao.getMemberFromGroupChat(gid,userid2) is None:
             return jsonify(Error="Member not found in Group Chat."), 404
         else:
-            dao.deleteUserFromGroupChat(userid,gid)
+            dao.deleteUserFromGroupChat(userid2,gid)
             return jsonify(DeleteStatus="OK"), 200
 
     def updateMessage(self,userid,groupchatid,mid,json):
@@ -531,12 +530,12 @@ class ChatHandler:
                 else:
                     return jsonify(Error="Unexpected attributes in update request"), 400
 
-    def updateReply(self, userid,rpid, json):
+    def updateReply(self, userid,groupchatid,messageid,rpid, json):
         dao = GroupChatsDAO()
         if not dao.getReplyByIdOnly(rpid):
             return jsonify(Error="Reply not found"), 404
         else:
-            if len(json) != 1:
+            if len(json) != 7:
                 return jsonify(Error="Malformed update request"), 400
             else:
                 rpreply = json['rpreply']
@@ -551,7 +550,7 @@ class ChatHandler:
                     rpid = dao.updateReply(rpid,rpreply,rpsize,rplength,rptype,rppath)
                     result = self.build_reply_attributes(rpid,rpupdate_date,rpreply,rpsize,rplength,rptype,rppath,messageid,uid)
                     for value in rphashtag:
-                        if dao.getHashtagByName(value) is None:
+                        if dao.getHashtagByHashtag(value) is None:
                             entry = dao.insertHashtagAndContainsFromReply(rpid, value)
                         else:
                             entry = dao.insertContainsFromReply(rpid, value)

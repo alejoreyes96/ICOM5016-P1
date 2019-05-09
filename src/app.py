@@ -191,7 +191,7 @@ def getUsersInGroupChatByUserIdAndGroupChatId(userid, groupchatid):
 @app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/users/<userid2>', methods=['GET', 'DELETE'])
 def deleteUserFromGroupChatById(userid, userid2, groupchatid):
     if request.method == 'DELETE':
-        return ChatHandler().deleteUserFromGroupChatById(userid, userid2, groupchatid)
+        return ChatHandler().deleteUserFromGroupChat(userid, userid2, groupchatid)
     else:
         return jsonify(Error="Method not allowed."), 405
 
