@@ -292,10 +292,10 @@ class GroupChatsDAO:
     def createGroupChat(self, userid, gname,picture_id):
         cursor = self.conn.cursor()
         date = dt.datetime.now().date().strftime("%m/%d/%Y")
-        query = "with first_get as(select human_id from users where uid=%s)insert into \
-        group_chats(gname,gcreation_date,gpicture_id_path,huid) values(%s,%s,%s,\
-        (select human_id from first_get)) returning gid;"
-        cursor.execute(query, (userid,gname,date,picture_id,))
+        query = "with first_get as(select human_id from users where uid=%s),second_try as(insert into \
+        group_chats(gname,gcreation_date,gpicture_id_path,huid) values(%s,%s,%s,(select human_id from \
+        first_get)) returning gid) insert into ismember(uid,gid) values(%s,(select gid from second_try)) returning gid;"
+        cursor.execute(query, (userid,gname,date,picture_id,userid,))
         gid = cursor.fetchone()[0]
         self.conn.commit()
         return gid
