@@ -42,9 +42,13 @@ class UserDAO:
 
     def signInUser(self, username, password):
         cursor = self.conn.cursor()
-        query = "select uid, user_name, ucreation_date, umost_recent_login,first_name,last_name, profile_pic\
-        from users inner join human on users.human_id=human.huid where user_name=%s and hupassword=%s; "
-        cursor.execute(query, (username,password,))
+        date = dt.datetime.now().strftime("%m/%d/%Y")
+        query = "with first_try as(select * from users inner join human on users.human_id=human.huid \
+        where user_name=%s and hupassword=%s), second_try as(update users set umost_recent_login=%s where \
+        uid=any(select uid from first_try))select uid, user_name, ucreation_date, umost_recent_login,\
+        first_name,last_name, profile_pic from first_try;"
+        cursor.execute(query,(username,password,date,))
+        cursor.execute(query,(username,password,date,))
         result = cursor.fetchone()
         return result
 
@@ -65,7 +69,6 @@ class UserDAO:
         cursor.execute(query, (userid,))
         result = cursor.fetchone()
         return result
-
 
     def getUserByUserEmail(self, email):
         cursor = self.conn.cursor()
