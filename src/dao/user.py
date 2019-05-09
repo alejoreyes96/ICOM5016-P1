@@ -66,6 +66,14 @@ class UserDAO:
         result = cursor.fetchone()
         return result
 
+
+    def getUserByUserEmail(self, email):
+        cursor = self.conn.cursor()
+        query = "select uid from human natural inner join users where huemail = %s;"
+        cursor.execute(query, (email,))
+        result = cursor.fetchone()
+        return result
+
     def getUserInformationByUserId(self, userid):
         cursor = self.conn.cursor()
         query = "select human.huid, profile_pic, first_name,last_name,birthdate,huemail,phone_number,users.uid,user_name,\
@@ -150,7 +158,8 @@ class UserDAO:
 
     def getFriendByUserName(self, fname):
         cursor = self.conn.cursor()
-        query = "select fuid from friends natural inner join users where users.user_name=%s;"
+        query = "select fuid from friends inner join users on users.uid=friends.uid where \
+        fuid=any(select uid from users where user_name=%s);"
         cursor.execute(query, (fname,))
         result = cursor.fetchone()
         return result
@@ -181,7 +190,7 @@ class UserDAO:
         query = "delete from friends where fuid = all(select uid from users where user_name=%s);"
         cursor.execute(query, (fname,))
         self.conn.commit()
-        return fuid
+        return fname
 
     def deleteAccount(self,uid):
         cursor = self.conn.cursor()

@@ -156,17 +156,19 @@ class UserHandler:
             else:
                 return jsonify(Error="Malformed Post Request"), 400
 
-    def registerFriendByUserEmail(self,form):
-        if len(form) != 2:
+    def registerFriendByUserEmail(self,uid,form):
+        if len(form) != 1:
             return jsonify(Error="Malformed Post Request"), 400
         else:
-            userid = form['uid']
             email = form['email']
-            if userid and email:
+            if email:
                 dao = UserDAO()
-                fuid = dao.registerFriendByUserEmail(userid,email)
-                result = self.build_friend_email_attributes(fuid,userid,email)
-                return jsonify(Friend=result),201
+                if dao.getUserByUserEmail(email) is not None:
+                    fuid = dao.registerFriendByUserEmail(uid,email)
+                    result = self.build_friend_email_attributes(fuid,uid,email)
+                    return jsonify(Friend=result),201
+                else:
+                    return jsonify(Error="User Not Found"), 404
             else:
                 return jsonify(Error="Malformed Post Request"), 400
 
@@ -179,14 +181,17 @@ class UserHandler:
             dao.deleteFriendById(fuid)
         return jsonify(DeleteStatus="OK"), 200
 
-    def deleteFriendByName(self,fname):
-        dao = UserDAO()
-        if not dao.getFriendByUserName(fname):
-            return jsonify(Error="User not found."), 404
+    def deleteFriendByName(self,uid,form):
+        if len(form)!=1:
+            return jsonify(Error="Malformed Post Request"), 400
         else:
-            dao.deleteFriendByName(fname)
-        return jsonify(DeleteStatus="OK"), 200
-
+            fname=form['fname']
+            dao = UserDAO()
+            if dao.getFriendByUserName(fname) is None:
+                return jsonify(Error="User not found."), 404
+            else:
+                dao.deleteFriendByName(fname)
+            return jsonify(DeleteStatus="OK"), 200
 
     def signInUser(self, form):
         if len(form) != 2:

@@ -48,16 +48,26 @@ def getUserByUserId(userid):
     return UserHandler().getUserByUserId(userid)
 
 # View user information by id
-@app.route('/FFMA/users/<int:userid>/profile/')
-@app.route('/FFMA/users/<int:userid>/profile')
+@app.route('/FFMA/users/<int:userid>/profile/', methods=['GET','PUT','DELETE'])
+@app.route('/FFMA/users/<int:userid>/profile',methods=['GET','PUT','DELETE'])
 def getUserInformationByUserId(userid):
-    return UserHandler().getUserInformationByUserId(userid)
+    if request.method == 'PUT':
+        return UserHandler().updateUser(userid,request.json)
+    elif request.method == 'DELETE':
+        return UserHandler().deleteAccount(userid)
+    else:
+        return UserHandler().getUserInformationByUserId(userid)
 
 # View user contact information by id
-@app.route('/FFMA/users/<int:userid>/contacts/')
-@app.route('/FFMA/users/<int:userid>/contacts')
+@app.route('/FFMA/users/<int:userid>/contacts/',methods=['GET','POST','DELETE'])
+@app.route('/FFMA/users/<int:userid>/contacts',methods=['GET','POST','DELETE'])
 def getUserContactsByUserId(userid):
-    return UserHandler().getUserContactsByUserId(userid)
+    if request.method == 'POST':
+        return UserHandler().registerFriendByUserEmail(userid,request.json)
+    elif request.method == 'DELETE':
+        return UserHandler().deleteFriendByName(userid,request.json)
+    else:
+        return UserHandler().getUserContactsByUserId(userid)
 
 # View user by username
 @app.route('/FFMA/users/<string:username>/')
