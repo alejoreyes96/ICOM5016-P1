@@ -109,7 +109,7 @@ class GroupChatsDAO:
 
     def getReplyById(self, uid, gid, mid, rpid):
         cursor = self.conn.cursor()
-        query = "select replies.rpid,rp_reply,rpupload_date,rpsize,rplength,rppicture,rptype from messages\
+        query = "select replies.rpid,rpreply,rpupload_date,rpsize,rplength,rppicture,rptype from messages\
         inner join replies on messages.mid=replies.mid inner join posted_to on posted_to.mid=messages.mid \
          where messages.mid=%s and posted_to.gid=%s and replies.rpid=%s;"
         cursor.execute(query, (mid,gid,rpid,))
@@ -118,7 +118,7 @@ class GroupChatsDAO:
 
     def getRepliesFromMessageInGroupChatByUserIdAndGroupChatIdandMessageId(self, uid, gid, mid):
         cursor = self.conn.cursor()
-        query = "select distinct replies.rpid,rp_reply,rpupload_date,,rpsize,rplength,rppicture,rptype\
+        query = "select distinct replies.rpid,rpreply,rpupload_date,rpsize,rplength,rppicture,rptype,\
         users.uid, user_name, human.first_name from messages inner join replies on messages.mid=replies.mid \
         inner join users on users.uid=replies.uid inner join ismember on users.uid=ismember.uid inner join \
         human on users.human_id=human.huid inner join posted_to on posted_to.mid=messages.mid where \

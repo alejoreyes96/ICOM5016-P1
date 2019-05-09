@@ -127,7 +127,7 @@ def getMessageReactionsInGroupChatByUserIdAndGroupChatIdAndMessageId(userid, gro
         return ChatHandler().getMessageReactionsInGroupChatByUserIdAndGroupChatIdAndMessageId(userid, groupchatid, messageid)
 
     else:
-        return ChatHandler().addReaction(userid, groupchatid, messageid, request.json)
+        return ChatHandler().reactToMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(userid,groupchatid,messageid,request.json)
 
 @app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/reactions/<int:rid>/',
            methods=['GET', 'PUT', 'DELETE'])
