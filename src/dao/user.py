@@ -1,5 +1,4 @@
-
-#from config.dbconfig import pg_config
+from config.dbconfig import pg_config
 import psycopg2
 from flask import jsonify
 import datetime as dt
@@ -7,9 +6,9 @@ import datetime as dt
 class UserDAO:
 
     # def __init__(self):
-    #connection_url = "user=%s password=%s host=%s port=%s dbname=%s" % (pg_config['user'], pg_config['password'],\
-    # pg_config['host'],pg_config["port"], pg_config["dbname"])
-    #conn = psycopg2.connect(connection_url)
+    connection_url = "user=%s password=%s host=%s port=%s dbname=%s" % (pg_config['user'], pg_config['password'],\
+    pg_config['host'],pg_config["port"], pg_config["dbname"])
+    conn = psycopg2.connect(connection_url)
 
     # insert human
     def registerHumanAndCreateUser(self,first_name,last_name,birth_date,email,password,phone,username):
@@ -17,7 +16,7 @@ class UserDAO:
         date = dt.datetime.now().date().strftime("%m/%d/%Y")
         query = "with first_get as(insert into human(first_name,last_name,birthdate,huemail,hupassword,phone_number) \
         values(%s,%s,%s,%s,%s,%s) returning huid) insert into users(human_id,user_name,ucreation_date,\
-        umost_recent_login,profile_pic) values((select huid from first_get),%s,%s,%s,null) returning uid;"
+        umost_recent_login,profile_picture) values((select huid from first_get),%s,%s,%s,null) returning uid;"
         cursor.execute(query, (first_name,last_name,birth_date,email,password,phone,username,date,date,))
         uid = cursor.fetchone()[0]
         self.conn.commit()
@@ -46,7 +45,7 @@ class UserDAO:
         query = "with first_try as(select * from users inner join human on users.human_id=human.huid \
         where user_name=%s and hupassword=%s), second_try as(update users set umost_recent_login=%s where \
         uid=any(select uid from first_try))select uid, user_name, ucreation_date, umost_recent_login,\
-        first_name,last_name, profile_pic from first_try;"
+        first_name,last_name, profile_picture from first_try;"
         cursor.execute(query,(username,password,date,))
         cursor.execute(query,(username,password,date,))
         result = cursor.fetchone()
@@ -54,7 +53,7 @@ class UserDAO:
 
     def getAllUsers(self):
         cursor = self.conn.cursor()
-        query = "select uid, user_name, ucreation_date, umost_recent_login,first_name,last_name, profile_pic from \
+        query = "select uid, user_name, ucreation_date, umost_recent_login,first_name,last_name, profile_picture from \
         users inner join human on users.human_id=human.huid;"
         cursor.execute(query)
         result = []
@@ -64,7 +63,7 @@ class UserDAO:
 
     def getUserByUserId(self, userid):
         cursor = self.conn.cursor()
-        query = "select uid, user_name, ucreation_date, umost_recent_login,first_name,last_name, profile_pic from\
+        query = "select uid, user_name, ucreation_date, umost_recent_login,first_name,last_name, profile_picture from\
          users inner join human on users.human_id=human.huid where users.uid = %s;"
         cursor.execute(query, (userid,))
         result = cursor.fetchone()
@@ -79,7 +78,7 @@ class UserDAO:
 
     def getUserInformationByUserId(self, userid):
         cursor = self.conn.cursor()
-        query = "select human.huid, profile_pic, first_name,last_name,birthdate,huemail,phone_number,users.uid,user_name,\
+        query = "select human.huid, profile_picture, first_name,last_name,birthdate,huemail,phone_number,users.uid,user_name,\
         ucreation_date, umost_recent_login from human inner join users on human.huid=users.human_id where users.uid=%s;"
         cursor.execute(query, (userid,))
         result = cursor.fetchone()
@@ -87,15 +86,15 @@ class UserDAO:
 
     def getUserInformationByUsername(self, username):
         cursor = self.conn.cursor()
-        query = "select human.huid,  profile_pic, first_name,last_name,birthdate,huemail,phone_number,users.uid,user_name,\
-        ucreation_date, umost_recent_login from human inner join users on human.huid=users.human where users.user_name=%s;"
+        query = "select human.huid,  profile_picture, first_name,last_name,birthdate,huemail,phone_number,users.uid,user_name,\
+        ucreation_date, umost_recent_login from human inner join users on human.huid=users.human_id where users.user_name=%s;"
         cursor.execute(query, (username,))
         result = cursor.fetchone()
         return result
 
     def getUserContactsByUserId(self, userid):
         cursor = self.conn.cursor()
-        query = "select users.uid,  profile_pic, user_name, ucreation_date, umost_recent_login, first_name,last_name from friends \
+        query = "select users.uid,  profile_picture, user_name, ucreation_date, umost_recent_login, first_name,last_name from friends \
                  inner join users on friends.fuid = users.uid inner join human on users.human_id=human.huid where\
                  friends.uid =%s;"
         cursor.execute(query,(userid,))
@@ -106,15 +105,15 @@ class UserDAO:
 
     def getUserByUsername(self, username):
         cursor = self.conn.cursor()
-        query = "select uid, user_name,  profile_pic, ucreation_date, umost_recent_login,first_name,last_name from users\
-         inner join human on users.human_id=human.huid where users.user_name = %s;"
+        query = "select uid, user_name, ucreation_date, umost_recent_login,first_name,last_name, profile_picture from\
+         users inner join human on users.human_id=human.huid where users.user_name = %s;"
         cursor.execute(query, (username,))
         result = cursor.fetchone()
         return result
 
     def getUserContactsByUsername(self, username):
         cursor = self.conn.cursor()
-        query = "select users.uid,  profile_pic, user_name, ucreation_date, umost_recent_login, first_name,last_name from friends \
+        query = "select users.uid,  profile_picture, user_name, ucreation_date, umost_recent_login, first_name,last_name from friends \
                 inner join users on friends.fuid = users.uid inner join human on users.human_id=human.huid \
                 where friends.uid = (select uid from users where user_name = %s);"
         cursor.execute(query, (username,))
@@ -135,7 +134,7 @@ class UserDAO:
 
     def getUsersInGroupChatByUserIdAndGroupChatId(self, userid, groupchatid):
         cursor = self.conn.cursor()
-        query = "select uid, user_name,  profile_pic, ucreation_date,umost_recent_login,first_name,last_name from ismember \
+        query = "select uid, user_name,  profile_picture, ucreation_date,umost_recent_login,first_name,last_name from ismember \
                  natural inner join users inner join human on human.huid=users.human_id where gid = %s;"
         cursor.execute(query, (groupchatid,))
         result = []
@@ -145,7 +144,7 @@ class UserDAO:
 
     def getOwnerOfGroupChatById(self, groupchatid):
         cursor = self.conn.cursor()
-        query = 'select users.uid,  profile_pic, user_name, ucreation_date, umost_recent_login, first_name,last_name\
+        query = 'select users.uid,  profile_picture, user_name, ucreation_date, umost_recent_login, first_name,last_name\
         from groupChats inner join Human on groupChats.huid=human.huid inner join users on \
         users.human_id=human.huid where groupChats.gid=%s;'
         cursor.execute(query, (groupchatid,))
@@ -167,14 +166,14 @@ class UserDAO:
         result = cursor.fetchone()
         return result
 
-    def updateUser(self,uid,username,password,birth_date,first_name,last_name,email,phone,profile_pic):
+    def updateUser(self,uid,username,password,birth_date,first_name,last_name,email,phone,profile_picture):
         cursor = self.conn.cursor()
         uid2=uid
-        query = "with first_up as(update users set user_name=%s,profile_pic=%s where uid=%s returning uid),\
+        query = "with first_up as(update users set user_name=%s,profile_picture=%s where uid=%s returning uid),\
         second_thing as (select huid from human inner join users on users.human_id=human.huid where users.uid=%s) \
         update human set hupassword=%s,birthdate=%s,first_name=%s,last_name=%s,huemail=%,phone_number=%s where \
         huid=(select huid from second_thing);"
-        cursor.execute(query,(username,profile_pic,uid,uid2,password,birth_date,first_name,last_name,email,phone,))
+        cursor.execute(query,(username,profile_picture,uid,uid2,password,birth_date,first_name,last_name,email,phone,))
         self.conn.commit()
         return fuid
 

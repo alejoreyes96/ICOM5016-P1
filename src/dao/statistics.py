@@ -1,11 +1,12 @@
 import psycopg2
 import datetime as dt
+from config.dbconfig import pg_config
 
 class StatsDAO:
     # def __init__(self):
-    # connection_url = "user=%s password=%s host=%s port=%s dbname=%s" % (pg_config['user'], pg_config['password'],\
-    # pg_config['host'],pg_config["port"], pg_config["dbname"])
-    # conn = psycopg2.connect(connection_url)
+    connection_url = "user=%s password=%s host=%s port=%s dbname=%s" % (pg_config['user'], pg_config['password'],\
+    pg_config['host'],pg_config["port"], pg_config["dbname"])
+    conn = psycopg2.connect(connection_url)
     conn = psycopg2.connect(host='127.0.0.1', database='appdb',user='kahlil', password='password')
 
 

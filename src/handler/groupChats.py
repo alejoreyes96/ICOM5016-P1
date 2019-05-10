@@ -124,7 +124,7 @@ class ChatHandler:
     def build_reply_dict(self, row):
         result = {}
         result['rpid'] = row[0]
-        result['rp_reply'] = row[1]
+        result['rpreply'] = row[1]
         result['rpupload_date'] = row[2]
         result['rpsize']=row[3]
         result['rplength'] = row[4]
@@ -133,6 +133,17 @@ class ChatHandler:
         result['uid'] = row[7]
         result['user_name'] = row[8]
         result['first_name'] = row[9]
+        return result
+
+    def build_reply_dict1(self, row):
+        result = {}
+        result['rpid'] = row[0]
+        result['rpreply'] = row[1]
+        result['rpupload_date'] = row[2]
+        result['rpsize']=row[3]
+        result['rplength'] = row[4]
+        result['rppicture'] = row[5]
+        result['rptype'] = row[6]
         return result
 
     def build_reply_attributes(self, rpid, rp_reply, rpupload_date,rpsize,rplength,rppicture,rptype, mid, uid):
@@ -266,7 +277,8 @@ class ChatHandler:
     def getMessagesByHashtagStringInGroupChat(self, userid, groupchatid, hashtagstring):
         dao = GroupChatsDAO()
         result_map = []
-        result = dao.getMessagesByHashtagStringInGroupChat(userid, groupchatid, hashtagstring)
+        temp_hash = "#" + hashtagstring
+        result = dao.getMessagesByHashtagStringInGroupChat(userid, groupchatid, temp_hash)
         for r in result:
             result_map.append(self.build_message_dict(r))
         return jsonify(Messages=result_map), 201
@@ -370,7 +382,7 @@ class ChatHandler:
         if not row:
             return jsonify(Error="Reply not found"), 404
         else:
-            groupchat = self.build_reply_dict(row)
+            groupchat = self.build_reply_dict1(row)
             return jsonify(GroupChat=groupchat)
 
     def getMessageReactionById(self, uid,gid,mid,rpid):
