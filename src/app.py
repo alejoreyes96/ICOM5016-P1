@@ -20,7 +20,7 @@ def greeting():
 def registerHuman():
     if request.method == 'POST':
         print("REQUEST: ", request.json)
-        return UserHandler().registerHuman(request.json)
+        return UserHandler().registerHumanAndCreateUser(request.json)
     else:
         return jsonify(Error="Method not allowed."), 405
 
@@ -29,6 +29,7 @@ def registerHuman():
 @app.route('/FFMA/sign-in', methods=['GET', 'POST'])
 def signInUser():
     if request.method == 'POST':
+        print("REQUEST",request.json)
         return UserHandler().signInUser(request.json)
     else:
         return jsonify(Error="Method not allowed."), 405
@@ -47,16 +48,26 @@ def getUserByUserId(userid):
     return UserHandler().getUserByUserId(userid)
 
 # View user information by id
-@app.route('/FFMA/users/<int:userid>/profile/')
-@app.route('/FFMA/users/<int:userid>/profile')
+@app.route('/FFMA/users/<int:userid>/profile/', methods=['GET','PUT','DELETE'])
+@app.route('/FFMA/users/<int:userid>/profile',methods=['GET','PUT','DELETE'])
 def getUserInformationByUserId(userid):
-    return UserHandler().getUserInformationByUserId(userid)
+    if request.method == 'PUT':
+        return UserHandler().updateUser(userid,request.json)
+    elif request.method == 'DELETE':
+        return UserHandler().deleteAccount(userid)
+    else:
+        return UserHandler().getUserInformationByUserId(userid)
 
 # View user contact information by id
-@app.route('/FFMA/users/<int:userid>/contacts/')
-@app.route('/FFMA/users/<int:userid>/contacts')
+@app.route('/FFMA/users/<int:userid>/contacts/',methods=['GET','POST','DELETE'])
+@app.route('/FFMA/users/<int:userid>/contacts',methods=['GET','POST','DELETE'])
 def getUserContactsByUserId(userid):
-    return UserHandler().getUserContactsByUserId(userid)
+    if request.method == 'POST':
+        return UserHandler().registerFriendByUserEmail(userid,request.json)
+    elif request.method == 'DELETE':
+        return UserHandler().deleteFriendByName(userid,request.json)
+    else:
+        return UserHandler().getUserContactsByUserId(userid)
 
 # View user by username
 @app.route('/FFMA/users/<string:username>/')
@@ -78,6 +89,7 @@ def getAvailableGroupChatsByUserId(userid):
     if request.method == 'GET':
         return ChatHandler().getAvailableGroupChatsByUserId(userid)
     else:
+        print("Request",request.json)
         return ChatHandler().createGroupChat(userid, request.json)
 
 
@@ -85,9 +97,9 @@ def getAvailableGroupChatsByUserId(userid):
 @app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>', methods=['GET', 'PUT', 'DELETE'])
 def getGroupChatById(userid, groupchatid):
     if request.method == 'PUT':
-        return ChatHandler().updateGroupChat(groupchatid, request.json)
+        return ChatHandler().updateGroupChat(userid,groupchatid, request.json)
     elif request.method == 'DELETE':
-        return ChatHandler().deleteGroupChat(groupchatid)
+        return ChatHandler().deleteGroupChatById(userid,groupchatid)
     else:
         return ChatHandler().getGroupChatById(groupchatid)
 
@@ -104,7 +116,7 @@ def getMessagesFromGroupChatByUserIdAndGroupChatId(userid, groupchatid):
     if request.method == 'GET':
         return ChatHandler().getMessagesFromGroupChatByUserIdAndGroupChatId(userid, groupchatid)
     else:
-        return ChatHandler().postMessage(userid, groupchatid, request.json)
+        return ChatHandler().insertMessage(userid, groupchatid, request.json)
 
 # view messages by id
 @app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/', methods=['GET', 'PUT', 'DELETE'])
@@ -115,7 +127,7 @@ def getMessagesFromGroupChatById(userid, groupchatid, messageid):
     elif request.method == 'GET':
         return ChatHandler().getMessageFromGroupChatById(userid, groupchatid, messageid)
     else:
-        return ChatHandler().deleteMessage(groupchatid, messageid)
+        return ChatHandler().deleteMessage(userid,groupchatid, messageid)
 
 # View likes of a message in a group chat or like it
 @app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/reactions/', methods=['GET', 'POST'])
@@ -125,7 +137,7 @@ def getMessageReactionsInGroupChatByUserIdAndGroupChatIdAndMessageId(userid, gro
         return ChatHandler().getMessageReactionsInGroupChatByUserIdAndGroupChatIdAndMessageId(userid, groupchatid, messageid)
 
     else:
-        return ChatHandler().addReaction(userid, groupchatid, messageid, request.json)
+        return ChatHandler().reactToMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(userid,groupchatid,messageid,request.json)
 
 @app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/reactions/<int:rid>/',
            methods=['GET', 'PUT', 'DELETE'])
@@ -138,7 +150,7 @@ def getMessageReactionsById(userid, groupchatid, messageid, rid):
     elif request.method == 'DELETE':
         return ChatHandler().deleteReaction(groupchatid, messageid, rid)
     else:
-        return ChatHandler().getMessageReactionsById(userid, groupchatid, messageid, rid)
+        return ChatHandler().getMessageReactionById(userid, groupchatid, messageid, rid)
 
 @app.route('/FFMA/messages/')
 def getAllMessages():
@@ -166,7 +178,7 @@ def getRepliesFromMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(userid, g
     else:
         return ChatHandler().getRepliesFromMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(userid, groupchatid, messageid)
 
-@app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/replies/<int:replyid>', methods=['GET', 'PUT', 'DELETE'])
+@app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/replies/<int:replyid>/', methods=['GET', 'PUT', 'DELETE'])
 @app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/messages/<int:messageid>/replies/<int:replyid>', methods=['GET', 'PUT', 'DELETE'])
 def getRepliesById(userid, groupchatid, messageid, replyid):
     if request.method == 'PUT':
@@ -189,7 +201,7 @@ def getUsersInGroupChatByUserIdAndGroupChatId(userid, groupchatid):
 @app.route('/FFMA/users/<int:userid>/groupChats/<int:groupchatid>/users/<userid2>', methods=['GET', 'DELETE'])
 def deleteUserFromGroupChatById(userid, userid2, groupchatid):
     if request.method == 'DELETE':
-        return ChatHandler().deleteUserFromGroupChatById(userid, userid2, groupchatid)
+        return ChatHandler().deleteUserFromGroupChat(userid, userid2, groupchatid)
     else:
         return jsonify(Error="Method not allowed."), 405
 
