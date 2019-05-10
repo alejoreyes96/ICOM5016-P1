@@ -7,7 +7,7 @@ class UserHandler:
 
     def build_human_dict(self,row):
         result = {}
-        result['huid'] = row[0]
+        result['uid'] = row[0]
         result['hufirst_name'] = row[1]
         result['hulast_name'] = row[2]
         result['hubirthdate'] = row[3]
@@ -17,9 +17,9 @@ class UserHandler:
         result['huusername'] = row[7]
         return result
 
-    def build_human_attributes(self, huid, huusername, huemail, hupassword, hubirthdate, hufirst_name, hulast_name, huphone):
+    def build_human_attributes(self, uid, huusername, huemail, hupassword, hubirthdate, hufirst_name, hulast_name, huphone):
         result = {}
-        result['huid'] = huid
+        result['uid'] = uid
         result['hufirst_name'] = hufirst_name
         result['hulast_name'] = hulast_name
         result['hubirthdate'] = hubirthdate
@@ -303,19 +303,25 @@ class UserHandler:
         return jsonify(Users=result_map)
 
     def updateUser(self, uid, form):
-        dao = PartsDAO()
+        dao = UserDAO()
         if not dao.getUserByUserId(uid):
                 return jsonify(Error="User not found."), 404
         else:
-            if len(form) != 2:
+            if len(form) != 8:
                 return jsonify(Error="Malformed update request"), 400
             else:
-                profile_pic = form['picture']
-                uname = form['user_name']
-                date = dt.datetime.now().date().strftime("%m/%d/%Y")
-                if profile_pic and uname:
-                    dao.updateUser(uid,uname,profile_pic)
-                    result = self.build_user_update_attributes(uid,uname,date,profile_pic)
+                username = form['username']
+                password = form['password']
+                birth_date = form['birth_date']
+                first_name = form['first_name']
+                last_name = form['last_name']
+                email = form['email']
+                phone = form['phone']
+                profile_pic = form['profile_pic']
+                date = dt.datetime.now().strftime("%m/%d/%Y")
+                if profile_pic and phone and email and last_name and first_name and birth_date and username and password:
+                    dao.updateUser(uid,username,password,birth_date,first_name,last_name,email,phone,profile_pic)
+                    result = self.build_user_update_attributes(uid,username,date,profile_pic)
                     return jsonify(User=result), 200
                 else:
                     return jsonify(Error="Unexpected attributes in update request"), 400

@@ -167,10 +167,14 @@ class UserDAO:
         result = cursor.fetchone()
         return result
 
-    def updateUser(self,uid,uname,profile_pic):
+    def updateUser(self,uid,username,password,birth_date,first_name,last_name,email,phone,profile_pic):
         cursor = self.conn.cursor()
-        query = "update users set user_name=%s, profile_pic=%s where uid=%s;"
-        cursor.execute(query, (uname,profile_pic,uid,))
+        uid2=uid
+        query = "with first_up as(update users set user_name=%s,profile_pic=%s where uid=%s returning uid),\
+        second_thing as (select huid from human inner join users on users.human_id=human.huid where users.uid=%s) \
+        update human set hupassword=%s,birthdate=%s,first_name=%s,last_name=%s,huemail=%,phone_number=%s where \
+        huid=(select huid from second_thing);"
+        cursor.execute(query,(username,profile_pic,uid,uid2,password,birth_date,first_name,last_name,email,phone,))
         self.conn.commit()
         return fuid
 

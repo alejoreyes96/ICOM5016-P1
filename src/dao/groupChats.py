@@ -310,8 +310,11 @@ class GroupChatsDAO:
 
     def deleteGroupChatById(self, gid):
         cursor = self.conn.cursor()
-        query = "delete from group_chats where gid = %s;"
-        cursor.execute(query, (gid,))
+        gid2=gid
+        gid3=gid
+        query = "with first_delete as(delete from ismember where gid=%s returning gid),second_delete \
+        as(delete from posted_to where gid=%s returning gid) delete from group_chats where gid=%s;"
+        cursor.execute(query, (gid,gid2,gid3,))
         self.conn.commit()
         return gid
 
@@ -331,8 +334,11 @@ class GroupChatsDAO:
 
     def deleteReply(self, rpid):
         cursor = self.conn.cursor()
-        query = "delete from replies where rpid = %s;"
-        cursor.execute(query, (rpid,))
+        rpid2=rpid
+        rpid3=rpid
+        query = "with first_delete as(delete from reactions where rpid=%s returning rpid),second_delete \
+        as(delete from contains where rpid=%s returning rpid)delete from replies where rpid=%s;"
+        cursor.execute(query, (rpid,rpid2,rpid3,))
         self.conn.commit()
         return rpid
 
