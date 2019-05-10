@@ -61,7 +61,7 @@ class GroupChatsDAO:
     def getMessagesByHashtagStringInGroupChat(self, userid, groupchatid, hashtagstring):
         cursor = self.conn.cursor()
         query = "select messages.mid,mmessage,mupload_date,msize,mlength,mtype,mmedia_path,users.uid \
-        from users inner join messages on messages.uid=users.uid inner join posted_to on messages.mid=posted_to.mid\
+        from users inner join messages on messages.uid=users.uid inner join postedto on messages.mid=postedto.mid\
          inner join contains on contains.mid=messages.mid inner join hashtags on contains.hid=hashtags.hid \
          where gid=%s and hhashtag=%s;"
         cursor.execute(query, (groupchatid, hashtagstring,))
@@ -73,7 +73,7 @@ class GroupChatsDAO:
     def getMessagesFromGroupChatByUserIdAndGroupChatId(self, userid, groupchatid):
         cursor = self.conn.cursor()
         query = "select mid,mmessage,mupload_date,msize,mlength,mtype,mmedia_path,uid from users natural \
-                inner join messages natural inner join posted_to where gid = %s order by messages.mid;"
+                inner join messages natural inner join postedto where gid = %s order by messages.mid;"
         cursor.execute(query,(groupchatid,))
         result = []
         for row in cursor:
@@ -100,7 +100,7 @@ class GroupChatsDAO:
     def getMessageFromGroupChatById(self, uid, gid, mid):
         cursor = self.conn.cursor()
         query = "select messages.mid,mmessage,mupload_date,msize,mlength,mtype,mmedia_path,messages.uid\
-         from users natural inner join messages natural inner join posted_to where posted_to.gid=%s\
+         from users natural inner join messages natural inner join postedto where postedto.gid=%s\
         and messages.mid=%s;"
         cursor.execute(query, (gid, mid,))
         result = cursor.fetchone()
@@ -110,8 +110,8 @@ class GroupChatsDAO:
     def getReplyById(self, uid, gid, mid, rpid):
         cursor = self.conn.cursor()
         query = "select replies.rpid,rpreply,rpupload_date,rpsize,rplength,rppicture,rptype from messages\
-        inner join replies on messages.mid=replies.mid inner join posted_to on posted_to.mid=messages.mid \
-         where messages.mid=%s and posted_to.gid=%s and replies.rpid=%s;"
+        inner join replies on messages.mid=replies.mid inner join postedto on postedto.mid=messages.mid \
+         where messages.mid=%s and postedto.gid=%s and replies.rpid=%s;"
         cursor.execute(query, (mid,gid,rpid,))
         result = cursor.fetchone()
         return result
@@ -121,8 +121,8 @@ class GroupChatsDAO:
         query = "select distinct replies.rpid,rpreply,rpupload_date,rpsize,rplength,rppicture,rptype,\
         users.uid, user_name, human.first_name from messages inner join replies on messages.mid=replies.mid \
         inner join users on users.uid=replies.uid inner join ismember on users.uid=ismember.uid inner join \
-        human on users.human_id=human.huid inner join posted_to on posted_to.mid=messages.mid where \
-        messages.mid=%s and posted_to.gid=%s order by replies.rpid;"
+        human on users.human_id=human.huid inner join postedto on postedto.mid=messages.mid where \
+        messages.mid=%s and postedto.gid=%s order by replies.rpid;"
         cursor.execute(query, (mid,gid,))
         result = []
         for row in cursor:
@@ -247,7 +247,7 @@ class GroupChatsDAO:
         date = dt.datetime.now().date().strftime("%m/%d/%Y")
         query = "with first_get as(insert into messages(uid,mupload_date,msize,mmessage,mmedia_path,mlength,mtype)\
         values(%s,%s,%s,%s,%s,%s,%s) returning mid)\
-        insert into posted_to(mid,gid) values((select mid from first_get),%s) returning mid;"
+        insert into postedto(mid,gid) values((select mid from first_get),%s) returning mid;"
         cursor.execute(query, (uid, date, msize, mmessage, mpath,mlength, mtype,gid,))
         mid = cursor.fetchone()[0]
         self.conn.commit()
@@ -313,7 +313,7 @@ class GroupChatsDAO:
         gid2=gid
         gid3=gid
         query = "with first_delete as(delete from ismember where gid=%s returning gid),second_delete \
-        as(delete from posted_to where gid=%s returning gid) delete from groupchats where gid=%s;"
+        as(delete from postedto where gid=%s returning gid) delete from groupchats where gid=%s;"
         cursor.execute(query, (gid,gid2,gid3,))
         self.conn.commit()
         return gid
@@ -333,7 +333,7 @@ class GroupChatsDAO:
         mid5=mid
         mid6=mid
         query = "with first_delete as(delete from reactions where mid=%s returning mid),\
-        second_delete as(delete from posted_to where mid=%s returning mid),\
+        second_delete as(delete from postedto where mid=%s returning mid),\
         third_delete as (delete from contains where rpid=any(select rpid from replies where mid=%s)),\
         fourth_delete as (delete from replies where mid=%s returning rpid),\
         fifth_delete as (delete from contains where mid=%s returning mid)\
