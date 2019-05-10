@@ -270,7 +270,7 @@ class ChatHandler:
 
     def getMessageReactionsInGroupChatByUserIdAndGroupChatIdAndMessageId(self, userid, groupchatid, messageid):
         dao = GroupChatsDAO()
-        result = dao.getMessageReactionsInGroupChatByUserIdAndGroupChatIdAndMessageId(userid, groupchatid, messageid)
+        result = dao.getMessageReactionsInGroupChatByUserIdAndGroupChatIdAndMessageId(groupchatid, messageid)
         result_map = []
         if result is None:
             return jsonify(Error="Unable to get reactions")
