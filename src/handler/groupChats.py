@@ -453,7 +453,7 @@ class ChatHandler:
             if userid2:
                 gid = dao.addUserToGroupChat(userid2, groupchatid)
                 result = self.build_ismember_attributes(gid,userid2)
-                return jsonify(Reaction=result), 201
+                return jsonify(Membership=result), 201
             else:
                 return jsonify(Error="Unexpected attributes in post request"), 400
 
