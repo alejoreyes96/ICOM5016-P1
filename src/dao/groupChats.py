@@ -327,8 +327,18 @@ class GroupChatsDAO:
 
     def deleteMessage(self,mid):
         cursor = self.conn.cursor()
-        query = "delete from messages where mid = %s;"
-        cursor.execute(query, (mid,))
+        mid2=mid
+        mid3=mid
+        mid4=mid
+        mid5=mid
+        mid6=mid
+        query = "with first_delete as(delete from reactions where mid=%s returning mid),\
+        second_delete as(delete from posted_to where mid=%s returning mid),\
+        third_delete as (delete from contains where rpid=any(select rpid from replies where mid=%s)),\
+        fourth_delete as (delete from replies where mid=%s returning rpid),\
+        fifth_delete as (delete from contains where mid=%s returning mid)\
+        delete from messages where mid=%s;"
+        cursor.execute(query, (mid,mid2,mid3,mid4,mid5,mid6,))
         self.conn.commit()
         return mid
 
