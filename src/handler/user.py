@@ -137,8 +137,8 @@ class UserHandler:
             phone = form['phone']
             if username and password and birth_date and first_name and last_name and email and phone:
                 dao = UserDAO()
-                huid = dao.registerHumanAndCreateUser(first_name,last_name,birth_date,email,password,phone,username)
-                result = self.build_human_attributes(huid,first_name,last_name,birth_date,email,password,phone,username)
+                uid = dao.registerHumanAndCreateUser(first_name,last_name,birth_date,email,password,phone,username)
+                result = self.build_human_attributes(uid,username,email,password,birth_date,first_name,last_name,phone)
                 return jsonify(User=result), 201
             else:
                 return jsonify(Error="Malformed Post Request"), 400
