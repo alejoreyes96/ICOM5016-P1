@@ -4,7 +4,7 @@ hupassword varchar(50),phone_number char(10));
 
 CREATE TABLE Users(uid serial primary key,human_id integer references Human(huid),
 user_name varchar(20),ucreation_date varchar(10),umost_recent_login varchar(10),
-profile_pic varchar(50));
+profile_picture varchar(50));
 
 CREATE TABLE GroupChats(gid serial primary key,gname varchar(20),
 gcreation_date varchar(10),gpicture_id_path varchar(20),

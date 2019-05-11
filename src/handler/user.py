@@ -1,7 +1,7 @@
 from flask import jsonify
 from dao.user import UserDAO
 import datetime as dt
-
+from config.dbconfig import pg_config
 
 class UserHandler:
 
@@ -37,7 +37,7 @@ class UserHandler:
         result['urecentLogin'] = row[3]
         result['first_name']=row[4]
         result['last_name']=row[5]
-        result['profile_pic'] = row[6]
+        result['profile_picture'] = row[6]
         return result
 
     def build_user_attributes(self, uid, uname, ucreationDate, urecentLogin):
@@ -53,21 +53,22 @@ class UserHandler:
         result['uid'] = uid
         result['uname'] = uname
         result['urecentLogin'] = urecentLogin
-        result['profile_pic'] = picture
+        result['profile_picture'] = picture
         return result
 
     def build_userinfo_dict(self, row):
         result = {}
         result['huid'] = row[0]
-        result['first_name'] = row[1]
-        result['last_name'] = row[2]
-        result['birthdate'] = row[3]
-        result['huemail'] = row[4]
-        result['phone_number'] = row[5]
-        result['uid'] = row[6]
-        result['user_name'] = row[7]
-        result['ucreation_date'] = row[8]
-        result['umost_recent_login'] = row[9]
+        result['profile_picture'] = row[1]
+        result['first_name'] = row[2]
+        result['last_name'] = row[3]
+        result['birthdate'] = row[4]
+        result['huemail'] = row[5]
+        result['phone_number'] = row[6]
+        result['uid'] = row[7]
+        result['user_name'] = row[8]
+        result['ucreation_date'] = row[9]
+        result['umost_recent_login'] = row[10]
         return result
 
     def build_userinfo_attributes(self, huid,first_name,last_name,birthdate,huemail,phone_number,uid,
@@ -136,8 +137,8 @@ class UserHandler:
             phone = form['phone']
             if username and password and birth_date and first_name and last_name and email and phone:
                 dao = UserDAO()
-                huid = dao.registerHumanAndCreateUser(first_name,last_name,birth_date,email,password,phone,username)
-                result = self.build_human_attributes(huid,first_name,last_name,birth_date,email,password,phone,username)
+                uid = dao.registerHumanAndCreateUser(first_name,last_name,birth_date,email,password,phone,username)
+                result = self.build_human_attributes(uid,username,email,password,birth_date,first_name,last_name,phone)
                 return jsonify(User=result), 201
             else:
                 return jsonify(Error="Malformed Post Request"), 400
@@ -317,11 +318,12 @@ class UserHandler:
                 last_name = form['last_name']
                 email = form['email']
                 phone = form['phone']
-                profile_pic = form['profile_pic']
+                profile_picture = form['profile_picture']
                 date = dt.datetime.now().strftime("%m/%d/%Y")
-                if profile_pic and phone and email and last_name and first_name and birth_date and username and password:
-                    dao.updateUser(uid,username,password,birth_date,first_name,last_name,email,phone,profile_pic)
-                    result = self.build_user_update_attributes(uid,username,date,profile_pic)
+                if profile_picture and phone and email and last_name and first_name and birth_date and username \
+                        and password:
+                    dao.updateUser(uid,username,password,birth_date,first_name,last_name,email,phone,profile_picture)
+                    result = self.build_user_update_attributes(uid,username,date,profile_picture)
                     return jsonify(User=result), 200
                 else:
                     return jsonify(Error="Unexpected attributes in update request"), 400
