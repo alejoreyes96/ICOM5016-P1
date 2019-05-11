@@ -320,7 +320,8 @@ class UserHandler:
                 phone = form['phone']
                 profile_picture = form['profile_picture']
                 date = dt.datetime.now().strftime("%m/%d/%Y")
-                if profile_picture and phone and email and last_name and first_name and birth_date and username and password:
+                if profile_picture and phone and email and last_name and first_name and birth_date and username \
+                        and password:
                     dao.updateUser(uid,username,password,birth_date,first_name,last_name,email,phone,profile_picture)
                     result = self.build_user_update_attributes(uid,username,date,profile_picture)
                     return jsonify(User=result), 200

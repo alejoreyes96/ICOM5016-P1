@@ -166,17 +166,6 @@ class UserDAO:
         result = cursor.fetchone()
         return result
 
-    def updateUser(self,uid,username,password,birth_date,first_name,last_name,email,phone,profile_picture):
-        cursor = self.conn.cursor()
-        uid2=uid
-        query = "with first_up as(update users set user_name=%s,profile_picture=%s where uid=%s returning uid),\
-        second_thing as (select huid from human inner join users on users.human_id=human.huid where users.uid=%s) \
-        update human set hupassword=%s,birthdate=%s,first_name=%s,last_name=%s,huemail=%,phone_number=%s where \
-        huid=(select huid from second_thing);"
-        cursor.execute(query,(username,profile_picture,uid,uid2,password,birth_date,first_name,last_name,email,phone,))
-        self.conn.commit()
-        return fuid
-
     def deleteFriendById(self,fuid):
         cursor = self.conn.cursor()
         query = "delete from friends where fuid=%s"
@@ -198,36 +187,21 @@ class UserDAO:
         self.conn.commit()
         return fname
 
+    def updateUser(self, uid, username, password, birth_date, first_name, last_name, email, phone, profile_picture):
+        cursor = self.conn.cursor()
+        uid2 = uid
+        query = "with first_up as(update users set user_name=%s,profile_picture=%s where uid=%s), \
+        second_thing as(select huid from human inner join users on users.human_id=human.huid where users.uid=%s), \
+        update human set hupassword=%s,birthdate=%s,first_name=%s,last_name=%s,huemail=%,phone_number=%s \
+        where huid=any(select huid from second_thing);"
+        cursor.execute(query, (username, profile_picture, uid,uid2,password,birth_date,first_name,last_name,email,phone))
+        self.conn.commit()
+        return fuid
+
     def deleteAccount(self,uid):
         cursor = self.conn.cursor()
-        uid2=uid
-        uid3=uid
-        uid4=uid
-        uid5=uid
-        uid6=uid
-        uid7=uid
-        uid8=uid
-        uid9=uid
-        uid10=uid
-        uid11=uid
-        uid12=uid
-        query = "with first_delete as(delete from reactions where uid=%s returning uid),\
-        second_delete as(delete from posted_to where mid=any(select mid from messages where uid=%s)returning mid),\
-        third_delete as (delete from contains where rpid=any(select rpid from replies where uid=%s)),\
-        fourth_delete as (delete from replies where uid=%s returning uid),\
-        fifth_delete as (delete from contains where mid=any(select mid from second_delete) returning mid),\
-        sixth_delete as(delete from messages where uid=%s),\
-        seventh_delete as (delete from ismember where uid=%s),\
-        eigth_delete as (delete from posted_to where gid=any(select gid from group_chats \
-	        inner join human on human.huid=group_chats.huid inner join users on users.human_id=human.huid where uid=%s)),\
-        ninth_delete as (delete from ismember where gid=any(select gid from group_chats \
-	        inner join human on human.huid=group_chats.huid inner join users on users.human_id=human.huid where uid=%s)),\
-        tenth_delete as (delete from group_chats where gid=any(select gid from group_chats \
-	        inner join human on human.huid=group_chats.huid inner join users on users.human_id=human.huid where uid=%s)),\
-        eleventh_delete as (delete from friends where uid=%s returning uid),\
-        twelth_delete as (delete from friends where fuid=%s returning fuid),\
-        thirtenth_delete as (delete from users where uid=%s returning human_id)\
-        delete from human where huid=any(select human_id from thirtenth_delete);"
-        cursor.execute(query, (uid,uid2,uid3,uid4,uid5,uid6,uid7,uid8,uid9,uid10,uid11,uid12,))
+        query = "delete from human where huid=(select huid from human inner join users on \
+        human.huid=users.human_id where users.uid=%s);"
+        cursor.execute(query, (uid,))
         self.conn.commit()
         return uid
