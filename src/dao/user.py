@@ -187,16 +187,17 @@ class UserDAO:
         self.conn.commit()
         return fname
 
+
     def updateUser(self, uid, username, password, birth_date, first_name, last_name, email, phone, profile_picture):
         cursor = self.conn.cursor()
-        uid2 = uid
-        query = "with first_up as(update users set user_name=%s,profile_picture=%s where uid=%s), \
-        second_thing as(select huid from human inner join users on users.human_id=human.huid where users.uid=%s), \
-        update human set hupassword=%s,birthdate=%s,first_name=%s,last_name=%s,huemail=%,phone_number=%s \
-        where huid=any(select huid from second_thing);"
-        cursor.execute(query, (username, profile_picture, uid,uid2,password,birth_date,first_name,last_name,email,phone))
+        query = "with first_update as(update users set user_name=%s,profile_picture=%s where uid=%s),\
+        second_thing as (select huid from human inner join users on users.human_id=human.huid where users.uid=%s)\
+        update human set hupassword=%s,birthdate=%s,first_name=%s,last_name=%s,huemail=%s,phone_number=%s \
+        where huid=any(select huid from second_thing)"
+        uid2=uid
+        cursor.execute(query,(username,profile_picture,uid,uid2,password,birth_date,first_name,last_name,email,phone))
         self.conn.commit()
-        return fuid
+        return uid
 
     def deleteAccount(self,uid):
         cursor = self.conn.cursor()
