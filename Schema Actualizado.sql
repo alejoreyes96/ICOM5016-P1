@@ -2,7 +2,7 @@
 last_name varchar(20),birthdate varchar(10),huemail varchar(50),
 hupassword varchar(50),phone_number char(10));
 
-CREATE TABLE Users(uid serial primary key,human_id integer references Human(huid) on delete cascade,
+CREATE TABLE Users(uid serial primary key,human_id integer references Human(huid),
 user_name varchar(20),ucreation_date varchar(10),umost_recent_login varchar(10),
 profile_picture varchar(50));
 
@@ -13,7 +13,7 @@ huid integer references Human(huid) on delete cascade);
 CREATE TABLE IsMember(uid integer references Users(uid),
 gid integer references GroupChats(gid),primary key(uid,gid));
 
-CREATE TABLE Messages(mid serial primary key,uid integer references Users(uid) on delete cascade,
+CREATE TABLE Messages(mid serial primary key,uid integer references Users(uid),
 mupload_date varchar(10),msize integer,mmessage varchar(100), mmedia_path varchar(50),mtype varchar(50),mlength integer);
 
 CREATE TABLE Hashtags(hid serial primary key,hhashtag varchar(50));
