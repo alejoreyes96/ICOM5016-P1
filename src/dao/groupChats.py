@@ -4,16 +4,9 @@ import psycopg2
 class GroupChatsDAO:
 
     # def __init__(self):
-<<<<<<< HEAD
-    # connection_url = "user=%s password=%s host=%s port=%s dbname=%s" % (pg_config['user'], pg_config['password'],\
-    # pg_config['host'],pg_config["port"], pg_config["dbname"])
-    # conn = psycopg2.connect(connection_url)
-    conn = psycopg2.connect(host='127.0.0.1', database='chatDB',user='alejoreyes96', password='alejo3579')
-=======
     connection_url = "user=%s password=%s host=%s port=%s dbname=%s" % (pg_config['user'], pg_config['password'],\
     pg_config['host'],pg_config["port"], pg_config["dbname"])
     conn = psycopg2.connect(connection_url)
->>>>>>> 5f806dcb83fd39fb6ae28e715d4b30b2444a5fb3
 
     def getAvailableGroupChatsByUserId(self, userid):
         cursor = self.conn.cursor()
@@ -30,29 +23,17 @@ class GroupChatsDAO:
 
     def getGroupChatInfoById(self,groupchatid):
         cursor = self.conn.cursor()
-<<<<<<< HEAD
-        query = 'select gid, gname,gcreation_date,gpicture_id_path,first_name,last_name,uid from groupChats \
-                inner join Human on groupChats.huid=human.huid inner join users on users.human_id=human.huid\
-                where groupChats.gid=%s;'
-        cursor.execute(query,(groupchatid,) )
-=======
         query = 'select gid, gname,gcreation_date,gpicture_id_path,first_name,last_name,uid from groupchats \
                 inner join Human on groupchats.huid=human.huid inner join users on users.human_id=human.huid\
                 where groupchats.gid=%s;'
         cursor.execute(query,(groupchatid,))
->>>>>>> 5f806dcb83fd39fb6ae28e715d4b30b2444a5fb3
         result = cursor.fetchone()
         return result
 
     def getAllGroupChats(self):
         cursor = self.conn.cursor()
-<<<<<<< HEAD
-        query = 'select gid, gname,gcreation_date,gpicture_id_path,first_name,last_name,uid from groupChats \
-        inner join Human on groupChats.huid=human.huid inner join users on users.human_id=human.huid;'
-=======
         query = 'select gid, gname,gcreation_date,gpicture_id_path,first_name,last_name,uid from groupchats \
         inner join Human on groupchats.huid=human.huid inner join users on users.human_id=human.huid;'
->>>>>>> 5f806dcb83fd39fb6ae28e715d4b30b2444a5fb3
         cursor.execute(query, )
         result = []
         for row in cursor:
@@ -63,53 +44,12 @@ class GroupChatsDAO:
     def getGroupChatById(self, gid):
         cursor = self.conn.cursor()
         query = "select gid, gname, gcreation_date, gpicture_id_path, first_name,last_name,uid \
-<<<<<<< HEAD
-                 from groupchats inner join Human on groupChats.huid=human.huid inner join users on \
-=======
                  from groupchats inner join Human on groupchats.huid=human.huid inner join users on \
->>>>>>> 5f806dcb83fd39fb6ae28e715d4b30b2444a5fb3
                  users.human_id=human.huid where gid = %s;"
         cursor.execute(query, (gid,))
         result = cursor.fetchone()
         return result
 
-<<<<<<< HEAD
-    def updateGroupChat(self, gid, gname, gpicture_id):
-        result = '4/1/19'
-        return result
-
-    def deleteGroupChat(self, gid):
-        result = []
-        return result
-
-    def createGroupChat(self, userid, gname):
-        if (userid == 1 or userid == 2 or userid == 3) and gname == 'Creators':
-            return [1, '3/1/19']
-        elif userid == 1:
-            return [4, '3/1/19']
-        elif (userid == 2 or userid == 3) and gname == 'Bros':
-            return [3, '3/1/19']
-        else:
-            return [5, '3/1/19']
-        return result
-
-    def addUserToGroupChat(self, uid, groupchatid):
-        result = []
-        if uid == 1:
-            result = [1, 'crystal.torres', '02/25/2019', '03/26/2019']
-        elif uid == 2:
-            result = [2, 'kahlil-14', '02/25/2019', '03/28/2019']
-        elif uid == 3:
-            result = [3, 'alejo', '02/25/2019', '02/27/2019']
-        return result
-
-    def deleteGroupChatById(self, userid, groupchatid):
-        result = []
-        return result
-
-    def deleteUserFromGroupChat(self, userid, userid2, groupchatid):
-        result = []
-=======
     def getGroupChatByName(self, gname):
         cursor = self.conn.cursor()
         query = "select gid, gname, gcreation_date, gpicture_id_path, first_name,last_name,uid \
@@ -117,7 +57,6 @@ class GroupChatsDAO:
                  users.human_id=human.huid where gname = %s;"
         cursor.execute(query, (gname,))
         result = cursor.fetchone()
->>>>>>> 5f806dcb83fd39fb6ae28e715d4b30b2444a5fb3
         return result
 
 
@@ -136,13 +75,8 @@ class GroupChatsDAO:
     def getMessagesFromGroupChatByUserIdAndGroupChatId(self, userid, groupchatid):
         cursor = self.conn.cursor()
         query = "select mid,mmessage,mupload_date,msize,mlength,mtype,mmedia_path,uid from users natural \
-<<<<<<< HEAD
-                inner join messages natural inner join posted_to where gid = %s order by messages.mid;"
-        cursor.execute(query, (groupchatid,))
-=======
                 inner join messages natural inner join postedto where gid = %s order by messages.mid;"
         cursor.execute(query,(groupchatid,))
->>>>>>> 5f806dcb83fd39fb6ae28e715d4b30b2444a5fb3
         result = []
         for row in cursor:
             result.append(row)
@@ -185,34 +119,20 @@ class GroupChatsDAO:
 
     def getReplyById(self, uid, gid, mid, rpid):
         cursor = self.conn.cursor()
-<<<<<<< HEAD
-        query = "select replies.rpid,rp_reply_text,rpupload_date from messages\
-        inner join replies on messages.mid=replies.mid inner join posted_to on posted_to.mid=messages.mid \
-         where messages.mid=%s and posted_to.gid=%s and replies.rpid=%s;"
-=======
         query = "select replies.rpid,rpreply,rpupload_date,rpsize,rplength,rppicture,rptype from messages\
         inner join replies on messages.mid=replies.mid inner join postedto on postedto.mid=messages.mid \
          where messages.mid=%s and postedto.gid=%s and replies.rpid=%s;"
->>>>>>> 5f806dcb83fd39fb6ae28e715d4b30b2444a5fb3
         cursor.execute(query, (mid,gid,rpid,))
         result = cursor.fetchone()
         return result
 
     def getRepliesFromMessageInGroupChatByUserIdAndGroupChatIdandMessageId(self, uid, gid, mid):
         cursor = self.conn.cursor()
-<<<<<<< HEAD
-        query = "select distinct replies.rpid,rp_reply_text,rpupload_date, users.uid, user_name, human.first_name from messages \
-        inner join replies on messages.mid=replies.mid inner join users on users.uid=replies.uid   \
-        inner join ismember on users.uid=ismember.uid inner join human on  \
-        users.human_id=human.huid inner join posted_to on posted_to.mid=messages.mid  \
-         where messages.mid=%s and posted_to.gid=%s;"
-=======
         query = "select distinct replies.rpid,rpreply,rpupload_date,rpsize,rplength,rppicture,rptype,\
         users.uid, user_name, human.first_name from messages inner join replies on messages.mid=replies.mid \
         inner join users on users.uid=replies.uid inner join ismember on users.uid=ismember.uid inner join \
         human on users.human_id=human.huid inner join postedto on postedto.mid=messages.mid where \
         messages.mid=%s and postedto.gid=%s order by replies.rpid;"
->>>>>>> 5f806dcb83fd39fb6ae28e715d4b30b2444a5fb3
         cursor.execute(query, (mid,gid,))
         result = []
         for row in cursor:
@@ -265,10 +185,6 @@ class GroupChatsDAO:
             result.append(row)
         return result
 
-<<<<<<< HEAD
-    def updateReply(self, uid, gid, mid, rid, rpreply, rpupload_date, rphashtag):
-        result = []
-=======
     def getGroupChatByGroupChatIdAndUserId(self, gid,uid):
         cursor = self.conn.cursor()
         query = "select gid from groupchats inner join Human on groupchats.huid=human.huid inner join users on \
@@ -296,17 +212,12 @@ class GroupChatsDAO:
         query = "select * from hashtags where hhashtag=%s;"
         cursor.execute(query, (hhashtag,))
         result = cursor.fetchone()
->>>>>>> 5f806dcb83fd39fb6ae28e715d4b30b2444a5fb3
         return result
 
     def deleteReply(self, uid, gid, mid, rid):
         result = []
         return result
 
-<<<<<<< HEAD
-    def updateMessage(self, uid, gid, mid, mmessage, mupload_date, msize, mlength, mgif, mpath):
-        result = []
-=======
     def replyToMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(self, userid,groupchatid,messageid,
                                                                     text,rpsize,rplength,rptype,rppath):
         cursor = self.conn.cursor()
@@ -487,4 +398,3 @@ class GroupChatsDAO:
         cursor.execute(query, (rpreply,rppath,rptype,rpsize,rplength,rpid,))
         self.conn.commit()
         return rpid
->>>>>>> 5f806dcb83fd39fb6ae28e715d4b30b2444a5fb3

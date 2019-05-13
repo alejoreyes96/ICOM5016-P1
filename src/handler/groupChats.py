@@ -108,11 +108,7 @@ class ChatHandler:
     def build_reply_dict(self, row):
         result = {}
         result['rpid'] = row[0]
-<<<<<<< HEAD
-        result['rp_reply_text'] = row[1]
-=======
         result['rpreply'] = row[1]
->>>>>>> 5f806dcb83fd39fb6ae28e715d4b30b2444a5fb3
         result['rpupload_date'] = row[2]
         result['uid'] = row[3]
         result['user_name'] = row[4]
@@ -120,9 +116,6 @@ class ChatHandler:
 
         return result
 
-<<<<<<< HEAD
-    def build_reply_attributes(self, rpid, rp_reply_text, rpupload_date, mid, uid):
-=======
     def build_reply_dict1(self, row):
         result = {}
         result['rpid'] = row[0]
@@ -135,7 +128,6 @@ class ChatHandler:
         return result
 
     def build_reply_attributes(self, rpid, rp_reply, rpupload_date,rpsize,rplength,rppicture,rptype, mid, uid):
->>>>>>> 5f806dcb83fd39fb6ae28e715d4b30b2444a5fb3
         result = {}
         result['rpid'] = rpid
         result['rpupload_date'] = rpupload_date
@@ -381,9 +373,6 @@ class ChatHandler:
             return jsonify(Error="Group chat not found"), 404
         else:
             groupchat = self.build_groupChats_dict(row)
-<<<<<<< HEAD
-            return jsonify(GroupChat=groupchat)
-=======
             return jsonify(GroupChat=groupchat)
 
     def getReplyById(self, uid,gid,mid,rpid):
@@ -612,4 +601,3 @@ class ChatHandler:
                     return jsonify(Update=result), 200
                 else:
                     return jsonify(Error="Unexpected attributes in update request"), 400
->>>>>>> 5f806dcb83fd39fb6ae28e715d4b30b2444a5fb3

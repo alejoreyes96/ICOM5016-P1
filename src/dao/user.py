@@ -5,32 +5,6 @@ from flask import jsonify
 class UserDAO:
 
     # def __init__(self):
-<<<<<<< HEAD
-    #connection_url = "user=%s password=%s host=%s port=%s dbname=%s" % (pg_config['user'], pg_config['password'],\
-    # pg_config['host'],pg_config["port"], pg_config["dbname"])
-    #conn = psycopg2.connect(connection_url)
-    conn = psycopg2.connect(host='127.0.0.1', database='chatDB',user='alejoreyes96', password='alejo3579')
-
-    def registerHuman(self, username, email, password, birth_date, first_name, last_name, phone):
-        if username == 'Crystal':
-            return 2
-        elif username == 'Kahlil':
-            return 1
-        elif username == 'Alejandro':
-            return 3
-        else:
-            return 69
-
-    def signInUser(self, username, password):
-        if username == 'Crystal':
-            result = [1, username, '02/25/2019', '02/26/2019']
-        elif username == 'Kahlil':
-            result = [2, username, '02/25/2019', '02/28/2019']
-        elif username == 'Alejandro':
-            result = [3, username, '02/25/2019', '02/27/2019']
-        else:
-            result = [69, username, '03/28/2019', '03/29/2019']
-=======
     connection_url = "user=%s password=%s host=%s port=%s dbname=%s" % (pg_config['user'], pg_config['password'],\
     pg_config['host'],pg_config["port"], pg_config["dbname"])
     conn = psycopg2.connect(connection_url)
@@ -74,7 +48,6 @@ class UserDAO:
         cursor.execute(query,(username,password,date,))
         cursor.execute(query,(username,password,date,))
         result = cursor.fetchone()
->>>>>>> 5f806dcb83fd39fb6ae28e715d4b30b2444a5fb3
         return result
 
     def getAllUsers(self):
@@ -97,11 +70,7 @@ class UserDAO:
 
     def getUserInformationByUserId(self, userid):
         cursor = self.conn.cursor()
-<<<<<<< HEAD
-        query = "select human.huid,  first_name,last_name,birthdate,huemail,phone_number,users.uid,user_name,profile_picture\
-=======
         query = "select human.huid, profile_picture, first_name,last_name,birthdate,huemail,phone_number,users.uid,user_name,\
->>>>>>> 5f806dcb83fd39fb6ae28e715d4b30b2444a5fb3
         ucreation_date, umost_recent_login from human inner join users on human.huid=users.human_id where users.uid=%s;"
         cursor.execute(query, (userid,))
         result = cursor.fetchone()
@@ -109,24 +78,15 @@ class UserDAO:
 
     def getUserInformationByUsername(self, username):
         cursor = self.conn.cursor()
-<<<<<<< HEAD
-        query = "select human.huid,  first_name,last_name,birthdate,huemail,phone_number,users.uid,user_name, profile_picture,\
-        ucreation_date, umost_recent_login from human inner join users on human.huid=users.human where users.user_name=%s;"
-=======
         query = "select human.huid,  profile_picture, first_name,last_name,birthdate,huemail,phone_number,users.uid,user_name,\
         ucreation_date, umost_recent_login from human inner join users on human.huid=users.human_id where users.user_name=%s;"
->>>>>>> 5f806dcb83fd39fb6ae28e715d4b30b2444a5fb3
         cursor.execute(query, (username,))
         result = cursor.fetchone()
         return result
 
     def getUserContactsByUserId(self, userid):
         cursor = self.conn.cursor()
-<<<<<<< HEAD
-        query = "select users.uid, user_name, ucreation_date, umost_recent_login, first_name,last_name, profile_picture from friends \
-=======
         query = "select users.uid,  profile_picture, user_name, ucreation_date, umost_recent_login, first_name,last_name from friends \
->>>>>>> 5f806dcb83fd39fb6ae28e715d4b30b2444a5fb3
                  inner join users on friends.fuid = users.uid inner join human on users.human_id=human.huid where\
                  friends.uid =%s;"
         cursor.execute(query,(userid,))
@@ -137,24 +97,15 @@ class UserDAO:
 
     def getUserByUsername(self, username):
         cursor = self.conn.cursor()
-<<<<<<< HEAD
-        query = "select uid, user_name,  ucreation_date, umost_recent_login,first_name,last_name, profile_picture from users\
-         inner join human on users.human_id=human.huid where users.user_name = %s;"
-=======
         query = "select uid, user_name, ucreation_date, umost_recent_login,first_name,last_name, profile_picture from\
          users inner join human on users.human_id=human.huid where users.user_name = %s;"
->>>>>>> 5f806dcb83fd39fb6ae28e715d4b30b2444a5fb3
         cursor.execute(query, (username,))
         result = cursor.fetchone()
         return result
 
     def getUserContactsByUsername(self, username):
         cursor = self.conn.cursor()
-<<<<<<< HEAD
-        query = "select users.uid,   user_name, ucreation_date, umost_recent_login, first_name,last_name, profile_picture from friends \
-=======
         query = "select users.uid,  profile_picture, user_name, ucreation_date, umost_recent_login, first_name,last_name from friends \
->>>>>>> 5f806dcb83fd39fb6ae28e715d4b30b2444a5fb3
                 inner join users on friends.fuid = users.uid inner join human on users.human_id=human.huid \
                 where friends.uid = (select uid from users where user_name = %s);"
         cursor.execute(query, (username,))
@@ -175,11 +126,7 @@ class UserDAO:
 
     def getUsersInGroupChatByUserIdAndGroupChatId(self, userid, groupchatid):
         cursor = self.conn.cursor()
-<<<<<<< HEAD
-        query = "select uid, user_name,  ucreation_date,umost_recent_login,first_name,last_name, profile_picture from ismember \
-=======
         query = "select uid, user_name,  profile_picture, ucreation_date,umost_recent_login,first_name,last_name from ismember \
->>>>>>> 5f806dcb83fd39fb6ae28e715d4b30b2444a5fb3
                  natural inner join users inner join human on human.huid=users.human_id where gid = %s;"
         cursor.execute(query, (groupchatid,))
         result = []
@@ -189,11 +136,7 @@ class UserDAO:
 
     def getOwnerOfGroupChatById(self, groupchatid):
         cursor = self.conn.cursor()
-<<<<<<< HEAD
-        query = 'select users.uid,  user_name, ucreation_date, umost_recent_login, first_name,last_name, profile_picture\
-=======
         query = 'select users.uid,  profile_picture, user_name, ucreation_date, umost_recent_login, first_name,last_name\
->>>>>>> 5f806dcb83fd39fb6ae28e715d4b30b2444a5fb3
         from groupChats inner join Human on groupChats.huid=human.huid inner join users on \
         users.human_id=human.huid where groupChats.gid=%s;'
         cursor.execute(query, (groupchatid,))
@@ -202,14 +145,6 @@ class UserDAO:
             result.append(row)
         return result
 
-<<<<<<< HEAD
-    #
-    #
-    # def update(self, uid):
-    #     result = self.getUserById(uid)
-    #     result[3] = "UpdateDate 02/26/2019"
-    #     return result
-=======
     def deleteFriendById(self,fuid):
         cursor = self.conn.cursor()
         query = "delete from friends where fuid=%s"
@@ -250,4 +185,3 @@ class UserDAO:
         cursor.execute(query, (uid,))
         self.conn.commit()
         return uid
->>>>>>> 5f806dcb83fd39fb6ae28e715d4b30b2444a5fb3
