@@ -1,6 +1,8 @@
 from flask import jsonify
 from dao.groupChats import GroupChatsDAO
+from dao.statistics import StatsDAO
 from dao.user import UserDAO
+import datetime as dt
 
 class ChatHandler:
 
@@ -29,7 +31,13 @@ class ChatHandler:
         result['uid'] = row[8]
         return result
 
-    def build_messages_attributes(self, mid, mmessage, mupload_date, msize, mlength, mgif, mpath, mhashtag, uid):
+    def build_messages_per_day(self, row):
+        result = {}
+        result['day'] = row[0]
+        result['total'] = row[1]
+        return result
+
+    def build_message_attributes(self, mid, mmessage, mupload_date, msize, mlength, mgif, mpath, mhashtag):
         result = {}
         result['mid'] = mid
         result['mmessage'] = mmessage
@@ -39,8 +47,19 @@ class ChatHandler:
         result['mgif'] = mgif
         result['mpath'] = mpath
         result['mhashtag'] = mhashtag
-        result['uid'] = uid
+        return result
 
+    def build_messages_attributes(self, mid,mmessage,mupload_date,msize,mlength,mtype,mpath,mhashtag,uid):
+        result = {}
+        result['mid'] = mid
+        result['mmessage'] = mmessage
+        result['mupload_date'] = mupload_date
+        result['msize'] = msize
+        result['mlength'] = mlength
+        result['mtype'] = mtype
+        result['mpath'] = mpath
+        result['mhashtag'] = mhashtag
+        result['uid'] = uid
         return result
 
     def build_groupChat_dict(self, row):
@@ -49,14 +68,16 @@ class ChatHandler:
         result['gname'] = row[1]
         result['gcreation_date'] = row[2]
         result['gpicture_id'] = row[3]
+        result['gowner_id'] = row[4]
         return result
 
-    def build_groupChat_attributes(self, gid, gname, gcreation_date, gpicture_id):
+    def build_groupChat_attributes(self, gid, gname, gcreation_date, gpicture_id,userid):
         result = {}
         result['gid'] = gid
         result['gname'] = gname
         result['gcreation_date'] = gcreation_date
         result['gpicture_id'] = gpicture_id
+        result['gowner_id'] = userid
         return result
 
     def build_groupChats_dict(self, row):
@@ -70,23 +91,17 @@ class ChatHandler:
         result['uid'] = row[6]
         return result
 
-    # def build_creates_dict(self, row):
-    #     result = {}
-    #     result['chuid'] = row[0]
-    #     result['cgid'] = row[1]
-    #     return result
-    #
-    # def build_isMember_dict(self, row):
-    #     result = {}
-    #     result['igid'] = row[0]
-    #     result['iuid'] = row[1]
-    #     return result
-    #
-    # def build_reacts_dict(self, row):
-    #     result = {}
-    #     result['rrid'] = row[0]
-    #     result['rmid'] = row[1]
-    #     return result
+    def build_ismember_dict(self, row):
+         result = {}
+         result['gid'] = row[0]
+         result['uid'] = row[1]
+         return result
+
+    def build_ismember_attributes(self,gid,uid):
+        result = {}
+        result['gid'] = gid
+        result['uid'] = uid
+        return result
 
     def build_reactions_dict(self, row):
         result = {}
@@ -111,10 +126,13 @@ class ChatHandler:
         result['rpid'] = row[0]
         result['rpreply'] = row[1]
         result['rpupload_date'] = row[2]
-        result['uid'] = row[3]
-        result['user_name'] = row[4]
-        result['first_name'] = row[5]
-
+        result['rpsize']=row[3]
+        result['rplength'] = row[4]
+        result['rppicture'] = row[5]
+        result['rptype'] = row[6]
+        result['uid'] = row[7]
+        result['user_name'] = row[8]
+        result['first_name'] = row[9]
         return result
 
     def build_reply_dict1(self, row):
@@ -132,34 +150,28 @@ class ChatHandler:
         result = {}
         result['rpid'] = rpid
         result['rpupload_date'] = rpupload_date
-        result['rp_reply_text'] = rp_reply_text
+        result['rp_reply'] = rp_reply
+        result['rpsize'] = rpsize
+        result['rplength'] = rplength
+        result['rppicture'] = rppicture
+        result['rptype'] = rptype
         result['mid'] = mid
         result['uid'] = uid
         return result
 
-    # def build_sends_dict(self, row):
-    #     result = {}
-    #     result['suid'] = row[0]
-    #     result['smid'] = row[1]
-    #     return result
-    #
-    # def build_contains_dict(self, row):
-    #     result = {}
-    #     result['cmid'] = row[0]
-    #     result['chid'] = row[1]
-    #     return result
-    #
-    # def build_replied_dict(self, row):
-    #     result = {}
-    #     result['rrpid'] = row[0]
-    #     result['rmid'] = row[1]
-    #     return result
-    #
-    # def build_makesReply_dict(self, row):
-    #     result = {}
-    #     result['mrpid'] = row[0]
-    #     result['mmid'] = row[1]
-    #     return result
+    def build_reaction_update_dict(self, row):
+        result = {}
+        result['rid'] = row[0]
+        result['rtype'] = row[1]
+        result['rupload_date'] = row[2]
+        return result
+
+    def build_reaction_update_attributes(self, rid, rtype, rupload_date):
+        result = {}
+        result['rid'] = rid
+        result['rtype'] = rtype
+        result['rupload_date'] = rupload_date
+        return result
 
     def build_user_dict(self, row):
         result = {}
@@ -204,12 +216,11 @@ class ChatHandler:
         else:
             gname = form['gname']
             gpicture_id = form['gpicture_id']
-            if gname and gpicture_id:
+            gcreation_date = dt.datetime.now().date().strftime("%m/%d/%Y")
+            if gname and gpicture_id and userid:
                 dao = GroupChatsDAO()
-                response = dao.createGroupChat(userid, gname)
-                gid = response[0]
-                gcreation_date = response[1]
-                result = self.build_groupChat_attributes(gid, gname, gcreation_date, gpicture_id)
+                gid= dao.createGroupChat(userid, gname,gpicture_id)
+                result = self.build_groupChat_attributes(gid, gname, gcreation_date, gpicture_id,userid)
                 if result is None:
                     return jsonify(Error="Unable to create group chat")
                 else:
@@ -223,14 +234,12 @@ class ChatHandler:
         chat_list = dao.getGroupChatById(gid)
         result_map = []
         if not chat_list:
-            return jsonify(Error="Message Not Found"), 404
+            return jsonify(Error="GroupChat Not Found"), 404
         else:
-            for row in chat_list:
-                result = self.build_groupChats_dict(row)
-                result_map.append(result)
-        return jsonify(GroupChat=result_map), 201
+            result_map = self.build_groupChats_dict(chat_list)
+            return jsonify(GroupChat=result_map), 201
 
-    def updateGroupChat(self, gid, json):
+    def updateGroupChat(self, uid,gid, json):
          dao = GroupChatsDAO()
          if not dao.getGroupChatById(gid):
              return jsonify(Error="GroupChat not found"), 404
@@ -240,20 +249,28 @@ class ChatHandler:
              else:
                 gname = json['gname']
                 gpicture_id = json['gpicture_id']
-
+                gcreation_date = dt.datetime.now().date().strftime("%m/%d/%Y")
                 if gname and gpicture_id:
-                     response = dao.updateGroupChat(gid, gname, gpicture_id)
-                     result = self.build_groupChat_attributes(gid, gname, response, gpicture_id)
+                     gid = dao.updateGroupChat(gid, gname, gpicture_id)
+                     result = self.build_groupChat_attributes(gid, gname,gcreation_date,gpicture_id,uid)
                      return jsonify(GroupChat=result), 200
                 else:
                      return jsonify(Error="Unexpected attributes in update request"), 400
 
-    def deleteGroupChat(self, gid):
+    def deleteGroupChatById(self, uid,gid):
         dao = GroupChatsDAO()
-        if not dao.getGroupChatById(gid):
+        if not dao.getGroupChatByGroupChatIdAndUserId(gid,uid):
             return jsonify(Error="Group Chat not found."), 404
         else:
-            dao.deleteGroupChat(gid)
+            dao.deleteGroupChatById(gid)
+            return jsonify(DeleteStatus="OK"), 200
+
+    def deleteGroupChatByName(self, gname):
+        dao = GroupChatsDAO()
+        if not dao.getGroupChatByName(gname):
+            return jsonify(Error="Group Chat not found."), 404
+        else:
+            dao.deleteGroupChatByName(gname)
             return jsonify(DeleteStatus="OK"), 200
 
 
@@ -276,7 +293,7 @@ class ChatHandler:
 
     def getMessageReactionsInGroupChatByUserIdAndGroupChatIdAndMessageId(self, userid, groupchatid, messageid):
         dao = GroupChatsDAO()
-        result = dao.getMessageReactionsInGroupChatByUserIdAndGroupChatIdAndMessageId(userid, groupchatid, messageid)
+        result = dao.getMessageReactionsInGroupChatByUserIdAndGroupChatIdAndMessageId(userid,groupchatid,messageid)
         result_map = []
         if result is None:
             return jsonify(Error="Unable to get reactions")
@@ -295,23 +312,6 @@ class ChatHandler:
             for r in result:
                 result_map.append(self.build_reply_dict(r))
             return jsonify(Replies=result_map)
-
-
-    def addReaction(self, userid, groupchatid, messageid, json):
-
-        dao = GroupChatsDAO()
-        if len(json) != 2:
-            return jsonify(Error="Malformed update request"), 400
-        else:
-            rtype = json['rtype']
-            rupload_date = json['rupload_date']
-
-            if rtype and rupload_date:
-                rid = dao.addReaction(userid, groupchatid, messageid, rtype, rupload_date)
-                result = self.build_reactions_attributes(rid, rtype, rupload_date)
-                return jsonify(Reaction = result), 201
-            else:
-                return jsonify(Error="Unexpected attributes in post request"), 400
 
 
     def getMessageLikesInGroupChatByUserIdGroupChatIdAndMessageId(self,messageid,groupchatid):
@@ -470,11 +470,10 @@ class ChatHandler:
             mpath=json['mpath']
             mhashtag=json['mhashtag']
             uid=userid
-            if mmessage:
+            if mmessage and msize and mlength and mtype and mpath:
                 mid = dao.insertMessage(uid, groupchatid, mmessage, msize, mlength, mtype, mpath)
                 result = self.build_messages_attributes(mid,mmessage,mupload_date,msize,mlength,mtype,mpath,mhashtag,uid)
                 for value in mhashtag:
-                    value = value.lower();
                     if dao.getHashtagByHashtag(value) is None:
                         entry = dao.insertHashtagAndContainsFromMessage(mid,value)
                     else:

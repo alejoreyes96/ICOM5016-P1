@@ -287,11 +287,10 @@ class UserHandler:
 
     def getOwnerOfGroupChatById(self, groupchatid):
         dao = UserDAO()
-        result = dao.getOwnerOfGroupChatById(groupchatid)
+        row = dao.getOwnerOfGroupChatById(groupchatid)
         result_map = []
-        for r in result:
+        for r in row:
             result_map.append(self.build_user_dict(r))
-
         return jsonify(Owner=result_map)
 
     def getUserInformationByUsername(self, username):
