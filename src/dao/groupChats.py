@@ -7,7 +7,8 @@ class GroupChatsDAO:
     # connection_url = "user=%s password=%s host=%s port=%s dbname=%s" % (pg_config['user'], pg_config['password'],\
     # pg_config['host'],pg_config["port"], pg_config["dbname"])
     # conn = psycopg2.connect(connection_url)
-    conn = psycopg2.connect(host='ec2-23-23-228-132.compute-1.amazonaws.com', port='5432', database='d16vskajlago0q',user='jtpzwnhpblwzwf', password='66b2af20d997271d0fb428b4f63d40dba6113ed0e1a0a70560599209ae2d1583')
+    # conn = psycopg2.connect(host='ec2-23-23-228-132.compute-1.amazonaws.com', port='5432', database='d16vskajlago0q',user='jtpzwnhpblwzwf', password='66b2af20d997271d0fb428b4f63d40dba6113ed0e1a0a70560599209ae2d1583')
+    conn = psycopg2.connect(host='127.0.0.1', database='chatDB',user='alejoreyes96', password='alejo3579')
 
     def getAvailableGroupChatsByUserId(self, userid):
         cursor = self.conn.cursor()

@@ -29,7 +29,7 @@ class ChatHandler:
         result['uid'] = row[8]
         return result
 
-    def build_message_attributes(self, mid, mmessage, mupload_date, msize, mlength, mgif, mpath, mhashtag):
+    def build_messages_attributes(self, mid, mmessage, mupload_date, msize, mlength, mgif, mpath, mhashtag, uid):
         result = {}
         result['mid'] = mid
         result['mmessage'] = mmessage
@@ -39,6 +39,7 @@ class ChatHandler:
         result['mgif'] = mgif
         result['mpath'] = mpath
         result['mhashtag'] = mhashtag
+        result['uid'] = uid
 
         return result
 
@@ -469,7 +470,7 @@ class ChatHandler:
             mpath=json['mpath']
             mhashtag=json['mhashtag']
             uid=userid
-            if mmessage and msize and mlength and mtype and mpath:
+            if mmessage:
                 mid = dao.insertMessage(uid, groupchatid, mmessage, msize, mlength, mtype, mpath)
                 result = self.build_messages_attributes(mid,mmessage,mupload_date,msize,mlength,mtype,mpath,mhashtag,uid)
                 for value in mhashtag:

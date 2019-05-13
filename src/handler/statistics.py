@@ -50,7 +50,7 @@ class StatsHandler:
 
     def build_stats_popularity_dict(self,row):
         result={}
-        result['Top Hashtags'] = row[0]
+        result['Times_Used'] = row[0]
         result['Hashtag']=row[1]
         return result
 
