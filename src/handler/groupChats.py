@@ -470,10 +470,11 @@ class ChatHandler:
             mpath=json['mpath']
             mhashtag=json['mhashtag']
             uid=userid
-            if mmessage and msize and mlength and mtype and mpath:
+            if mmessage:
                 mid = dao.insertMessage(uid, groupchatid, mmessage, msize, mlength, mtype, mpath)
                 result = self.build_messages_attributes(mid,mmessage,mupload_date,msize,mlength,mtype,mpath,mhashtag,uid)
                 for value in mhashtag:
+                    value = value.lower();
                     if dao.getHashtagByHashtag(value) is None:
                         entry = dao.insertHashtagAndContainsFromMessage(mid,value)
                     else:
