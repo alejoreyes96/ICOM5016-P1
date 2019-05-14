@@ -112,7 +112,9 @@ class StatsHandler:
         if day_list is None:
             return jsonify(Error="User doesn't exist!")
         else:
-            if len(day_list) ==2:
+            if len(day_list)==0:
+                return jsonify(Error="User doesn't exist!")
+            elif len(day_list) <2:
                 result_map.append(self.build_stats_user_post_dict(day_list))
             else:
                 for row in day_list:
@@ -133,7 +135,9 @@ class StatsHandler:
         if day_list is None:
             return jsonify(Error="NO Messages exist!")
         else:
-            if len(day_list) ==2:
+            if len(day_list)==0:
+                return jsonify(Error="No Messages exist!")
+            elif len(day_list) <2:
                 result_map.append(self.build_stats_message_perday_dict(day_list))
             else:
                 for row in day_list:
@@ -154,9 +158,11 @@ class StatsHandler:
         day_list = dao.getAllRepliesPerDay()
         result_map = []
         if day_list is None:
-            return jsonify(Error="No Replies doesn't exist!")
+            return jsonify(Error="No Replies exist!")
         else:
-            if len(day_list) ==2:
+            if len(day_list)==0:
+                return jsonify(Error="No Replies exist!")
+            elif len(day_list) <2:
                 result_map.append(self.build_stats_replies_perday_dict(day_list))
             else:
                 for row in day_list:
@@ -178,7 +184,9 @@ class StatsHandler:
         if day_list is None:
             return jsonify(Error="No LIkes exist!")
         else:
-            if len(day_list) ==2:
+            if len(day_list)==0:
+                return jsonify(Error="No LIkes exist!")
+            elif len(day_list) <2:
                 result_map.append(self.build_stats_likes_perday_dict(day_list))
             else:
                 for row in day_list:
@@ -200,8 +208,11 @@ class StatsHandler:
         if day_list is None:
             return jsonify(Error="No Dislikes exist!")
         else:
-            if len(day_list) ==2:
-                result_map.append(self.build_stats_dislike_perday_dict(day_list))
+            if len(day_list)==0:
+                return jsonify(Error="No Dislikes exist!")
+            elif len(day_list) <2:
+                result = self.build_stats_dislike_perday_dict(day_list)
+                result_map.append(result)
             else:
                 for row in day_list:
                     result = self.build_stats_dislike_perday_dict(row)
