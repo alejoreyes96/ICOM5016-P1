@@ -8,20 +8,12 @@ class StatsHandler:
         result = {}
         result['Number of Users In System'] = row[0]
         result['Number of GroupChats In System'] = row[1]
-        result['Number of Posts Per Day'] = row[2]
-        result['Number of Replies Per Day'] = row[3]
-        result['Number of Likes Per Day'] = row[4]
-        result['Number of Dislikes Per Day'] = row[5]
         return result
 
-    def build_stats_attr(self,uids,gids,mids,rpids,likes,dlikes):
+    def build_stats_attr(self,uids,gids):
         result = {}
         result['Number of Users In System'] = uids
         result['Number of GroupChats In System'] = gids
-        result['Number of Posts Per Day'] = mids
-        result['Number of Replies Per Day'] = rpids
-        result['Number of Likes Per Day'] = likes
-        result['Number of Dislikes Per Day'] = dlikes
         return result
 
     def build_stats_specific_user_dict(self,row):
@@ -50,7 +42,7 @@ class StatsHandler:
 
     def build_stats_popularity_dict(self,row):
         result={}
-        result['Times_Used'] = row[0]
+        result['Top Hashtags'] = row[0]
         result['Hashtag']=row[1]
         return result
 
@@ -76,11 +68,7 @@ class StatsHandler:
         stats = []
         stats.append(dao.getAllUserCount())
         stats.append(dao.getAllGroupChatsCount())
-        stats.append(dao.getAllMessagesCount())
-        stats.append(dao.getAllRepliesCount())
-        stats.append(dao.getAllLikesCount())
-        stats.append(dao.getAllDislikesCount())
-        result_map = self.build_stats_attr(stats[0], stats[1], stats[2], stats[3], stats[4], stats[5])
+        result_map = self.build_stats_attr(stats[0], stats[1])
         return jsonify(Stats=result_map),201
 
 
@@ -102,7 +90,6 @@ class StatsHandler:
             result_map.append(result)
         return jsonify(Stats=result_map)
 
-
     def getMostPopularHashtags(self):
         dao = StatsDAO()
         user_list = dao.getMostPopularHashtags()
@@ -110,4 +97,21 @@ class StatsHandler:
         for row in user_list:
             result = self.build_stats_popularity_dict(row)
             result_map.append(result)
+        return jsonify(Stats=result_map)
+
+    def build_stats_user_post_dict(self,row):
+        result={}
+        result['Amount Per Day'] = row[0]
+        result['Date'] = row[1]
+        return result
+
+    def getAllPostsByUserIdPerDay(self,userid):
+        dao = StatsDAO()
+        day_list = dao.getAllPostsByUserIdPerDay(userid)
+        result_map = []
+        if day_list is None:
+            return jsonify(Error="User doesn't exist!")
+        else:
+            for row in day_list:
+                result_map.append(self.build_stats_user_post_dict(row))
         return jsonify(Stats=result_map)
