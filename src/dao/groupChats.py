@@ -330,7 +330,7 @@ class GroupChatsDAO:
         query = "delete from groupchats where gid=all(select gid from groupchats where gname=%s);"
         cursor.execute(query, (gname,))
         self.conn.commit()
-        return gid
+        return gname
 
     def deleteMessage(self,mid):
         cursor = self.conn.cursor()
