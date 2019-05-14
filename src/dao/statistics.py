@@ -6,7 +6,7 @@ class StatsDAO:
     # connection_url = "user=%s password=%s host=%s port=%s dbname=%s" % (pg_config['user'], pg_config['password'],\
     # pg_config['host'],pg_config["port"], pg_config["dbname"])
     # conn = psycopg2.connect(connection_url)
-    conn = psycopg2.connect(host='127.0.0.1',port='5432',user='roxy',password='CRYSmarie2015',dbname='appdb')
+    conn = psycopg2.connect(host='127.0.0.1',port='5432',user='alejoreyes96',password='alejo3579',dbname='chatDB')
 
 
     def getAllUserCount(self):
