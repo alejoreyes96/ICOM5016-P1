@@ -222,20 +222,57 @@ def getGroupChatInfoById(groupchatid):
 def getUserInformationByUsername(username):
     return UserHandler().getUserInformationByUsername(username)
 
+
+@app.route('/FFMA/Stats/')
 @app.route('/FFMA/Stats')
 def getStats():
     return StatsHandler().getAllStats()
 
 
+@app.route('/FFMA/Stats/MessagesPerDay/')
+@app.route('/FFMA/Stats/MessagesPerDay')
+def getMessagesPerDay():
+    return StatsHandler().getAllMessagesPerDay()
+
+
+@app.route('/FFMA/Stats/RepliesPerDay/')
+@app.route('/FFMA/Stats/RepliesPerDay')
+def getRepliesPerDay():
+    return StatsHandler().getAllRepliesPerDay()
+
+
+@app.route('/FFMA/Stats/LikesPerDay/')
+@app.route('/FFMA/Stats/LikesPerDay')
+def getLIkesPerDay():
+    return StatsHandler().getAllLikesPerDay()
+
+
+@app.route('/FFMA/Stats/DislikesPerDay/')
+@app.route('/FFMA/Stats/DislikesPerDay')
+def getDislikesPerDay():
+    return StatsHandler().getAllDislikesPerDay()
+
+
+@app.route('/FFMA/Stats/<int:userid>/')
+@app.route('/FFMA/Stats/<int:userid>')
+def getUserPosts(userid):
+    return StatsHandler().getAllPostsByUserIdPerDay(userid)
+
+
+@app.route('/FFMA/Stats/Picture/<string:picture_name>/')
 @app.route('/FFMA/Stats/Picture/<string:picture_name>')
 def getStatsForPictures(picture_name):
     return StatsHandler().getStatsForPictures(picture_name)
 
+
+@app.route('/FFMA/Stats/Hashtags/')
 @app.route('/FFMA/Stats/Hashtags')
 def getStatsForHashtags():
     return StatsHandler().getMostPopularHashtags()
 
-@app.route('/FFMA/Stats/Users')
+
+@app.route('/FFMA/Stats/MostActiveUsers/')
+@app.route('/FFMA/Stats/MostActiveUsers')
 def getStatsForUserActivity():
     return StatsHandler().getMostActiveUsers()
 

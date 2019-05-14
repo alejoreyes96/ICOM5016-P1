@@ -6,6 +6,7 @@ class StatsDAO:
     # connection_url = "user=%s password=%s host=%s port=%s dbname=%s" % (pg_config['user'], pg_config['password'],\
     # pg_config['host'],pg_config["port"], pg_config["dbname"])
     # conn = psycopg2.connect(connection_url)
+    conn = psycopg2.connect(host='127.0.0.1',port='5432',user='roxy',password='CRYSmarie2015',dbname='appdb')
 
 
     def getAllUserCount(self):
@@ -75,11 +76,11 @@ class StatsDAO:
             result.append(row)
         return result
 
-    def getAllPostsByUserId(self,uid):
+    def getAllPostsByUserIdPerDay(self,uid):
         cursor = self.conn.cursor()
-        query = 'select count(*) from messages where mupload_date=%s and uid=%s;'
-        date = dt.datetime.now().date().strftime("%m/%d/%Y")
-        cursor.execute(query,(date,uid,))
+        query = "with first_set as(select * from messages where uid=%s) select count(*),first_set.mupload_date \
+        from first_set group by first_set.mupload_date;"
+        cursor.execute(query,(uid,))
         result = cursor.fetchone()
         return result
 
