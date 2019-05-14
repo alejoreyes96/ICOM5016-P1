@@ -101,7 +101,7 @@ class StatsHandler:
 
     def build_stats_user_post_dict(self,row):
         result={}
-        result['Amount Per Day'] = row[0]
+        result['Amount Per Day'] = str(row[0])
         result['Date'] = row[1]
         return result
 
@@ -112,6 +112,10 @@ class StatsHandler:
         if day_list is None:
             return jsonify(Error="User doesn't exist!")
         else:
-            for row in day_list:
-                result_map.append(self.build_stats_user_post_dict(row))
+            if len(day_list) ==2:
+                result_map.append(self.build_stats_user_post_dict(day_list))
+            else:
+                for row in day_list:
+                    result = self.build_stats_user_post_dict(row)
+                    result_map.append(result)
         return jsonify(Stats=result_map)

@@ -81,7 +81,9 @@ class StatsDAO:
         query = "with first_set as(select * from messages where uid=%s) select count(*),first_set.mupload_date \
         from first_set group by first_set.mupload_date;"
         cursor.execute(query,(uid,))
-        result = cursor.fetchone()
+        result = []
+        for row in cursor:
+            result.append(row)
         return result
 
     def getRepliesforPictures(self,mmedia_path):
