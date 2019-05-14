@@ -119,3 +119,91 @@ class StatsHandler:
                     result = self.build_stats_user_post_dict(row)
                     result_map.append(result)
         return jsonify(Stats=result_map)
+
+    def build_stats_message_perday_dict(self,row):
+        result={}
+        result['Amount Per Day'] = str(row[0])
+        result['Date'] = row[1]
+        return result
+
+    def getAllMessagesPerDay(self):
+        dao = StatsDAO()
+        day_list = dao.getAllMessagesPerDay()
+        result_map = []
+        if day_list is None:
+            return jsonify(Error="NO Messages exist!")
+        else:
+            if len(day_list) ==2:
+                result_map.append(self.build_stats_message_perday_dict(day_list))
+            else:
+                for row in day_list:
+                    result = self.build_stats_message_perday_dict(row)
+                    result_map.append(result)
+        return jsonify(Stats=result_map)
+
+
+
+    def build_stats_replies_perday_dict(self,row):
+        result={}
+        result['Amount Per Day'] = str(row[0])
+        result['Date'] = row[1]
+        return result
+
+    def getAllRepliesPerDay(self):
+        dao = StatsDAO()
+        day_list = dao.getAllRepliesPerDay()
+        result_map = []
+        if day_list is None:
+            return jsonify(Error="No Replies doesn't exist!")
+        else:
+            if len(day_list) ==2:
+                result_map.append(self.build_stats_replies_perday_dict(day_list))
+            else:
+                for row in day_list:
+                    result = self.build_stats_replies_perday_dict(row)
+                    result_map.append(result)
+        return jsonify(Stats=result_map)
+
+
+    def build_stats_likes_perday_dict(self,row):
+        result={}
+        result['Amount Per Day'] = str(row[0])
+        result['Date'] = row[1]
+        return result
+
+    def getAllLikesPerDay(self):
+        dao = StatsDAO()
+        day_list = dao.getAllLikesPerDay()
+        result_map = []
+        if day_list is None:
+            return jsonify(Error="No LIkes exist!")
+        else:
+            if len(day_list) ==2:
+                result_map.append(self.build_stats_likes_perday_dict(day_list))
+            else:
+                for row in day_list:
+                    result = self.build_stats_likes_perday_dict(row)
+                    result_map.append(result)
+        return jsonify(Stats=result_map)
+
+
+    def build_stats_dislike_perday_dict(self,row):
+        result={}
+        result['Amount Per Day'] = str(row[0])
+        result['Date'] = row[1]
+        return result
+
+    def getAllDislikesPerDay(self):
+        dao = StatsDAO()
+        day_list = dao.getAllDislikesPerDay()
+        result_map = []
+        if day_list is None:
+            return jsonify(Error="No Dislikes exist!")
+        else:
+            if len(day_list) ==2:
+                result_map.append(self.build_stats_dislike_perday_dict(day_list))
+            else:
+                for row in day_list:
+                    result = self.build_stats_dislike_perday_dict(row)
+                    result_map.append(result)
+        return jsonify(Stats=result_map)

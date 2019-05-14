@@ -29,10 +29,9 @@ class StatsDAO:
 
     def getAllMessagesPerDay(self):
         cursor = self.conn.cursor()
-        date = dt.datetime.now().date().strftime("%m/%d/%Y")
         query = "with first_set as(select * from messages) select count(*),first_set.mupload_date \
         from first_set group by first_set.mupload_date;"
-        cursor.execute(query,(date,))
+        cursor.execute(query,())
         result = []
         for row in cursor:
             result.append(row)
@@ -43,7 +42,7 @@ class StatsDAO:
         date = dt.datetime.now().date().strftime("%m/%d/%Y")
         query = "with first_set as(select * from replies) select count(*),first_set.rpupload_date \
         from first_set group by first_set.rpupload_date;"
-        cursor.execute(query,(date,))
+        cursor.execute(query,())
         result = []
         for row in cursor:
             result.append(row)
