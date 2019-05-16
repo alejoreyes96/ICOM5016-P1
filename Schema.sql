@@ -22,7 +22,7 @@ CREATE TABLE PostedTo(mid integer references Messages(mid), gid integer referenc
 GroupChats(gid), primary key(mid,gid));
 
 CREATE TABLE Replies(rpid serial primary key,rpupload_date varchar(10),
-rpreply varchar(100),mid integer references Messages(mid),uid integer references Users(uid),rppicture varchar(50),rptype varchar(10),
+rp_reply_text varchar(100),mid integer references Messages(mid),uid integer references Users(uid),rppicture varchar(50),rptype varchar(10),
 rpsize integer,rplength integer);
 
 CREATE TABLE Reactions(rid serial primary key,rupload_date varchar(10),
