@@ -111,7 +111,7 @@ class GroupChatsDAO:
 
     def getReplyById(self, uid, gid, mid, rpid):
         cursor = self.conn.cursor()
-        query = "select replies.rpid,rpreply,rpupload_date,rpsize,rplength,rppicture,rptype from messages\
+        query = "select replies.rpid,rp_reply_text,rpupload_date,rpsize,rplength,rppicture,rptype from messages\
         inner join replies on messages.mid=replies.mid inner join postedto on postedto.mid=messages.mid \
          where messages.mid=%s and postedto.gid=%s and replies.rpid=%s;"
         cursor.execute(query, (mid,gid,rpid,))
@@ -120,7 +120,7 @@ class GroupChatsDAO:
 
     def getRepliesFromMessageInGroupChatByUserIdAndGroupChatIdandMessageId(self, uid, gid, mid):
         cursor = self.conn.cursor()
-        query = "select distinct replies.rpid,rpreply,rpupload_date,rpsize,rplength,rppicture,rptype,\
+        query = "select distinct replies.rpid,rp_reply_text,rpupload_date,rpsize,rplength,rppicture,rptype,\
         users.uid, user_name, human.first_name from messages inner join replies on messages.mid=replies.mid \
         inner join users on users.uid=replies.uid inner join ismember on users.uid=ismember.uid inner join \
         human on users.human_id=human.huid inner join postedto on postedto.mid=messages.mid where \
@@ -210,7 +210,7 @@ class GroupChatsDAO:
                                                                     text,rpsize,rplength,rptype,rppath):
         cursor = self.conn.cursor()
         date = dt.datetime.now().date().strftime("%m/%d/%Y")
-        query = "insert into replies(rpupload_date,rpreply,mid,uid,rppicture,rptype,rpsize,rplength) \
+        query = "insert into replies(rpupload_date,rp_reply_text,mid,uid,rppicture,rptype,rpsize,rplength) \
         values (%s,%s,%s,%s,%s,%s,%s,%s) returning rpid;"
         cursor.execute(query, (date,text,messageid,userid,rppath,rptype,rpsize,rplength,))
         rpid = cursor.fetchone()[0]
