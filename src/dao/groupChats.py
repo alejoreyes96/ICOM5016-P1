@@ -100,15 +100,6 @@ class GroupChatsDAO:
         result = cursor.fetchone()
         return result
 
-    def replyToMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(self, userid, groupchatid, messageid, text):
-        result = []
-        return result
-
-    def insertMessage(self, uid, gid, mmessage, mupload_date, msize, mlength, mgif, mpath, mhashtag):
-        result = []
-        mid = 1
-        return mid
-
     def getMessageFromGroupChatById(self, uid, gid, mid):
         cursor = self.conn.cursor()
         query = "select messages.mid,mmessage,mupload_date,msize,mlength,mtype,mmedia_path,messages.uid\
@@ -117,7 +108,6 @@ class GroupChatsDAO:
         cursor.execute(query, (gid, mid,))
         result = cursor.fetchone()
         return result
-
 
     def getReplyById(self, uid, gid, mid, rpid):
         cursor = self.conn.cursor()
@@ -214,10 +204,6 @@ class GroupChatsDAO:
         query = "select * from hashtags where hhashtag=%s;"
         cursor.execute(query, (hhashtag,))
         result = cursor.fetchone()
-        return result
-
-    def deleteReply(self, uid, gid, mid, rid):
-        result = []
         return result
 
     def replyToMessageInGroupChatByUserIdAndGroupChatIdAndMessageId(self, userid,groupchatid,messageid,
