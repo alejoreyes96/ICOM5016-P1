@@ -50,6 +50,7 @@ class UserDAO:
         cursor.execute(query,(username,password,date,))
         cursor.execute(query,(username,password,date,))
         result = cursor.fetchone()
+        self.conn.commit()
         return result
 
     def getAllUsers(self):

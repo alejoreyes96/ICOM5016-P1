@@ -111,9 +111,10 @@ class StatsDAO:
 
     def getMostActiveUsers(self):
         cursor = self.conn.cursor()
-        query='select user_name, uid from users where umost_recent_login=%s limit 3;'
+        query = 'select user_name, uid from users where umost_recent_login between %s and %s order by uid limit 5;'
         date = dt.datetime.now().date().strftime("%m/%d/%Y")
-        cursor.execute(query,(date,))
+        last_month = (dt.datetime.today() - td.Timedelta(days=7)).strftime("%m/%d/%Y")
+        cursor.execute(query, (last_month, date,))
         result = []
         for row in cursor:
             result.append(row)
