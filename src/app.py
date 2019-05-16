@@ -20,7 +20,7 @@ def greeting():
 def registerHuman():
     if request.method == 'POST':
         print("REQUEST: ", request.json)
-        return UserHandler().registerHuman(request.json)
+        return UserHandler().registerHumanAndCreateUser(request.json)
     else:
         return jsonify(Error="Method not allowed."), 405
 

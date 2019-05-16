@@ -72,8 +72,8 @@ class UserDAO:
 
     def getUserInformationByUserId(self, userid):
         cursor = self.conn.cursor()
-        query = "select human.huid, first_name,last_name,birthdate,huemail,phone_number,users.uid,user_name,\
-        ucreation_date, umost_recent_login, profile_picture from human inner join users on human.huid=users.human_id where users.uid=%s;"
+        query = "select human.huid, profile_picture , first_name,last_name,birthdate,huemail,phone_number,users.uid,user_name,\
+        ucreation_date, umost_recent_login, hupassword from human inner join users on human.huid=users.human_id where users.uid=%s;"
         cursor.execute(query, (userid,))
         result = cursor.fetchone()
         return result

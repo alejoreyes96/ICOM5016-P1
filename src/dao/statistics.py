@@ -20,7 +20,7 @@ class StatsDAO:
         cursor = self.conn.cursor()
         query = "select max(number_of_times),hhashtag from (select hhashtag,count(contains.hid) as number_of_times\
     	from hashtags natural inner join contains group by hhashtag)hashtags group by hhashtag order by max desc \
-    	limit 3;"
+    	limit 20;"
         cursor.execute(query, )
         result = []
         for row in cursor:
@@ -29,10 +29,9 @@ class StatsDAO:
 
     def getAllMessagesPerDay(self):
         cursor = self.conn.cursor()
-        date = dt.datetime.now().date().strftime("%m/%d/%Y")
         query = "with first_set as(select * from messages) select count(*),first_set.mupload_date \
-        from first_set group by first_set.mupload_date;"
-        cursor.execute(query,(date,))
+        from first_set group by first_set.mupload_date order by first_set.mupload_date desc;"
+        cursor.execute(query,())
         result = []
         for row in cursor:
             result.append(row)
@@ -42,8 +41,8 @@ class StatsDAO:
         cursor = self.conn.cursor()
         date = dt.datetime.now().date().strftime("%m/%d/%Y")
         query = "with first_set as(select * from replies) select count(*),first_set.rpupload_date \
-        from first_set group by first_set.rpupload_date;"
-        cursor.execute(query,(date,))
+        from first_set group by first_set.rpupload_date order by first_set.rpupload_date desc;"
+        cursor.execute(query,())
         result = []
         for row in cursor:
             result.append(row)
@@ -59,7 +58,7 @@ class StatsDAO:
     def getAllLikesPerDay(self):
         cursor = self.conn.cursor()
         query = "with first_set as(select * from reactions where rtype=true) select count(*),first_set.rupload_date \
-        from first_set group by first_set.rupload_date;"
+        from first_set group by first_set.rupload_date order by first_set.rupload_date desc;"
         cursor.execute(query,())
         result = []
         for row in cursor:
@@ -69,7 +68,7 @@ class StatsDAO:
     def getAllDislikesPerDay(self):
         cursor = self.conn.cursor()
         query = "with first_set as(select * from reactions where rtype=false) select count(*),first_set.rupload_date \
-        from first_set group by first_set.rupload_date;"
+        from first_set group by first_set.rupload_date order by first_set.rupload_date desc;"
         cursor.execute(query, ())
         result = []
         for row in cursor:
@@ -79,9 +78,11 @@ class StatsDAO:
     def getAllPostsByUserIdPerDay(self,uid):
         cursor = self.conn.cursor()
         query = "with first_set as(select * from messages where uid=%s) select count(*),first_set.mupload_date \
-        from first_set group by first_set.mupload_date;"
+        from first_set group by first_set.mupload_date order by first_set.mupload_date desc;"
         cursor.execute(query,(uid,))
-        result = cursor.fetchone()
+        result = []
+        for row in cursor:
+            result.append(row)
         return result
 
     def getRepliesforPictures(self,mmedia_path):

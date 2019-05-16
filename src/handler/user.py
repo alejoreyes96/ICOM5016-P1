@@ -69,6 +69,7 @@ class UserHandler:
         result['user_name'] = row[8]
         result['ucreation_date'] = row[9]
         result['umost_recent_login'] = row[10]
+        result['hupassword'] = row[11]
         return result
 
     def build_userinfo_attributes(self, huid,first_name,last_name,birthdate,huemail,phone_number,uid,
