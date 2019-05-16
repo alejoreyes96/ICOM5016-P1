@@ -382,7 +382,7 @@ class GroupChatsDAO:
 
     def updateReply(self,rpid,rpreply,rpsize,rplength,rptype,rppath):
         cursor = self.conn.cursor()
-        query = "update replies set rpreply= %s, rppicture=%s,rptype=%s, rpsize=%s,rplength=%s where rpid = %s;"
+        query = "update replies set rp_reply_text= %s, rppicture=%s,rptype=%s, rpsize=%s,rplength=%s where rpid = %s;"
         cursor.execute(query, (rpreply,rppath,rptype,rpsize,rplength,rpid,))
         self.conn.commit()
         return rpid
